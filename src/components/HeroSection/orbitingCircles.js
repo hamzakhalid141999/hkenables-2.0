@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, animate } from "framer-motion";
 import { useLenis } from "lenis/react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const SCROLL_RANGE = [0, 1200]; // px scroll over which effects go from base to max
 
@@ -118,7 +119,6 @@ function OrbitingCircles({
   const finalRotate1 = useTransform([entranceRotate1, scrollRotate1], ([e, s]) => e + s);
   const finalRotate2 = useTransform([entranceRotate2, scrollRotate2], ([e, s]) => e + s);
 
-  // Other scroll-driven values
   const radius1 = useTransform(scrollSpring, SCROLL_RANGE, [orbitRadius, orbitRadius + 550]);
   const radius2 = useTransform(scrollSpring, SCROLL_RANGE, [orbitRadius2, orbitRadius2 + 580]);
   const blur1 = useTransform(scrollSpring, SCROLL_RANGE, [0, 20]);
@@ -130,6 +130,7 @@ function OrbitingCircles({
   const height1 = useTransform(diameter1, (d) => `${d}px`);
   const width2 = useTransform(diameter2, (d) => `${d}px`);
   const height2 = useTransform(diameter2, (d) => `${d}px`);
+  const isMobile = useIsMobile();
   const filter1 = useTransform(blur1, (b) => (b > 0 ? `blur(${b}px)` : "none"));
   const filter2 = useTransform(blur2, (b) => `blur(${b}px)`);
 
@@ -158,7 +159,7 @@ function OrbitingCircles({
               radius={radius1}
               width={width1}
               height={height1}
-              filter={filter1}
+              filter={isMobile ? "none" : filter1}
             />
           ))}
         </motion.div>
@@ -187,7 +188,7 @@ function OrbitingCircles({
               radius={radius2}
               width={width2}
               height={height2}
-              filter={filter2}
+              filter={isMobile ? "none" : filter2}
             />
           ))}
         </motion.div>

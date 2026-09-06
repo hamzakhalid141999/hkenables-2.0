@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import HeroSection from "@/components/HeroSection/HeroSection";
 import DescriptionSection from "@/components/DescriptionSection/DescriptionSection";
 import MyOfferings from "@/components/MyOfferings/MyOfferings";
@@ -10,6 +10,7 @@ export default function Home() {
   const containerRef = useRef(null);
   const offeringsRef = useRef(null);
   const isCompactRef = useRef(false);
+  const [heroActive, setHeroActive] = useState(true);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -24,6 +25,11 @@ export default function Home() {
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    // Freeze heavy hero work once About/Offerings cover it
+    setHeroActive(value < 0.45);
   });
 
   const heroY = useTransform(
@@ -44,7 +50,7 @@ export default function Home() {
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           className="h-full"
         >
-          <HeroSection />
+          <HeroSection active={heroActive} />
         </motion.div>
       </div>
 

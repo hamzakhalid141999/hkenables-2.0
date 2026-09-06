@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
@@ -57,6 +58,7 @@ export default function OfferingCard({
 }) {
   const fromLeft = side === "left";
   const isNarrow = useIsNarrow();
+  const isMobile = useIsMobile();
 
   const cardOpacityRaw = useTransform(progress, (p) => {
     const t = Math.min(1, Math.max(0, p / 0.35));
@@ -160,7 +162,7 @@ export default function OfferingCard({
           y: combinedY,
           opacity: combinedOpacity,
           scale: exitScale,
-          filter: combinedFilter,
+          filter: isMobile ? "none" : combinedFilter,
         }}
         className="relative flex h-[70vh] w-[90%] max-w-5xl items-start justify-center will-change-transform min-[950px]:w-[70%]"
       >

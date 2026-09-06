@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useEffect } from "react";
 import OrbitingCircles from "./orbitingCircles";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 /**
  * Hero copy — edit text here.
@@ -24,7 +25,8 @@ const ORBIT_COUNT_2 = 12;
 const ORBIT_RADIUS_2 = 840;
 const CIRCLE_DIAMETER_2 = 240;
 
-export default function HeroSection() {
+export default function HeroSection({ active = true }) {
+  const isMobile = useIsMobile();
   const mouseX = useMotionValue(0);
 
   const smoothX = useSpring(mouseX, {
@@ -39,6 +41,7 @@ export default function HeroSection() {
   });
 
   useEffect(() => {
+    if (!active) return undefined;
     const handleMouseMove = (e) => {
       const centerX = window.innerWidth / 2;
       mouseX.set(e.clientX - centerX);
@@ -46,7 +49,7 @@ export default function HeroSection() {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX]);
+  }, [mouseX, active]);
 
   return (
     <section className="relative flex h-screen min-h-[600px] w-full items-center justify-center overflow-hidden bg-black px-4 sm:px-6 md:px-8">
@@ -71,7 +74,7 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Breathing layer */}
+      {/* Soft fill layer (static — no breathing pulse) */}
       <motion.div
         className="absolute left-1/2 top-1/2 h-[92vmin] w-[92vmin] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px] sm:h-[88vmin] sm:w-[88vmin] sm:blur-[140px] md:h-[85vmin] md:w-[85vmin] md:blur-[200px]"
         style={{
@@ -79,29 +82,24 @@ export default function HeroSection() {
             "radial-gradient(circle, #A5C244 0%, #42482D 46%, #272D14 60%, #0D0F06 78%, #000000 100%)",
         }}
         initial={{ opacity: 0, scale: 1 }}
-        animate={{
-          opacity: 0.9,
-          scale: [1, 1.2, 1],
-        }}
+        animate={{ opacity: 0.9, scale: 1 }}
         transition={{
-          opacity: { delay: 1.4, duration: 0.3 },
-          scale: {
-            delay: 1.5,
-            duration: 4.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
+          delay: 1.4,
+          duration: 0.4,
+          ease: "easeOut",
         }}
       />
 
-      <OrbitingCircles
-        orbitCount={ORBIT_COUNT}
-        orbitRadius={ORBIT_RADIUS}
-        circleDiameter={CIRCLE_DIAMETER}
-        orbitCount2={ORBIT_COUNT_2}
-        orbitRadius2={ORBIT_RADIUS_2}
-        circleDiameter2={CIRCLE_DIAMETER_2}
-      />
+      {active ? (
+        <OrbitingCircles
+          orbitCount={ORBIT_COUNT}
+          orbitRadius={ORBIT_RADIUS}
+          circleDiameter={CIRCLE_DIAMETER}
+          orbitCount2={ORBIT_COUNT_2}
+          orbitRadius2={ORBIT_RADIUS_2}
+          circleDiameter2={CIRCLE_DIAMETER_2}
+        />
+      ) : null}
 
       {/* Text overlay — font sizes: mobile → tablet (md) → desktop (lg) */}
       <motion.div
@@ -128,7 +126,7 @@ export default function HeroSection() {
         </motion.p>
 
         <motion.h1
-          className="font-climate-crisis text-[clamp(52px,14vw,120px)] leading-[0.92] drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] md:leading-tight"
+          className="font-climate-crisis text-[clamp(30px,10vw,120px)] leading-[0.92] drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] md:leading-tight"
           variants={{
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },
@@ -142,7 +140,8 @@ export default function HeroSection() {
         </motion.h1>
 
         <motion.h1
-          className="font-climate-crisis ml-[-15%] mt-[-25px] text-[clamp(52px,14vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          className="font-climate-crisis ml-[-15%] text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          style={{ marginTop: isMobile ? -0 : -30 }}
           variants={{
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },
@@ -156,7 +155,11 @@ export default function HeroSection() {
         </motion.h1>
 
         <motion.h1
-          className="font-climate-crisis ml-[9%] mt-[-25px] text-[clamp(52px,14vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          className="font-climate-crisis ml-[9%] whitespace-nowrap text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          style={{
+            marginTop: isMobile ? -2 : -25,
+            marginLeft: isMobile ? "10%" : "9%",
+          }}
           variants={{
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },

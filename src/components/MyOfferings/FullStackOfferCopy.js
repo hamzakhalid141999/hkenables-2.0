@@ -1,12 +1,14 @@
 "use client";
 
 import { motion, useTransform } from "framer-motion";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
 }
 
 function useLineMotion(progress, start, end) {
+  const isMobile = useIsMobile();
   const opacity = useTransform(progress, (p) => {
     if (p < start) return 0;
     if (p >= end) return 1;
@@ -24,8 +26,10 @@ function useLineMotion(progress, start, end) {
     const t = easeOutCubic((p - start) / (end - start));
     return 8 * (1 - t);
   });
-  const filter = useTransform(blur, (v) => `blur(${v}px)`);
-  return { opacity, y, filter };
+  const filter = useTransform(blur, (v) =>
+    v <= 0.05 ? "none" : `blur(${v}px)`
+  );
+  return { opacity, y, filter: isMobile ? "none" : filter };
 }
 
 /**
@@ -48,7 +52,7 @@ export default function FullStackOfferCopy({ progress }) {
 
         <motion.p
           style={line2}
-          className="mt-5 max-w-2xl font-gruppo text-[clamp(18px,2.8vw,28px)] leading-snug text-white/70"
+          className="mt-5 max-w-2xl font-gruppo text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
         >
           We don&apos;t just build it. We make it{" "}
           <span className="text-white">impossible to ignore</span>.
@@ -56,7 +60,7 @@ export default function FullStackOfferCopy({ progress }) {
 
         <motion.p
           style={line3}
-          className="mt-10 max-w-xl font-gruppo text-[clamp(14px,1.8vw,24px)] leading-relaxed text-white/45"
+          className="mt-10 max-w-xl font-gruppo text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
         >
           Shipped at{" "}
           <span className="text-[#9aab6e]">AI speed</span>

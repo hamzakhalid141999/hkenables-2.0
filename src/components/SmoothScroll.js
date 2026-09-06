@@ -19,7 +19,15 @@ function ScrollToTopOnRouteChange() {
 
 export default function SmoothScroll({ children }) {
   return (
-    <ReactLenis root options={{ lerp: 0.12 }}>
+    <ReactLenis
+      root
+      options={{
+        // Slightly snappier than 0.12 — less post-gesture settling on weak GPUs
+        lerp: 0.16,
+        // Touch devices often feel better closer to native scroll inertia
+        syncTouch: false,
+      }}
+    >
       <ScrollToTopOnRouteChange />
       {children}
     </ReactLenis>

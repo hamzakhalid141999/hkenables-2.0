@@ -17,11 +17,12 @@ import FullStackOfferCopy from "./FullStackOfferCopy";
 import WebsiteRevampBuildCard from "./WebsiteRevampBuildCard";
 import WebsiteRevampOfferCopy from "./WebsiteRevampOfferCopy";
 import MyProjects, { PROJECT_COUNT } from "@/components/MyProjects/MyProjects";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 /** Duration (s) of the programmatic snap scroll animation. */
-const SNAP_DURATION = 1.05;
+const SNAP_DURATION = 0.78;
 /** Extra duration per skipped project when jumping far. */
-const SNAP_JUMP_BONUS = 0.14;
+const SNAP_JUMP_BONUS = 0.1;
 /** Ignore trackpad noise smaller than this (px). */
 const WHEEL_DELTA_MIN = 6;
 /** Skip snapping if already within this fraction of the target center. */
@@ -33,6 +34,8 @@ function easeInOutCubic(t) {
 }
 
 const MAX_TOP_RADIUS = 1000;
+/** Entrance rounding on small screens — 1000px reads as a huge pill on narrow viewports. */
+const MOBILE_TOP_RADIUS = 140;
 /** Cap for the curtain peel’s top-right / bottom-right corner rounding (px). */
 const MAX_CURTAIN_RADIUS = 200;
 const OFFERINGS_SCROLL_VH = 12;
@@ -68,28 +71,6 @@ const REVAMP_START = 0.66;
 const REVAMP_CARD_END = 0.84;
 const REVAMP_EXIT_END = 0.9;
 
-function GrainLayers() {
-  return (
-    <>
-      <div className="pointer-events-none absolute inset-0 bg-[#141414]/80" />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-75 mix-blend-soft-light"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.45 0 0 0 0 0.45 0 0 0 0 0.45 0 0 0 0.95 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "140px 140px",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-60 mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "180px 180px",
-        }}
-      />
-    </>
-  );
-}
-
 function OfferingSlot({ title, progress, exitProgress, number, side, children }) {
   return (
     <OfferingCard
@@ -107,6 +88,7 @@ function OfferingSlot({ title, progress, exitProgress, number, side, children })
 export default function MyOfferings() {
   const sectionRef = useRef(null);
   const trackRef = useRef(null);
+  const isMobile = useIsMobile();
 
   const trackHeightVh = TOTAL_SCROLL_VH * 100;
 
@@ -221,7 +203,7 @@ export default function MyOfferings() {
 
       const distance = Math.abs(targetIndex - lockedProjectRef.current);
       const duration = Math.min(
-        1.55,
+        1.15,
         SNAP_DURATION + Math.max(0, distance - 1) * SNAP_JUMP_BONUS
       );
 
@@ -423,7 +405,11 @@ export default function MyOfferings() {
   const headingX = useTransform(entranceSpring, [0, 1], ["-48vw", "50vw"]);
   const headingOpacity = useTransform(entranceSpring, [0.75, 1], [1, 0]);
 
-  const topRadius = useTransform(entranceSpring, [0, 1], [MAX_TOP_RADIUS, 0]);
+  const topRadius = useTransform(
+    entranceSpring,
+    [0, 1],
+    [isMobile ? MOBILE_TOP_RADIUS : MAX_TOP_RADIUS, 0]
+  );
 
   const offeringsProgress = useTransform(
     pinProgress,
@@ -450,16 +436,14 @@ export default function MyOfferings() {
     { clamp: true }
   );
 
-  const pinSpring = useSpring(offeringsProgress, {
-    stiffness: 140,
-    damping: 30,
-    mass: 0.4,
-  });
+  // Drive card/copy progress from raw scroll (Lenis already smooths).
+  // Extra Framer springs on this path stacked lag on weaker devices.
+  const pinDrive = offeringsProgress;
 
   const curtainSpring = useSpring(curtainProgress, {
-    stiffness: 85,
-    damping: 30,
-    mass: 0.5,
+    stiffness: 100,
+    damping: 32,
+    mass: 0.45,
   });
 
   const curtainX = useTransform(curtainSpring, [0, 1], ["0%", "-105%"]);
@@ -474,68 +458,68 @@ export default function MyOfferings() {
     ([top, right]) => `${top}px ${Math.max(top, right)}px ${right}px 0`
   );
 
-  const saasCardProgress = useTransform(pinSpring, [0, SAAS_CARD_END], [0, 1], {
+  const saasCardProgress = useTransform(pinDrive, [0, SAAS_CARD_END], [0, 1], {
     clamp: true,
   });
   const saasExitProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [SAAS_CARD_END, SAAS_EXIT_END],
     [0, 1],
     { clamp: true }
   );
   const copyProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [SAAS_EXIT_END, SAAS_COPY_END],
     [0, 1],
     { clamp: true }
   );
   const copyExitOpacity = useTransform(
-    pinSpring,
+    pinDrive,
     [SAAS_COPY_END, SAAS_COPY_EXIT_END],
     [1, 0]
   );
   const copyExitY = useTransform(
-    pinSpring,
+    pinDrive,
     [SAAS_COPY_END, SAAS_COPY_EXIT_END],
     [0, -24]
   );
   const copyExitBlur = useTransform(
-    pinSpring,
+    pinDrive,
     [SAAS_COPY_END, SAAS_COPY_EXIT_END],
     [0, 10]
   );
   const copyExitFilter = useTransform(copyExitBlur, (value) => `blur(${value}px)`);
 
   const fullStackProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [FULL_STACK_START, FULL_STACK_CARD_END],
     [0, 1],
     { clamp: true }
   );
   const fullStackExitProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [FULL_STACK_CARD_END, FULL_STACK_EXIT_END],
     [0, 1],
     { clamp: true }
   );
   const fullStackCopyProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [FULL_STACK_EXIT_END, FULL_STACK_COPY_END],
     [0, 1],
     { clamp: true }
   );
   const fullStackCopyExitOpacity = useTransform(
-    pinSpring,
+    pinDrive,
     [FULL_STACK_COPY_END, FULL_STACK_COPY_EXIT_END],
     [1, 0]
   );
   const fullStackCopyExitY = useTransform(
-    pinSpring,
+    pinDrive,
     [FULL_STACK_COPY_END, FULL_STACK_COPY_EXIT_END],
     [0, -24]
   );
   const fullStackCopyExitBlur = useTransform(
-    pinSpring,
+    pinDrive,
     [FULL_STACK_COPY_END, FULL_STACK_COPY_EXIT_END],
     [0, 10]
   );
@@ -545,19 +529,19 @@ export default function MyOfferings() {
   );
 
   const revampProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [REVAMP_START, REVAMP_CARD_END],
     [0, 1],
     { clamp: true }
   );
   const revampExitProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [REVAMP_CARD_END, REVAMP_EXIT_END],
     [0, 1],
     { clamp: true }
   );
   const revampCopyProgress = useTransform(
-    pinSpring,
+    pinDrive,
     [REVAMP_EXIT_END, 1],
     [0, 1],
     { clamp: true }
@@ -582,15 +566,13 @@ export default function MyOfferings() {
           />
 
           <motion.div
-            className="relative z-10 h-full w-full overflow-hidden bg-black will-change-transform"
+            className="relative z-10 h-full w-full overflow-hidden bg-[#141414] will-change-transform"
             style={{ x: curtainX, borderRadius }}
           >
-            <GrainLayers />
-
             <div className="relative z-10 overflow-hidden px-5 pt-14 sm:px-8 md:px-12 lg:px-16 md:pt-16">
               <motion.h2
                 style={{ x: headingX, opacity: headingOpacity }}
-                className="whitespace-nowrap font-climate-crisis text-[clamp(48px,10vw,120px)] uppercase leading-none tracking-tight text-white/90"
+                className="whitespace-nowrap font-climate-crisis text-[clamp(28px,8vw,120px)] uppercase leading-none tracking-tight text-white/90"
               >
                 MY OFFERINGS
               </motion.h2>
@@ -612,7 +594,7 @@ export default function MyOfferings() {
               style={{
                 opacity: copyExitOpacity,
                 y: copyExitY,
-                filter: copyExitFilter,
+                filter: isMobile ? "none" : copyExitFilter,
               }}
               className="absolute inset-0 z-30"
             >
@@ -621,7 +603,7 @@ export default function MyOfferings() {
 
             <div className="absolute inset-0 z-40">
               <OfferingSlot
-                title="Full-Stack Development"
+                title="Full-Stack Dev"
                 number={2}
                 side="right"
                 progress={fullStackProgress}
@@ -635,7 +617,7 @@ export default function MyOfferings() {
               style={{
                 opacity: fullStackCopyExitOpacity,
                 y: fullStackCopyExitY,
-                filter: fullStackCopyExitFilter,
+                filter: isMobile ? "none" : fullStackCopyExitFilter,
               }}
               className="absolute inset-0 z-50"
             >

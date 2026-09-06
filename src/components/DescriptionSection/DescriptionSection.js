@@ -2,6 +2,7 @@
 
 import React, { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 const PIN_SCROLL_VH = 1;
 export const ABOUT_OVERLAP_VH = 1;
@@ -46,6 +47,7 @@ function Char({ children, charIndex, totalChars, progressSpring, isStroke = fals
 export default function DescriptionSection() {
   const sectionRef = useRef(null);
   const scrollTrackRef = useRef(null);
+  const isMobile = useIsMobile();
 
   const { scrollYProgress: sectionScrollProgress } = useScroll({
     target: sectionRef,
@@ -120,11 +122,11 @@ export default function DescriptionSection() {
               style={{
                 y: contentY,
                 opacity: focusOpacity,
-                filter: focusFilter,
+                filter: isMobile ? "none" : focusFilter,
               }}
             >
               <motion.div className="w-[90%]" style={{ opacity: textExitOpacity }}>
-                <h1 className="w-full mb-12 text-[clamp(64px,11vw,100px)] font-climate-crisis text-transparent leading-none">
+                <h1 className="w-full mb-12 text-[clamp(42px,11vw,100px)] font-climate-crisis text-transparent leading-none">
                   {titleChars.map((char, i) => (
                     <Char
                       key={i}
@@ -138,7 +140,7 @@ export default function DescriptionSection() {
                   ))}
                 </h1>
 
-                <p className="w-full text-[clamp(34px,6.8vw,60px)] font-archivo-black leading-none tracking-tight">
+                <p className="w-full text-[clamp(14px,6.8vw,60px)] font-archivo-black leading-none tracking-tight">
                   {bodyWords.map((word, wi) => {
                     const startCharIndex = bodyWords
                       .slice(0, wi)

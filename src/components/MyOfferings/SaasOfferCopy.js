@@ -9,12 +9,14 @@ import {
   useTransform,
 } from "framer-motion";
 import MagneticLink from "./MagneticLink";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
 }
 
 function useLineMotion(progress, start, end) {
+  const isMobile = useIsMobile();
   const opacity = useTransform(progress, (p) => {
     if (p < start) return 0;
     if (p >= end) return 1;
@@ -32,8 +34,10 @@ function useLineMotion(progress, start, end) {
     const t = easeOutCubic((p - start) / (end - start));
     return 8 * (1 - t);
   });
-  const filter = useTransform(blur, (v) => `blur(${v}px)`);
-  return { opacity, y, filter };
+  const filter = useTransform(blur, (v) =>
+    v <= 0.05 ? "none" : `blur(${v}px)`
+  );
+  return { opacity, y, filter: isMobile ? "none" : filter };
 }
 
 const GLOW_EASE = [0.22, 1, 0.36, 1];
@@ -64,7 +68,7 @@ function useWordGlow(glow) {
 function GlowWord({ children, glow }) {
   const style = useWordGlow(glow);
   return (
-    <motion.span style={style} className="inline-block will-change-[text-shadow,color]">
+    <motion.span style={style} className="inline-block">
       {children}
     </motion.span>
   );

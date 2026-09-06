@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   AnimatePresence,
   motion,
@@ -9,6 +10,11 @@ import {
   useTransform,
 } from "framer-motion";
 import Image from "next/image";
+import {
+  PROJECT_IMAGE_QUALITY,
+  prefetchOptimizedImage,
+} from "@/lib/optimizedImage";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 /** Brand-coded tech tags shown under each project window. */
 const TECH_STYLES = {
@@ -44,6 +50,10 @@ function techStyle(name) {
   return TECH_STYLES[name] ?? { bg: "#2a2a2a", text: "#FFFFFF" };
 }
 
+/** Soft grid line color when a project omits `meshColor`. */
+const DEFAULT_MESH_COLOR = "#FFFFFF";
+const MESH_LINE_OPACITY = 0.08;
+
 const PROJECTS = [
   {
     number: "01",
@@ -56,6 +66,7 @@ const PROJECTS = [
     secondaryColor: "#17FFC6",
     foreground: "#111111",
     textColor: "#FFFFFF",
+    // meshColor: "#FFFFFF", // optional — grid line tint; defaults to white
     tech: [],
     video: "/projects-screenshots/hns-audit.mp4",
   },
@@ -83,6 +94,7 @@ const PROJECTS = [
       "MCP",
     ],
     video: "/projects-screenshots/batch-edits.mp4",
+    meshColor: "#A0581D", // optional — grid line tint; defaults to white
   },
   {
     number: "03",
@@ -121,6 +133,7 @@ const PROJECTS = [
     secondaryColor: "#17FFC6",
     foreground: "#111111",
     textColor: "#000000",
+    meshColor: "#1DA088",
     tech: ["JavaScript", "Next.js", "AWS", "MetaMask", "The Graph"],
     screenshots: Array.from(
       { length: 9 },
@@ -137,6 +150,7 @@ const PROJECTS = [
     secondaryColor: "#18B5CD",
     foreground: "#10252a",
     textColor: "#000000",
+    meshColor: "rgb(29 119 102)",
     tech: ["TypeScript", "Next.js", "AWS"],
     screenshots: Array.from(
       { length: 12 },
@@ -185,6 +199,7 @@ const PROJECTS = [
       "A modern property portal bringing buyers and sellers closer through international-standard listings and map-based boundary search.",
     primaryColor: "#73EAFC",
     secondaryColor: "#18B5CD",
+    meshColor: "#108EA1",
     foreground: "#10252a",
     textColor: "#183840",
     tech: ["TypeScript", "Next.js", "AWS", "MetaMask"],
@@ -300,23 +315,253 @@ function TechTag({ name, index, count, progress, start, mid, end }) {
   );
 }
 
-function TechTags({ items, progress, start, mid, end }) {
+function TechTagStatic({ name }) {
+  const { bg, text } = techStyle(name);
+  return (
+    <span
+      style={{ backgroundColor: bg, color: text }}
+      className="inline-flex items-center rounded-md px-2.5 py-1 font-gruppo text-[11px] font-bold uppercase tracking-[0.08em] shadow-sm"
+    >
+      {name}
+    </span>
+  );
+}
+
+const TECH_MOBILE_VISIBLE = 5;
+
+function TechTags({
+  items,
+  progress,
+  start,
+  mid,
+  end,
+  clampOnMobile = false,
+  onSeeMore,
+}) {
+  const truncated = clampOnMobile && items.length > TECH_MOBILE_VISIBLE;
+  const visible = truncated ? items.slice(0, TECH_MOBILE_VISIBLE) : items;
+
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2">
-      {items.map((name, index) => (
+      {visible.map((name, index) => (
         <TechTag
           key={name}
           name={name}
           index={index}
-          count={items.length}
+          count={visible.length}
           progress={progress}
           start={start}
           mid={mid}
           end={end}
         />
       ))}
+      {truncated ? (
+        <button
+          type="button"
+          onClick={onSeeMore}
+          className="pointer-events-auto inline-flex items-center rounded-md border border-current/25 px-2.5 py-1 font-gruppo text-[11px] font-bold uppercase tracking-[0.08em] opacity-70"
+        >
+          see more
+        </button>
+      ) : null}
     </div>
   );
+}
+
+/**
+ * Shared mobile bottom sheet — full tech stack + description.
+ */
+function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          key="project-details-sheet"
+          className="fixed inset-0 z-[200] flex flex-col justify-end md:hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <button
+            type="button"
+            aria-label="Close details"
+            className="absolute inset-0 bg-black/50"
+            onClick={onClose}
+          />
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${title} details`}
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 380, damping: 36 }}
+            className="relative z-10 max-h-[78vh] overflow-y-auto rounded-t-3xl bg-[#141414] px-6 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-4 text-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
+          >
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/25" />
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <h4 className="font-archivo-black text-[22px] leading-tight tracking-tight text-white">
+                {title}
+              </h4>
+              <button
+                type="button"
+                onClick={onClose}
+                className="shrink-0 rounded-full border border-white/15 px-3 py-1 font-gruppo text-[11px] uppercase tracking-[0.14em] text-white/70"
+              >
+                Close
+              </button>
+            </div>
+
+            {tech.length > 0 ? (
+              <div className="mb-6">
+                <p className="mb-2.5 font-gruppo text-[10px] uppercase tracking-[0.2em] text-white/40">
+                  Tech stack
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {tech.map((name) => (
+                    <TechTagStatic key={name} name={name} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div>
+              <p className="mb-2.5 font-gruppo text-[10px] uppercase tracking-[0.2em] text-white/40">
+                Description
+              </p>
+              <p className="whitespace-pre-line font-gruppo text-[17px] font-bold leading-snug text-white/80">
+                {description}
+              </p>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>,
+    document.body
+  );
+}
+
+/**
+ * Mobile: clamp overflowing copy + "see more" → shared details sheet.
+ * Desktop: always show the full description inline.
+ */
+function ProjectDescription({
+  text,
+  y,
+  clampOnMobile = false,
+  onSeeMore,
+}) {
+  const [needsMore, setNeedsMore] = useState(false);
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    if (!clampOnMobile) {
+      setNeedsMore(false);
+      return undefined;
+    }
+
+    const el = textRef.current;
+    if (!el) return undefined;
+
+    const measure = () => {
+      setNeedsMore(el.scrollHeight > el.clientHeight + 1);
+    };
+
+    measure();
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(measure)
+        : null;
+    ro?.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [text, clampOnMobile]);
+
+  if (!clampOnMobile) {
+    return (
+      <motion.p
+        style={{ y }}
+        className="mt-5 max-w-md whitespace-pre-line font-gruppo text-[clamp(18px,1.4vw,20px)] font-bold leading-snug opacity-80"
+      >
+        {text}
+      </motion.p>
+    );
+  }
+
+  return (
+    <div className="mt-5 max-w-md">
+      <p
+        ref={textRef}
+        className="line-clamp-3 whitespace-pre-line font-gruppo text-[18px] font-bold leading-snug opacity-80"
+      >
+        {text}
+      </p>
+      {needsMore ? (
+        <button
+          type="button"
+          onClick={onSeeMore}
+          className="mt-1.5 pointer-events-auto font-gruppo text-[13px] font-bold uppercase tracking-[0.12em] underline underline-offset-2 opacity-70"
+        >
+          see more
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+/** First screenshot per project — enough for early gallery paint. */
+const PROJECT_COVER_SHOTS = PROJECTS.map(
+  (project) => project.screenshots?.[0]
+).filter(Boolean);
+
+/**
+ * Warm cover screenshots via Next's optimizer (not raw PNGs).
+ * Full hover sets warm when each Mac window mounts.
+ */
+function useProjectMediaWarmup(enabled) {
+  const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (!enabled || startedRef.current) return undefined;
+    startedRef.current = true;
+
+    const run = () => {
+      PROJECT_COVER_SHOTS.forEach((src) => prefetchOptimizedImage(src));
+    };
+
+    const idleId =
+      typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(run, { timeout: 1800 })
+        : null;
+    const timeoutId = idleId == null ? window.setTimeout(run, 900) : null;
+
+    return () => {
+      if (idleId != null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, [enabled]);
 }
 
 function MacProjectWindow({
@@ -325,22 +570,58 @@ function MacProjectWindow({
   title,
   foreground,
   isActive = false,
+  warmMedia = false,
 }) {
+  const isMobile = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const videoRef = useRef(null);
   const hasVideo = Boolean(video);
   const shouldPlay = hasVideo && isActive;
+  const shouldPreloadVideo = hasVideo && (shouldPlay || warmMedia);
+  const canCycleScreens =
+    !hasVideo && screenshots.length > 1;
+  // Mobile: autoplay while project is active. Desktop: still hover-driven.
+  const shouldCycleScreens = canCycleScreens && (isMobile ? isActive : isHovered);
 
   useEffect(() => {
-    if (!isHovered || screenshots.length < 2 || hasVideo) return undefined;
+    if (!shouldCycleScreens) return undefined;
 
     const interval = window.setInterval(() => {
       setActiveImage((current) => (current + 1) % screenshots.length);
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [isHovered, screenshots.length, hasVideo]);
+  }, [shouldCycleScreens, screenshots.length]);
+
+  // Restart slideshow from the first frame whenever this project leaves / re-enters
+  useEffect(() => {
+    if (isMobile) {
+      if (!isActive) setActiveImage(0);
+      return undefined;
+    }
+    if (!isHovered) setActiveImage(0);
+    return undefined;
+  }, [isMobile, isActive, isHovered]);
+
+  // Prefetch hover frames through the optimizer so we never pull raw PNGs
+  useEffect(() => {
+    if (hasVideo || screenshots.length === 0) return undefined;
+    screenshots.forEach((src) => prefetchOptimizedImage(src));
+    return undefined;
+  }, [screenshots, hasVideo]);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || !hasVideo || !shouldPreloadVideo) return undefined;
+    el.preload = "auto";
+    try {
+      el.load();
+    } catch {
+      // ignore
+    }
+    return undefined;
+  }, [shouldPreloadVideo, hasVideo, video]);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -362,15 +643,29 @@ function MacProjectWindow({
     return undefined;
   }, [shouldPlay, hasVideo]);
 
+  const statusLabel = hasVideo
+    ? shouldPlay
+      ? "Playing"
+      : "Video"
+    : shouldCycleScreens || (isMobile && isActive)
+      ? `${activeImage + 1} / ${screenshots.length}`
+      : isMobile
+        ? `${screenshots.length} shots`
+        : "Hover to explore";
+
   return (
     <motion.div
       className="pointer-events-auto w-full overflow-hidden rounded-[20px] border border-black/15 bg-[#ececec] shadow-[0_35px_90px_rgba(0,0,0,0.34)]"
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => {
-        setIsHovered(false);
-        setActiveImage(0);
+      onHoverStart={() => {
+        if (!isMobile) setIsHovered(true);
       }}
-      whileHover={{ y: -10, scale: 1.012 }}
+      onHoverEnd={() => {
+        if (!isMobile) {
+          setIsHovered(false);
+          setActiveImage(0);
+        }
+      }}
+      whileHover={isMobile ? undefined : { y: -10, scale: 1.012 }}
       transition={{ type: "spring", stiffness: 180, damping: 22 }}
     >
       <div className="flex h-11 items-center border-b border-black/10 bg-[#e7e7e7] px-4">
@@ -384,7 +679,7 @@ function MacProjectWindow({
         </div>
       </div>
 
-      <div className="relative aspect-16/10 overflow-hidden bg-black">
+      <div className="relative aspect-16/10 overflow-hidden bg-[#111]">
         {hasVideo ? (
           <video
             ref={videoRef}
@@ -393,29 +688,33 @@ function MacProjectWindow({
             muted
             loop
             playsInline
-            preload={shouldPlay ? "auto" : "none"}
+            preload={shouldPreloadVideo ? "auto" : "metadata"}
             aria-label={`${title} preview`}
           />
         ) : (
-          <AnimatePresence initial={false}>
+          screenshots.map((src, index) => (
             <motion.div
-              key={screenshots[activeImage]}
+              key={src}
               className="absolute inset-0"
-              initial={{ opacity: 0, scale: 1.012 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.42, ease: "easeInOut" }}
+              initial={false}
+              animate={{
+                opacity: index === activeImage ? 1 : 0,
+                scale: index === activeImage ? 1 : 1.012,
+              }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
             >
               <Image
-                src={screenshots[activeImage]}
-                alt={`${title} screenshot ${activeImage + 1}`}
+                src={src}
+                alt={`${title} screenshot ${index + 1}`}
                 fill
-                sizes="52vw"
+                sizes="(max-width: 768px) 90vw, 50vw"
+                quality={PROJECT_IMAGE_QUALITY}
                 className="object-contain object-center"
-                priority={activeImage === 0}
+                priority={isActive && index === 0}
+                loading={index === 0 ? "eager" : "lazy"}
               />
             </motion.div>
-          </AnimatePresence>
+          ))
         )}
 
         <div
@@ -426,25 +725,20 @@ function MacProjectWindow({
             backgroundColor: `${foreground}12`,
           }}
         >
-          {hasVideo
-            ? shouldPlay
-              ? "Playing"
-              : "Video"
-            : isHovered
-              ? `${activeImage + 1} / ${screenshots.length}`
-              : "Hover to explore"}
+          {statusLabel}
         </div>
       </div>
     </motion.div>
   );
 }
 
-function ProjectBeat({ project, progress, index, isActive }) {
+function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) {
   const count = PROJECTS.length;
   const start = index / count;
   const end = (index + 1) / count;
   const mid = (start + end) / 2;
   const isLast = index === count - 1;
+  const isMobile = useIsMobile();
 
   const screenY = useTransform(
     progress,
@@ -493,6 +787,13 @@ function ProjectBeat({ project, progress, index, isActive }) {
     ["18vh", "0vh", "-14vh"]
   );
   const numberScale = useTransform(progress, [start, mid, end], [0.9, 1, 0.94]);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const openDetails = useCallback(() => setDetailsOpen(true), []);
+  const closeDetails = useCallback(() => setDetailsOpen(false), []);
+
+  useEffect(() => {
+    setDetailsOpen(false);
+  }, [project.title]);
 
   return (
     <motion.article
@@ -502,70 +803,94 @@ function ProjectBeat({ project, progress, index, isActive }) {
     >
       <motion.span
         style={{ y: numberY, scale: numberScale }}
-        className="absolute left-[calc(2.5vw+36px)] top-[3vh] z-30 font-archivo-black text-[clamp(96px,18vw,320px)] leading-none tracking-tight text-current/25"
+        className="absolute left-[calc(2.5vw+36px)] top-[3vh] z-30 hidden font-archivo-black text-[clamp(96px,18vw,320px)] leading-none tracking-tight text-current/25 md:block"
       >
         {project.number}
       </motion.span>
 
-      {/* Screen under copy so long titles always sit on top of the window. */}
+      {/*
+        Mobile: one column — image + tech, then copy directly underneath.
+        Desktop: md:contents unwraps so screen/copy can sit in their absolute slots.
+      */}
       <motion.div
-        style={{ y: screenY, scale: screenScale }}
-        className="absolute right-[5%] top-[17vh] z-20 w-[90%] md:right-[3vw] md:top-[16vh] md:w-[50%]"
-      >
-        <MacProjectWindow
-          screenshots={project.screenshots}
-          video={project.video}
-          title={project.title}
-          foreground={project.foreground}
-          isActive={isActive}
-        />
-        <TechTags
-          items={project.tech ?? []}
-          progress={progress}
-          start={start}
-          mid={mid}
-          end={end}
-        />
-      </motion.div>
-
-      <motion.div
-        style={{ y: copyY }}
-        className="absolute bottom-[15vh] left-[6%] z-40 w-[90%] md:bottom-[10vh] md:left-[calc(5vw+36px)] md:w-[min(42vw,520px)]"
+        style={isMobile ? { y: screenY, scale: screenScale } : undefined}
+        className="absolute inset-x-0 top-[7vh] bottom-0 z-20 flex w-full flex-col overflow-y-auto overscroll-contain px-[5%] pointer-events-auto md:pointer-events-none md:contents"
       >
         <motion.div
-          style={{ y: metaYDelta }}
-          className="mb-4 flex items-center gap-4 font-gruppo uppercase tracking-[0.22em] opacity-60"
+          style={isMobile ? undefined : { y: screenY, scale: screenScale }}
+          className="w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%]"
         >
-          <span className="h-px w-10 bg-current opacity-40 font-bold" />
-          <span className="font-bold">{project.type}</span>
+          <MacProjectWindow
+            screenshots={project.screenshots}
+            video={project.video}
+            title={project.title}
+            foreground={project.foreground}
+            isActive={isActive}
+            warmMedia={warmMedia}
+          />
+          <TechTags
+            items={project.tech ?? []}
+            progress={progress}
+            start={start}
+            mid={mid}
+            end={end}
+            clampOnMobile={isMobile}
+            onSeeMore={openDetails}
+          />
         </motion.div>
 
-        <motion.h3
-          style={{ y: titleYDelta, color: project.secondaryColor }}
-          className="relative z-40 font-archivo-black text-[clamp(44px,7.5vw,110px)] leading-[0.88] tracking-tight"
+        <motion.div
+          style={isMobile ? undefined : { y: copyY }}
+          className="z-40 mt-6 w-full pb-28 md:absolute md:bottom-[10vh] md:left-[calc(5vw+36px)] md:mt-0 md:w-[min(42vw,520px)] md:pb-0"
         >
-          {project.title}
-        </motion.h3>
+          <motion.div
+            style={{ y: isMobile ? 0 : metaYDelta }}
+            className="mb-4 flex items-center gap-4 font-gruppo uppercase tracking-[0.22em] opacity-60"
+          >
+            <span className="h-px w-10 bg-current opacity-40 font-bold" />
+            <span className="font-bold">{project.type}</span>
+          </motion.div>
 
-        <motion.p
-          style={{ y: descriptionYDelta }}
-          className="mt-5 max-w-md whitespace-pre-line font-gruppo text-[clamp(15px,1.4vw,20px)] font-bold leading-snug opacity-80"
-        >
-          {project.description}
-        </motion.p>
+          <motion.h3
+            style={{
+              y: isMobile ? 0 : titleYDelta,
+              color: project.secondaryColor,
+            }}
+            className="relative z-40 font-archivo-black text-[clamp(36px,7.5vw,110px)] leading-[0.88] tracking-tight"
+          >
+            {project.title}
+          </motion.h3>
 
-        <div className="mt-6">
-          {project.liveLink ? (
-            <span className="font-gruppo text-[11px] uppercase tracking-[0.18em] opacity-55">
-              Live project ↗
-            </span>
-          ) : (
-            <span className="font-gruppo text-[11px] uppercase tracking-[0.18em] opacity-45">
-              Selected work
-            </span>
-          )}
-        </div>
+          <ProjectDescription
+            text={project.description}
+            y={isMobile ? 0 : descriptionYDelta}
+            clampOnMobile={isMobile}
+            onSeeMore={openDetails}
+          />
+
+          <div className="mt-6">
+            {project.liveLink ? (
+              <span className="font-gruppo text-[11px] uppercase tracking-[0.18em] opacity-55">
+                Live project ↗
+              </span>
+            ) : (
+              <span className="font-gruppo text-[11px] uppercase tracking-[0.18em] opacity-45">
+                Selected work
+              </span>
+            )}
+          </div>
+        </motion.div>
       </motion.div>
+
+      {isMobile ? (
+        <ProjectDetailsSheet
+          open={detailsOpen}
+          onClose={closeDetails}
+          title={project.title}
+          description={project.description}
+          tech={project.tech ?? []}
+        />
+      ) : null}
     </motion.article>
   );
 }
@@ -744,6 +1069,23 @@ export default function MyProjects({
   const [themeIndex, setThemeIndex] = useState(activeProjectIndex);
   /** Only treat a project as on-screen once the gallery phase has actually started. */
   const [galleryVisible, setGalleryVisible] = useState(false);
+  /** Start warming media once the projects curtain begins (or shortly after mount). */
+  const [warmMedia, setWarmMedia] = useState(false);
+  /** Live scroll-derived index — keeps look-ahead mounts in sync during fast snaps. */
+  const [progressIndex, setProgressIndex] = useState(0);
+  const isMobile = useIsMobile();
+
+  useProjectMediaWarmup(warmMedia);
+
+  useEffect(() => {
+    // Kick off early so hero/about/offerings scroll time is used for downloads
+    const kickoff = window.setTimeout(() => setWarmMedia(true), 1200);
+    return () => window.clearTimeout(kickoff);
+  }, []);
+
+  useMotionValueEvent(curtainProgress, "change", (value) => {
+    if (value > 0.01) setWarmMedia(true);
+  });
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -754,9 +1096,20 @@ export default function MyProjects({
 
   useMotionValueEvent(projectsProgress, "change", (value) => {
     setGalleryVisible(value > 0.04);
+    const idx = Math.min(
+      PROJECT_COUNT - 1,
+      Math.max(0, Math.floor(value * PROJECT_COUNT))
+    );
+    setProgressIndex((prev) => (prev === idx ? prev : idx));
   });
   useEffect(() => {
     setGalleryVisible(projectsProgress.get() > 0.04);
+    const value = projectsProgress.get();
+    const idx = Math.min(
+      PROJECT_COUNT - 1,
+      Math.max(0, Math.floor(value * PROJECT_COUNT))
+    );
+    setProgressIndex(idx);
   }, [projectsProgress]);
 
   // —— Phase 1: left → center during curtain peel ——
@@ -824,6 +1177,13 @@ export default function MyProjects({
   const activeProject =
     PROJECTS[Math.min(PROJECTS.length - 1, Math.max(0, themeIndex))];
   const projectBgColor = useSprungColor(activeProject.primaryColor);
+  const meshLineColor = useSprungColor(
+    activeProject.meshColor ?? DEFAULT_MESH_COLOR
+  );
+  const meshBackgroundImage = useTransform(meshLineColor, (rgb) => {
+    const rgba = rgb.replace("rgb(", "rgba(").replace(")", `, ${MESH_LINE_OPACITY})`);
+    return `linear-gradient(to right, ${rgba} 1px, transparent 1px), linear-gradient(to bottom, ${rgba} 1px, transparent 1px)`;
+  });
   const ribbonDark = useSprungColor(darkerShade(activeProject.secondaryColor));
   const ribbonLight = useSprungColor(lighterShade(activeProject.secondaryColor));
   const ribbonGradient = useTransform(
@@ -866,14 +1226,13 @@ export default function MyProjects({
         style={{ backgroundColor: projectBgColor, opacity: projectBgOpacity }}
       />
 
-      {/* Soft light-grey grid — reads as a lighter wash of the project bg */}
+      {/* Soft mesh grid — line color from project.meshColor (defaults to white) */}
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-2"
         style={{
           opacity: galleryOpacity,
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)",
+          backgroundImage: meshBackgroundImage,
           backgroundSize: "48px 48px",
         }}
       />
@@ -888,7 +1247,7 @@ export default function MyProjects({
         className="absolute z-10 top-[-22%] left-[-42%] h-[260px] w-[720px] rotate-[-35deg] sm:top-[-14%] sm:left-[-32%] sm:h-[300px] sm:w-[820px] md:top-[-10%] md:left-[-27%] md:h-85 md:w-355"
       />
 
-      {/* Soft white radial glow — bottom-right of the project gallery */}
+      {/* Soft white radial glow — bottom-right of the project gallery (desktop only) */}
       <motion.div
         aria-hidden
         style={{
@@ -896,7 +1255,7 @@ export default function MyProjects({
           background:
             "radial-gradient(circle, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.12) 42%, rgba(255,255,255,0) 72%)",
         }}
-        className="pointer-events-none absolute -bottom-[22%] -right-[16%] z-10 size-[70vw] max-h-180 max-w-180 min-h-80 min-w-80 rounded-full"
+        className="pointer-events-none absolute -bottom-[22%] -right-[16%] z-10 hidden size-[70vw] max-h-180 max-w-180 min-h-80 min-w-80 rounded-full md:block"
       />
 
       {/* Intro chrome: slides in from left, then title + subtitle as a vertical stack. */}
@@ -906,7 +1265,7 @@ export default function MyProjects({
           y: exitY,
           opacity: introChromeOpacity,
           scale: exitScale,
-          filter: exitFilter,
+          filter: isMobile ? "none" : exitFilter,
           visibility: introChromeVisibility,
         }}
         className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center px-6 will-change-[transform,filter,opacity]"
@@ -914,7 +1273,7 @@ export default function MyProjects({
         <div className="relative flex flex-col items-center">
           <motion.h2
             style={{ y: titleScootY }}
-            className="whitespace-nowrap text-center font-climate-crisis text-[42px] uppercase leading-none tracking-tight text-black sm:text-[clamp(36px,calc(10vw-20px),100px)]"
+            className="whitespace-nowrap text-center font-climate-crisis text-[32px] uppercase leading-none tracking-tight text-black sm:text-[clamp(32px,calc(10vw-20px),100px)]"
           >
             MY PROJECTS
           </motion.h2>
@@ -923,7 +1282,7 @@ export default function MyProjects({
             style={{
               opacity: subOpacity,
               y: subY,
-              filter: subFilter,
+              filter: isMobile ? "none" : subFilter,
               x: "-50%",
             }}
             className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gruppo text-[21px] font-bold leading-snug tracking-wide text-black/55 sm:text-[clamp(16px,1.5vw,34px)]"
@@ -937,15 +1296,33 @@ export default function MyProjects({
         className="absolute inset-0 z-20"
         style={{ opacity: galleryOpacity }}
       >
-        {PROJECTS.map((project, index) => (
-          <ProjectBeat
-            key={project.title}
-            project={project}
-            progress={projectsProgress}
-            index={index}
-            isActive={galleryVisible && activeProjectIndex === index}
-          />
-        ))}
+        {PROJECTS.map((project, index) => {
+          // Span active ↔ live progress so fast snaps never unmount the in-between beat.
+          // +2 look-ahead pre-mounts the next window (and its screenshots) before opacity rises.
+          const spanLo = Math.min(progressIndex, activeProjectIndex);
+          const spanHi = Math.max(progressIndex, activeProjectIndex);
+          const mountLo = Math.max(0, spanLo - 1);
+          const mountHi = Math.min(PROJECT_COUNT - 1, spanHi + 2);
+          const isMounted = index >= mountLo && index <= mountHi;
+
+          if (!isMounted && galleryVisible) return null;
+          // Before gallery is visible, prep the first two so the first snap is instant
+          if (!galleryVisible && index > 1) return null;
+
+          const nearActive = Math.abs(index - activeProjectIndex) <= 1;
+          const nearProgress = Math.abs(index - progressIndex) <= 1;
+
+          return (
+            <ProjectBeat
+              key={project.title}
+              project={project}
+              progress={projectsProgress}
+              index={index}
+              isActive={galleryVisible && activeProjectIndex === index}
+              warmMedia={warmMedia && (nearActive || nearProgress)}
+            />
+          );
+        })}
       </motion.div>
 
       {onGoToProject && onNextProject && onPrevProject ? (
