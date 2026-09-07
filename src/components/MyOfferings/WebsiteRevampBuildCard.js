@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 
 const GREEN = "#5E683C";
 const GREEN_LIGHT = "#9aab6e";
@@ -17,7 +17,7 @@ function BrowserChrome({ label, tone = "old" }) {
       <span className="h-2 w-2 rounded-full bg-[#febc2e]/80" />
       <span className="h-2 w-2 rounded-full bg-[#28c840]/80" />
       <div
-        className={`ml-2 flex-1 rounded-md px-2 py-1 font-gruppo text-[9px] ${
+        className={`ml-2 flex-1 rounded-md px-2 py-1 font-gg-sans text-[9px] ${
           isNew ? "bg-white/8 text-white/40" : "bg-white/5 text-white/25"
         }`}
       >
@@ -117,59 +117,64 @@ function NewSite() {
 /**
  * Website revamp — outdated site transforms into a high-engagement redesign.
  */
-export default function WebsiteRevampBuildCard({ progress }) {
-  const stageOpacity = useTransform(progress, [0.05, 0.18], [0, 1]);
-  const stageY = useTransform(progress, [0.05, 0.22], [24, 0]);
+export default function WebsiteRevampBuildCard({ progress, lite = false }) {
+  const frozen = useMotionValue(1);
+  const drive = lite ? frozen : progress;
 
-  const afterClipPath = useTransform(progress, (p) => {
+  const stageOpacity = useTransform(drive, [0.05, 0.18], [0, 1]);
+  const stageY = useTransform(drive, [0.05, 0.22], [24, 0]);
+
+  const afterClipPath = useTransform(drive, (p) => {
     const t = Math.min(1, Math.max(0, (p - 0.28) / 0.3));
     return `inset(0 ${100 - t * 100}% 0 0)`;
   });
 
-  const wipeLeft = useTransform(progress, (p) => {
+  const wipeLeft = useTransform(drive, (p) => {
     const t = Math.min(1, Math.max(0, (p - 0.28) / 0.3));
     return `${t * 100}%`;
   });
   const wipeOpacity = useTransform(
-    progress,
+    drive,
     [0.28, 0.35, 0.55, 0.62],
     [0, 1, 1, 0]
   );
 
-  const beforeOpacity = useTransform(progress, [0.52, 0.68], [1, 0.15]);
+  const beforeOpacity = useTransform(drive, [0.52, 0.68], [1, 0.15]);
   const badgeBeforeOpacity = useTransform(
-    progress,
+    drive,
     [0.12, 0.22, 0.45, 0.55],
     [0, 1, 1, 0]
   );
-  const badgeAfterOpacity = useTransform(progress, [0.5, 0.62], [0, 1]);
+  const badgeAfterOpacity = useTransform(drive, [0.5, 0.62], [0, 1]);
 
-  const metricsOpacity = useTransform(progress, [0.58, 0.72], [0, 1]);
-  const metricsY = useTransform(progress, [0.58, 0.72], [20, 0]);
+  const metricsOpacity = useTransform(drive, [0.58, 0.72], [0, 1]);
+  const metricsY = useTransform(drive, [0.58, 0.72], [20, 0]);
 
-  const engagement = useTransform(progress, [0.6, 0.88], [12, 78]);
+  const engagement = useTransform(drive, [0.6, 0.88], [12, 78]);
   const engagementLabel = useTransform(engagement, (v) => `+${Math.round(v)}%`);
-  const timeOnSite = useTransform(progress, [0.62, 0.9], [0.4, 3.8]);
+  const timeOnSite = useTransform(drive, [0.62, 0.9], [0.4, 3.8]);
   const timeLabel = useTransform(timeOnSite, (v) => `${v.toFixed(1)}m`);
-  const bounce = useTransform(progress, [0.64, 0.9], [68, 21]);
+  const bounce = useTransform(drive, [0.64, 0.9], [68, 21]);
   const bounceLabel = useTransform(bounce, (v) => `${Math.round(v)}%`);
 
-  const barWidth = useTransform(progress, [0.62, 0.88], ["12%", "86%"]);
+  const barWidth = useTransform(drive, [0.62, 0.88], ["12%", "86%"]);
 
-  const glowOpacity = useTransform(progress, [0.55, 0.75], [0, 1]);
-  const resultOpacity = useTransform(progress, [0.78, 0.92], [0, 1]);
-  const resultY = useTransform(progress, [0.78, 0.92], [14, 0]);
+  const glowOpacity = useTransform(drive, [0.55, 0.75], [0, 1]);
+  const resultOpacity = useTransform(drive, [0.78, 0.92], [0, 1]);
+  const resultY = useTransform(drive, [0.78, 0.92], [14, 0]);
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[28px] bg-[#191919] px-4 py-5 sm:px-7 sm:py-7">
-      <motion.div
-        style={{ opacity: glowOpacity }}
-        className="pointer-events-none absolute inset-x-[20%] bottom-[-20%] h-[50%] rounded-full bg-[#5E683C]/28 blur-[80px]"
-      />
+      {!lite ? (
+        <motion.div
+          style={{ opacity: glowOpacity }}
+          className="pointer-events-none absolute inset-x-[20%] bottom-[-20%] h-[50%] rounded-full bg-[#5E683C]/28 blur-[80px]"
+        />
+      ) : null}
 
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <div className="font-gruppo text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+          <div className="font-gg-sans text-[10px] font-bold uppercase tracking-[0.2em] text-white">
             Website revamp
           </div>
           <div className="mt-1 font-archivo-black text-[13px] text-white sm:text-[16px]">
@@ -178,7 +183,7 @@ export default function WebsiteRevampBuildCard({ progress }) {
         </div>
         <motion.div
           style={{ opacity: resultOpacity }}
-          className="rounded-full border border-[#5E683C]/50 bg-[#5E683C]/15 px-3 py-1.5 font-gruppo text-[9px] uppercase tracking-[0.14em] text-[#b4c487]"
+          className="rounded-full border border-[#5E683C]/50 bg-[#5E683C]/15 px-3 py-1.5 font-gg-sans text-[9px] uppercase tracking-[0.14em] text-[#b4c487]"
         >
           Engagement up
         </motion.div>
@@ -210,7 +215,7 @@ export default function WebsiteRevampBuildCard({ progress }) {
 
           <motion.span
             style={{ opacity: badgeBeforeOpacity }}
-            className="absolute left-3 top-3 z-30 rounded-full bg-black/55 px-2.5 py-1 font-gruppo text-[9px] uppercase tracking-[0.14em] text-white/55 backdrop-blur-sm"
+            className="absolute left-3 top-3 z-30 rounded-full bg-black/55 px-2.5 py-1 font-gg-sans text-[9px] uppercase tracking-[0.14em] text-white/55 backdrop-blur-sm"
           >
             Before
           </motion.span>
@@ -219,7 +224,7 @@ export default function WebsiteRevampBuildCard({ progress }) {
               opacity: badgeAfterOpacity,
               background: GREEN_LIGHT,
             }}
-            className="absolute right-3 top-3 z-30 rounded-full px-2.5 py-1 font-gruppo text-[9px] uppercase tracking-[0.14em] text-black"
+            className="absolute right-3 top-3 z-30 rounded-full px-2.5 py-1 font-gg-sans text-[9px] uppercase tracking-[0.14em] text-black"
           >
             After
           </motion.span>
@@ -230,7 +235,7 @@ export default function WebsiteRevampBuildCard({ progress }) {
           className="mt-3 grid grid-cols-3 gap-2 sm:gap-3"
         >
           <div className="rounded-xl border border-white/8 bg-white/4 px-3 py-3">
-            <div className="font-gruppo text-[8px] uppercase tracking-[0.14em] text-white/35 sm:text-[9px]">
+            <div className="font-gg-sans text-[8px] uppercase tracking-[0.14em] text-white/35 sm:text-[9px]">
               Engagement
             </div>
             <motion.div className="mt-1 font-archivo-black text-[18px] text-[#b4c487] sm:text-[22px]">
@@ -238,7 +243,7 @@ export default function WebsiteRevampBuildCard({ progress }) {
             </motion.div>
           </div>
           <div className="rounded-xl border border-white/8 bg-white/4 px-3 py-3">
-            <div className="font-gruppo text-[8px] uppercase tracking-[0.14em] text-white/35 sm:text-[9px]">
+            <div className="font-gg-sans text-[8px] uppercase tracking-[0.14em] text-white/35 sm:text-[9px]">
               Time on site
             </div>
             <motion.div className="mt-1 font-archivo-black text-[18px] text-white sm:text-[22px]">
@@ -246,7 +251,7 @@ export default function WebsiteRevampBuildCard({ progress }) {
             </motion.div>
           </div>
           <div className="rounded-xl border border-white/8 bg-white/4 px-3 py-3">
-            <div className="font-gruppo text-[8px] uppercase tracking-[0.14em] text-white/35 sm:text-[9px]">
+            <div className="font-gg-sans text-[8px] uppercase tracking-[0.14em] text-white/35 sm:text-[9px]">
               Bounce rate
             </div>
             <motion.div className="mt-1 font-archivo-black text-[18px] text-white sm:text-[22px]">

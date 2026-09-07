@@ -126,7 +126,7 @@ export default function DescriptionSection() {
               }}
             >
               <motion.div className="w-[90%]" style={{ opacity: textExitOpacity }}>
-                <h1 className="w-full mb-12 text-[clamp(42px,11vw,100px)] font-climate-crisis text-transparent leading-none">
+                <h1 className="w-full mb-12 text-[clamp(42px,11vw,100px)] font-ginto text-transparent leading-none">
                   {titleChars.map((char, i) => (
                     <Char
                       key={i}

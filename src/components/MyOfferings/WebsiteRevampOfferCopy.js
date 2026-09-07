@@ -53,14 +53,14 @@ export default function WebsiteRevampOfferCopy({ progress, curtainProgress }) {
       >
         <motion.h3
           style={line1}
-          className="font-climate-crisis text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
+          className="font-ginto text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
         >
           Website looking tired?
         </motion.h3>
 
         <motion.p
           style={line2}
-          className="mt-5 max-w-2xl font-gruppo text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
+          className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
         >
           We don&apos;t patch it. We{" "}
           <span className="text-white">reinvent it</span>.
@@ -68,7 +68,7 @@ export default function WebsiteRevampOfferCopy({ progress, curtainProgress }) {
 
         <motion.p
           style={line3}
-          className="mt-10 max-w-xl font-gruppo text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
+          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
         >
           Revamps that turn visitors into{" "}
           <span className="text-[#9aab6e]">engaged users</span>

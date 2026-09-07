@@ -113,7 +113,7 @@ export default function MagneticLink({ href, children, style, className = "" }) 
         </motion.div>
 
         {/* Link text — unchanged */}
-        <span className="relative z-10 font-gruppo text-[clamp(15px,1.9vw,18px)] text-[#9aab6e] underline decoration-[#9aab6e]/40 underline-offset-4">
+        <span className="relative z-10 font-gg-sans text-[clamp(15px,1.9vw,18px)] text-[#9aab6e] underline decoration-[#9aab6e]/40 underline-offset-4">
           {children}
         </span>
       </a>

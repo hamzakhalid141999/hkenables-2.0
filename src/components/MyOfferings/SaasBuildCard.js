@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 
 const GREEN = "#5E683C";
 const GREEN_SOFT = "rgba(94, 104, 60, 0.55)";
@@ -8,34 +8,37 @@ const GREEN_SOFT = "rgba(94, 104, 60, 0.55)";
 /**
  * Skeleton SaaS homepage — scroll builds layout + conversion signals.
  * `progress` is 0→1 while this card is active.
- * Spacing compresses on short viewports so the bottom metrics stay visible.
+ * `lite`: freeze at the finished frame (mobile) — no per-scroll scrubbing.
  */
-export default function SaasBuildCard({ progress }) {
-  const navOpacity = useTransform(progress, [0.12, 0.28], [0, 1]);
-  const navY = useTransform(progress, [0.12, 0.28], [14, 0]);
+export default function SaasBuildCard({ progress, lite = false }) {
+  const frozen = useMotionValue(1);
+  const drive = lite ? frozen : progress;
 
-  const heroOpacity = useTransform(progress, [0.24, 0.4], [0, 1]);
-  const heroY = useTransform(progress, [0.24, 0.4], [20, 0]);
+  const navOpacity = useTransform(drive, [0.12, 0.28], [0, 1]);
+  const navY = useTransform(drive, [0.12, 0.28], [14, 0]);
 
-  const ctaOpacity = useTransform(progress, [0.36, 0.52], [0, 1]);
-  const ctaScale = useTransform(progress, [0.36, 0.52], [0.92, 1]);
+  const heroOpacity = useTransform(drive, [0.24, 0.4], [0, 1]);
+  const heroY = useTransform(drive, [0.24, 0.4], [20, 0]);
 
-  const featureOpacity = useTransform(progress, [0.48, 0.64], [0, 1]);
-  const featureY = useTransform(progress, [0.48, 0.64], [24, 0]);
+  const ctaOpacity = useTransform(drive, [0.36, 0.52], [0, 1]);
+  const ctaScale = useTransform(drive, [0.36, 0.52], [0.92, 1]);
 
-  const chartOpacity = useTransform(progress, [0.58, 0.76], [0, 1]);
-  const bar1 = useTransform(progress, [0.6, 0.82], ["12%", "42%"]);
-  const bar2 = useTransform(progress, [0.64, 0.86], ["12%", "68%"]);
-  const bar3 = useTransform(progress, [0.68, 0.9], ["12%", "88%"]);
-  const bar4 = useTransform(progress, [0.72, 0.94], ["12%", "100%"]);
+  const featureOpacity = useTransform(drive, [0.48, 0.64], [0, 1]);
+  const featureY = useTransform(drive, [0.48, 0.64], [24, 0]);
 
-  const usersOpacity = useTransform(progress, [0.72, 0.9], [0, 1]);
-  const usersCount = useTransform(progress, [0.72, 0.95], [120, 2840]);
+  const chartOpacity = useTransform(drive, [0.58, 0.76], [0, 1]);
+  const bar1 = useTransform(drive, [0.6, 0.82], ["12%", "42%"]);
+  const bar2 = useTransform(drive, [0.64, 0.86], ["12%", "68%"]);
+  const bar3 = useTransform(drive, [0.68, 0.9], ["12%", "88%"]);
+  const bar4 = useTransform(drive, [0.72, 0.94], ["12%", "100%"]);
+
+  const usersOpacity = useTransform(drive, [0.72, 0.9], [0, 1]);
+  const usersCount = useTransform(drive, [0.72, 0.95], [120, 2840]);
   const usersDisplay = useTransform(usersCount, (v) =>
     Math.round(v).toLocaleString()
   );
 
-  const convertOpacity = useTransform(progress, [0.82, 0.98], [0, 1]);
+  const convertOpacity = useTransform(drive, [0.82, 0.98], [0, 1]);
 
   return (
     <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[28px] bg-[#1c1c1c] p-3 [@media(min-height:720px)]:p-5 [@media(min-height:820px)]:p-7">
@@ -76,7 +79,7 @@ export default function SaasBuildCard({ progress }) {
       >
         <div className="h-2 w-24 rounded-full bg-white/15 [@media(min-height:720px)]:h-2.5 [@media(min-height:720px)]:w-28" />
         <div
-          className="flex h-8 w-full items-center justify-center rounded-full font-gruppo text-[11px] text-white/90 [@media(min-height:720px)]:h-10 [@media(min-height:720px)]:text-[12px] [@media(min-height:820px)]:text-[13px]"
+          className="flex h-8 w-full items-center justify-center rounded-full font-gg-sans text-[11px] text-white/90 [@media(min-height:720px)]:h-10 [@media(min-height:720px)]:text-[12px] [@media(min-height:820px)]:text-[13px]"
           style={{ background: GREEN }}
         >
           Start free trial
@@ -110,7 +113,7 @@ export default function SaasBuildCard({ progress }) {
           style={{ opacity: chartOpacity }}
           className="flex min-h-0 flex-col justify-end rounded-lg border border-white/6 bg-white/[0.03] px-2.5 pb-2 pt-2.5 [@media(min-height:720px)]:rounded-xl [@media(min-height:720px)]:px-3 [@media(min-height:720px)]:pb-3 [@media(min-height:720px)]:pt-4"
         >
-          <div className="mb-1.5 font-gruppo text-[9px] uppercase tracking-[0.14em] text-white/35 [@media(min-height:720px)]:mb-2 [@media(min-height:720px)]:text-[10px] [@media(min-height:720px)]:tracking-[0.16em]">
+          <div className="mb-1.5 font-gg-sans text-[9px] uppercase tracking-[0.14em] text-white/35 [@media(min-height:720px)]:mb-2 [@media(min-height:720px)]:text-[10px] [@media(min-height:720px)]:tracking-[0.16em]">
             Signups
           </div>
           <div className="flex h-10 items-end gap-1 [@media(min-height:720px)]:h-14 [@media(min-height:720px)]:gap-1.5 [@media(min-height:820px)]:h-20 [@media(min-height:820px)]:gap-2">
@@ -132,7 +135,7 @@ export default function SaasBuildCard({ progress }) {
             style={{ opacity: usersOpacity }}
             className="flex flex-1 flex-col justify-center rounded-lg border border-white/6 bg-white/[0.03] px-2.5 py-2 [@media(min-height:720px)]:rounded-xl [@media(min-height:720px)]:px-3 [@media(min-height:720px)]:py-3"
           >
-            <div className="font-gruppo text-[9px] font-bold uppercase tracking-[0.14em] text-white [@media(min-height:720px)]:text-[10px] [@media(min-height:720px)]:tracking-[0.16em]">
+            <div className="font-gg-sans text-[9px] font-bold uppercase tracking-[0.14em] text-white [@media(min-height:720px)]:text-[10px] [@media(min-height:720px)]:tracking-[0.16em]">
               Active users
             </div>
             <motion.div className="mt-0.5 font-archivo-black text-[clamp(18px,3vw,32px)] leading-none text-white [@media(min-height:720px)]:mt-1">
@@ -151,7 +154,7 @@ export default function SaasBuildCard({ progress }) {
             <div className="font-archivo-black text-[15px] text-white [@media(min-height:720px)]:text-[18px] [@media(min-height:820px)]:text-[20px]">
               +42%
             </div>
-            <div className="font-gruppo text-[9px] font-bold text-white [@media(min-height:720px)]:text-[10px]">
+            <div className="font-gg-sans text-[9px] font-bold text-white [@media(min-height:720px)]:text-[10px]">
               conversion lift
             </div>
           </motion.div>

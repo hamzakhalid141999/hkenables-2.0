@@ -1,5 +1,60 @@
 @import "tailwindcss";
 
+/* gg sans — drop files into /public/fonts/gg-sans/ (see README there) */
+@font-face {
+  font-family: "gg sans";
+  src:
+    local("gg sans"),
+    local("gg sans Regular"),
+    url("/fonts/gg-sans/GGSans-Regular.woff2") format("woff2"),
+    url("/fonts/gg-sans/GGSans-Regular.woff") format("woff"),
+    url("/fonts/gg-sans/GGSans-Regular.otf") format("opentype"),
+    url("/fonts/gg-sans/GGSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "gg sans";
+  src:
+    local("gg sans Medium"),
+    url("/fonts/gg-sans/GGSans-Medium.woff2") format("woff2"),
+    url("/fonts/gg-sans/GGSans-Medium.woff") format("woff"),
+    url("/fonts/gg-sans/GGSans-Medium.otf") format("opentype"),
+    url("/fonts/gg-sans/GGSans-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "gg sans";
+  src:
+    local("gg sans Semibold"),
+    local("gg sans SemiBold"),
+    url("/fonts/gg-sans/GGSans-Semibold.woff2") format("woff2"),
+    url("/fonts/gg-sans/GGSans-Semibold.woff") format("woff"),
+    url("/fonts/gg-sans/GGSans-Semibold.otf") format("opentype"),
+    url("/fonts/gg-sans/GGSans-Semibold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "gg sans";
+  src:
+    local("gg sans Bold"),
+    url("/fonts/gg-sans/GGSans-Bold.woff2") format("woff2"),
+    url("/fonts/gg-sans/GGSans-Bold.woff") format("woff"),
+    url("/fonts/gg-sans/GGSans-Bold.otf") format("opentype"),
+    url("/fonts/gg-sans/GGSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -8,8 +63,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-climate-crisis: var(--font-climate-crisis);
-  --font-gruppo: var(--font-gruppo);
+  --font-ginto: var(--font-ginto-ultra), var(--font-archivo-black), ui-sans-serif,
+    system-ui, sans-serif;
+  --font-gg-sans: "gg sans", ui-sans-serif, system-ui, sans-serif;
   --font-archivo-black: var(--font-archivo-black);
 }
 
@@ -24,4 +80,14 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.font-ginto {
+  font-family: var(--font-ginto-ultra), var(--font-archivo-black), sans-serif !important;
+  font-weight: 400 !important;
+  font-synthesis: none;
+}
+
+.font-gg-sans {
+  font-family: "gg sans", ui-sans-serif, system-ui, sans-serif !important;
 }

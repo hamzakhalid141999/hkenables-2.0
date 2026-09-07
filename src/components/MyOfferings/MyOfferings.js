@@ -119,6 +119,14 @@ export default function MyOfferings() {
   });
 
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
+  /** Mobile: only mount offering beats near the current pin progress. */
+  const [mobileMount, setMobileMount] = useState({
+    saas: true,
+    fullstack: false,
+    revamp: false,
+  });
+  /** Mobile: don't mount MyProjects until the curtain is about to peel. */
+  const [projectsReady, setProjectsReady] = useState(false);
 
   useLenis((lenis) => {
     lenisRef.current = lenis;
@@ -401,12 +409,14 @@ export default function MyOfferings() {
     damping: 28,
     mass: 0.65,
   });
+  // Mobile: skip entrance spring — one less continuous solver
+  const entranceDrive = isMobile ? entranceProgress : entranceSpring;
 
-  const headingX = useTransform(entranceSpring, [0, 1], ["-48vw", "50vw"]);
-  const headingOpacity = useTransform(entranceSpring, [0.75, 1], [1, 0]);
+  const headingX = useTransform(entranceDrive, [0, 1], ["-48vw", "50vw"]);
+  const headingOpacity = useTransform(entranceDrive, [0.75, 1], [1, 0]);
 
   const topRadius = useTransform(
-    entranceSpring,
+    entranceDrive,
     [0, 1],
     [isMobile ? MOBILE_TOP_RADIUS : MAX_TOP_RADIUS, 0]
   );
@@ -437,17 +447,50 @@ export default function MyOfferings() {
   );
 
   // Drive card/copy progress from raw scroll (Lenis already smooths).
-  // Extra Framer springs on this path stacked lag on weaker devices.
   const pinDrive = offeringsProgress;
+
+  useMotionValueEvent(pinDrive, "change", (p) => {
+    if (!isMobile) return;
+    const next = {
+      saas: p < SAAS_COPY_EXIT_END + 0.02,
+      fullstack:
+        p >= FULL_STACK_START - 0.02 && p < FULL_STACK_COPY_EXIT_END + 0.02,
+      revamp: p >= REVAMP_START - 0.02,
+    };
+    setMobileMount((prev) =>
+      prev.saas === next.saas &&
+      prev.fullstack === next.fullstack &&
+      prev.revamp === next.revamp
+        ? prev
+        : next
+    );
+  });
+
+  useMotionValueEvent(pinProgress, "change", (p) => {
+    if (!isMobile) return;
+    // Warm projects just before the curtain peel so the handoff stays smooth
+    if (p >= OFFERINGS_END - 0.06) setProjectsReady(true);
+  });
+
+  useEffect(() => {
+    if (!isMobile) {
+      setProjectsReady(true);
+      return undefined;
+    }
+    setProjectsReady(false);
+    setMobileMount({ saas: true, fullstack: false, revamp: false });
+    return undefined;
+  }, [isMobile]);
 
   const curtainSpring = useSpring(curtainProgress, {
     stiffness: 100,
     damping: 32,
     mass: 0.45,
   });
+  const curtainDrive = isMobile ? curtainProgress : curtainSpring;
 
-  const curtainX = useTransform(curtainSpring, [0, 1], ["0%", "-105%"]);
-  const curtainRightRadius = useTransform(curtainSpring, (t) => {
+  const curtainX = useTransform(curtainDrive, [0, 1], ["0%", "-105%"]);
+  const curtainRightRadius = useTransform(curtainDrive, (t) => {
     const p = Math.min(1, Math.max(0, t));
     const eased = 1 - Math.pow(1 - p, 2);
     return eased * MAX_CURTAIN_RADIUS;
@@ -457,6 +500,10 @@ export default function MyOfferings() {
     [topRadius, curtainRightRadius],
     ([top, right]) => `${top}px ${Math.max(top, right)}px ${right}px 0`
   );
+
+  const mountSaas = !isMobile || mobileMount.saas;
+  const mountFullStack = !isMobile || mobileMount.fullstack;
+  const mountRevamp = !isMobile || mobileMount.revamp;
 
   const saasCardProgress = useTransform(pinDrive, [0, SAAS_CARD_END], [0, 1], {
     clamp: true,
@@ -555,93 +602,119 @@ export default function MyOfferings() {
         style={{ height: `${trackHeightVh}vh` }}
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          <MyProjects
-            curtainProgress={curtainSpring}
-            introProgress={introProgress}
-            projectsProgress={projectsProgress}
-            activeProjectIndex={activeProjectIndex}
-            onGoToProject={goToProject}
-            onNextProject={goToNextProject}
-            onPrevProject={goToPrevProject}
-          />
+          {projectsReady ? (
+            <MyProjects
+              curtainProgress={curtainDrive}
+              introProgress={introProgress}
+              projectsProgress={projectsProgress}
+              activeProjectIndex={activeProjectIndex}
+              onGoToProject={goToProject}
+              onNextProject={goToNextProject}
+              onPrevProject={goToPrevProject}
+            />
+          ) : (
+            <div className="absolute inset-0 z-0 bg-white" aria-hidden />
+          )}
 
           <motion.div
             className="relative z-10 h-full w-full overflow-hidden bg-[#141414] will-change-transform"
-            style={{ x: curtainX, borderRadius }}
+            style={{
+              x: curtainX,
+              // Mobile: fixed radius — animating border-radius every frame is costly
+              borderRadius: isMobile ? `${MOBILE_TOP_RADIUS}px 0 0 0` : borderRadius,
+            }}
           >
             <div className="relative z-10 overflow-hidden px-5 pt-14 sm:px-8 md:px-12 lg:px-16 md:pt-16">
               <motion.h2
                 style={{ x: headingX, opacity: headingOpacity }}
-                className="whitespace-nowrap font-climate-crisis text-[clamp(28px,8vw,120px)] uppercase leading-none tracking-tight text-white/90"
+                className="whitespace-nowrap font-ginto text-[clamp(28px,8vw,120px)] uppercase leading-none tracking-tight text-white/90"
               >
                 MY OFFERINGS
               </motion.h2>
             </div>
 
-            <div className="absolute inset-0 z-20">
-              <OfferingSlot
-                title="SaaS Landing Page"
-                number={1}
-                side="left"
-                progress={saasCardProgress}
-                exitProgress={saasExitProgress}
-              >
-                <SaasBuildCard progress={saasCardProgress} />
-              </OfferingSlot>
-            </div>
+            {mountSaas ? (
+              <>
+                <div className="absolute inset-0 z-20">
+                  <OfferingSlot
+                    title="SaaS Landing Page"
+                    number={1}
+                    side="left"
+                    progress={saasCardProgress}
+                    exitProgress={saasExitProgress}
+                  >
+                    <SaasBuildCard progress={saasCardProgress} lite={isMobile} />
+                  </OfferingSlot>
+                </div>
 
-            <motion.div
-              style={{
-                opacity: copyExitOpacity,
-                y: copyExitY,
-                filter: isMobile ? "none" : copyExitFilter,
-              }}
-              className="absolute inset-0 z-30"
-            >
-              <SaasOfferCopy progress={copyProgress} />
-            </motion.div>
+                <motion.div
+                  style={{
+                    opacity: copyExitOpacity,
+                    y: copyExitY,
+                    filter: isMobile ? "none" : copyExitFilter,
+                  }}
+                  className="absolute inset-0 z-30"
+                >
+                  <SaasOfferCopy progress={copyProgress} />
+                </motion.div>
+              </>
+            ) : null}
 
-            <div className="absolute inset-0 z-40">
-              <OfferingSlot
-                title="Full-Stack Dev"
-                number={2}
-                side="right"
-                progress={fullStackProgress}
-                exitProgress={fullStackExitProgress}
-              >
-                <FullStackBuildCard progress={fullStackProgress} />
-              </OfferingSlot>
-            </div>
+            {mountFullStack ? (
+              <>
+                <div className="absolute inset-0 z-40">
+                  <OfferingSlot
+                    title="Full-Stack Dev"
+                    number={2}
+                    side="right"
+                    progress={fullStackProgress}
+                    exitProgress={fullStackExitProgress}
+                  >
+                    <FullStackBuildCard
+                      progress={fullStackProgress}
+                      lite={isMobile}
+                    />
+                  </OfferingSlot>
+                </div>
 
-            <motion.div
-              style={{
-                opacity: fullStackCopyExitOpacity,
-                y: fullStackCopyExitY,
-                filter: isMobile ? "none" : fullStackCopyExitFilter,
-              }}
-              className="absolute inset-0 z-50"
-            >
-              <FullStackOfferCopy progress={fullStackCopyProgress} />
-            </motion.div>
+                <motion.div
+                  style={{
+                    opacity: fullStackCopyExitOpacity,
+                    y: fullStackCopyExitY,
+                    filter: isMobile ? "none" : fullStackCopyExitFilter,
+                  }}
+                  className="absolute inset-0 z-50"
+                >
+                  <FullStackOfferCopy progress={fullStackCopyProgress} />
+                </motion.div>
+              </>
+            ) : null}
 
-            <div className="absolute inset-0 z-60">
-              <OfferingSlot
-                title="Website Revamps"
-                number={3}
-                side="left"
-                progress={revampProgress}
-                exitProgress={revampExitProgress}
-              >
-                <WebsiteRevampBuildCard progress={revampProgress} />
-              </OfferingSlot>
-            </div>
+            {mountRevamp ? (
+              <>
+                <div className="absolute inset-0 z-60">
+                  <OfferingSlot
+                    title="Website Revamps"
+                    number={3}
+                    side="left"
+                    progress={revampProgress}
+                    exitProgress={revampExitProgress}
+                  >
+                    <WebsiteRevampBuildCard
+                      progress={revampProgress}
+                      lite={isMobile}
+                    />
+                  </OfferingSlot>
+                </div>
 
-            <div className="absolute inset-0 z-70">
-              <WebsiteRevampOfferCopy
-                progress={revampCopyProgress}
-                curtainProgress={curtainSpring}
-              />
-            </div>
+                <div className="absolute inset-0 z-70">
+                  <WebsiteRevampOfferCopy
+                    progress={revampCopyProgress}
+                    curtainProgress={curtainDrive}
+                  />
+                </div>
+              </>
+            ) : null}
           </motion.div>
         </div>
       </div>

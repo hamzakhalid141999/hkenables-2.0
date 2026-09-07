@@ -308,7 +308,7 @@ function TechTag({ name, index, count, progress, start, mid, end }) {
         backgroundColor: bg,
         color: text,
       }}
-      className="inline-flex items-center rounded-md px-2.5 py-1 font-gruppo text-[11px] font-bold uppercase tracking-[0.08em] shadow-sm sm:text-[12px]"
+      className="inline-flex items-center rounded-md px-2.5 py-1 font-gg-sans text-[11px] font-bold uppercase tracking-[0.08em] shadow-sm sm:text-[12px]"
     >
       {name}
     </motion.span>
@@ -320,7 +320,7 @@ function TechTagStatic({ name }) {
   return (
     <span
       style={{ backgroundColor: bg, color: text }}
-      className="inline-flex items-center rounded-md px-2.5 py-1 font-gruppo text-[11px] font-bold uppercase tracking-[0.08em] shadow-sm"
+      className="inline-flex items-center rounded-md px-2.5 py-1 font-gg-sans text-[11px] font-bold uppercase tracking-[0.08em] shadow-sm"
     >
       {name}
     </span>
@@ -359,7 +359,7 @@ function TechTags({
         <button
           type="button"
           onClick={onSeeMore}
-          className="pointer-events-auto inline-flex items-center rounded-md border border-current/25 px-2.5 py-1 font-gruppo text-[11px] font-bold uppercase tracking-[0.08em] opacity-70"
+          className="pointer-events-auto inline-flex items-center rounded-md border border-current/25 px-2.5 py-1 font-gg-sans text-[11px] font-bold uppercase tracking-[0.08em] opacity-70"
         >
           see more
         </button>
@@ -423,7 +423,7 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="shrink-0 rounded-full border border-white/15 px-3 py-1 font-gruppo text-[11px] uppercase tracking-[0.14em] text-white/70"
+                className="shrink-0 rounded-full border border-white/15 px-3 py-1 font-gg-sans text-[11px] uppercase tracking-[0.14em] text-white/70"
               >
                 Close
               </button>
@@ -431,7 +431,7 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
 
             {tech.length > 0 ? (
               <div className="mb-6">
-                <p className="mb-2.5 font-gruppo text-[10px] uppercase tracking-[0.2em] text-white/40">
+                <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
                   Tech stack
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -443,10 +443,10 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
             ) : null}
 
             <div>
-              <p className="mb-2.5 font-gruppo text-[10px] uppercase tracking-[0.2em] text-white/40">
+              <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
                 Description
               </p>
-              <p className="whitespace-pre-line font-gruppo text-[17px] font-bold leading-snug text-white/80">
+              <p className="whitespace-pre-line font-gg-sans text-[17px] font-bold leading-snug text-white/80">
                 {description}
               </p>
             </div>
@@ -501,7 +501,7 @@ function ProjectDescription({
     return (
       <motion.p
         style={{ y }}
-        className="mt-5 max-w-md whitespace-pre-line font-gruppo text-[clamp(18px,1.4vw,20px)] font-bold leading-snug opacity-80"
+        className="mt-5 max-w-md whitespace-pre-line font-gg-sans text-[clamp(18px,1.4vw,20px)] font-bold leading-snug opacity-80"
       >
         {text}
       </motion.p>
@@ -512,7 +512,7 @@ function ProjectDescription({
     <div className="mt-5 max-w-md">
       <p
         ref={textRef}
-        className="line-clamp-3 whitespace-pre-line font-gruppo text-[18px] font-bold leading-snug opacity-80"
+        className="line-clamp-3 whitespace-pre-line font-gg-sans text-[18px] font-bold leading-snug opacity-80"
       >
         {text}
       </p>
@@ -520,7 +520,7 @@ function ProjectDescription({
         <button
           type="button"
           onClick={onSeeMore}
-          className="mt-1.5 pointer-events-auto font-gruppo text-[13px] font-bold uppercase tracking-[0.12em] underline underline-offset-2 opacity-70"
+          className="mt-1.5 pointer-events-auto font-gg-sans text-[13px] font-bold uppercase tracking-[0.12em] underline underline-offset-2 opacity-70"
         >
           see more
         </button>
@@ -674,7 +674,7 @@ function MacProjectWindow({
           <span className="size-3 rounded-full bg-[#febc2e]" />
           <span className="size-3 rounded-full bg-[#28c840]" />
         </div>
-        <div className="mx-auto flex h-6 w-[48%] items-center justify-center rounded-md bg-black/6 font-gruppo text-[9px] tracking-[0.08em] text-black/40">
+        <div className="mx-auto flex h-6 w-[48%] items-center justify-center rounded-md bg-black/6 font-gg-sans text-[9px] tracking-[0.08em] text-black/40">
           {title.toLowerCase().replaceAll(" ", "")}.com
         </div>
       </div>
@@ -718,7 +718,7 @@ function MacProjectWindow({
         )}
 
         <div
-          className="absolute bottom-3 right-3 z-20 rounded-full border px-3 py-1 font-gruppo text-[9px] uppercase tracking-[0.14em] backdrop-blur-md"
+          className="absolute bottom-3 right-3 z-20 rounded-full border px-3 py-1 font-gg-sans text-[9px] uppercase tracking-[0.14em] backdrop-blur-md"
           style={{
             color: foreground,
             borderColor: `${foreground}33`,
@@ -845,7 +845,7 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
         >
           <motion.div
             style={{ y: isMobile ? 0 : metaYDelta }}
-            className="mb-4 flex items-center gap-4 font-gruppo uppercase tracking-[0.22em] opacity-60"
+            className="mb-4 flex items-center gap-4 font-gg-sans uppercase tracking-[0.22em] opacity-60"
           >
             <span className="h-px w-10 bg-current opacity-40 font-bold" />
             <span className="font-bold">{project.type}</span>
@@ -870,11 +870,11 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
 
           <div className="mt-6">
             {project.liveLink ? (
-              <span className="font-gruppo text-[11px] uppercase tracking-[0.18em] opacity-55">
+              <span className="font-gg-sans text-[11px] uppercase tracking-[0.18em] opacity-55">
                 Live project ↗
               </span>
             ) : (
-              <span className="font-gruppo text-[11px] uppercase tracking-[0.18em] opacity-45">
+              <span className="font-gg-sans text-[11px] uppercase tracking-[0.18em] opacity-45">
                 Selected work
               </span>
             )}
@@ -944,7 +944,7 @@ function ProjectGalleryNav({
           className="absolute left-5 top-1/2 flex -translate-x-11 -translate-y-1/2 flex-col items-start gap-1 transition-transform duration-500 ease-out group-hover/rail:translate-x-0 lg:left-7"
           aria-label="Project index"
         >
-        <p className="mb-2 hidden font-gruppo text-[10px] uppercase tracking-[0.22em] text-white/40 sm:block">
+        <p className="mb-2 hidden font-gg-sans text-[10px] uppercase tracking-[0.22em] text-white/40 sm:block">
           Jump
         </p>
         <ul className="flex flex-col items-start gap-1.5">
@@ -986,7 +986,7 @@ function ProjectGalleryNav({
                     ) : null}
                   </span>
                   <span
-                    className={`hidden max-w-0 overflow-hidden whitespace-nowrap font-gruppo text-[11px] uppercase tracking-[0.14em] transition-all duration-300 group-hover:max-w-36 sm:block ${
+                    className={`hidden max-w-0 overflow-hidden whitespace-nowrap font-gg-sans text-[11px] uppercase tracking-[0.14em] transition-all duration-300 group-hover:max-w-36 sm:block ${
                       isActive ? "max-w-36 opacity-90" : "opacity-0 group-hover:opacity-70"
                     }`}
                     style={{ color: isActive ? active.foreground : `${active.foreground}99` }}
@@ -998,7 +998,7 @@ function ProjectGalleryNav({
             );
           })}
         </ul>
-        <p className="mt-3 font-gruppo text-[10px] tracking-[0.18em] text-black/35">
+        <p className="mt-3 font-gg-sans text-[10px] tracking-[0.18em] text-black/35">
           {String(activeIndex + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}
         </p>
         </nav>
@@ -1019,7 +1019,7 @@ function ProjectGalleryNav({
         </button>
 
         <div className="min-w-0 flex-1 overflow-hidden rounded-full border border-black/10 bg-white/70 px-4 py-2.5 text-center shadow-sm backdrop-blur-md">
-          <p className="font-gruppo text-[9px] uppercase tracking-[0.2em] text-black/40 font-bold">
+          <p className="font-gg-sans text-[9px] uppercase tracking-[0.2em] text-black/40 font-bold">
             Now viewing
           </p>
           <AnimatePresence mode="wait" initial={false}>
@@ -1273,7 +1273,7 @@ export default function MyProjects({
         <div className="relative flex flex-col items-center">
           <motion.h2
             style={{ y: titleScootY }}
-            className="whitespace-nowrap text-center font-climate-crisis text-[32px] uppercase leading-none tracking-tight text-black sm:text-[clamp(32px,calc(10vw-20px),100px)]"
+            className="whitespace-nowrap text-center font-ginto text-[32px] uppercase leading-none tracking-tight text-black sm:text-[clamp(32px,calc(10vw-20px),100px)]"
           >
             MY PROJECTS
           </motion.h2>
@@ -1285,7 +1285,7 @@ export default function MyProjects({
               filter: isMobile ? "none" : subFilter,
               x: "-50%",
             }}
-            className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gruppo text-[21px] font-bold leading-snug tracking-wide text-black/55 sm:text-[clamp(16px,1.5vw,34px)]"
+            className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gg-sans text-[21px] font-bold leading-snug tracking-wide text-black/55 sm:text-[clamp(16px,1.5vw,34px)]"
           >
             Scroll to see some of the stuff I&apos;ve worked on or helped build :)
           </motion.p>

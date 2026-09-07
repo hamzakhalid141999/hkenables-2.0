@@ -175,7 +175,7 @@ export default function SaasOfferCopy({ progress }) {
       <div className="flex w-full max-w-4xl flex-col items-center text-center">
         <motion.h3
           style={line1}
-          className="font-climate-crisis text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
+          className="font-ginto text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
         >
           <GlowWord glow={designGlow}>Design</GlowWord>
           <span className="text-white/75">, </span>
@@ -186,14 +186,14 @@ export default function SaasOfferCopy({ progress }) {
 
         <motion.p
           style={line2}
-          className="mt-5 max-w-2xl font-gruppo text-[clamp(18px,2.8vw,28px)] leading-snug text-white/70"
+          className="mt-5 max-w-2xl font-gg-sans text-[clamp(18px,2.8vw,28px)] leading-snug text-white/70"
         >
           your SaaS landing pages, that attract and convert users
         </motion.p>
 
         <motion.p
           style={line3}
-          className="mt-10 max-w-xl font-gruppo text-[clamp(14px,1.8vw,24px)] leading-relaxed text-white/45"
+          className="mt-10 max-w-xl font-gg-sans text-[clamp(14px,1.8vw,24px)] leading-relaxed text-white/45"
         >
           See the latest example where we have{" "}
           <span className="text-white/80">115+ signups</span> in less than a

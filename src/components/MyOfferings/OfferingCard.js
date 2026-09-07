@@ -23,10 +23,8 @@ const TITLE_TUCK_START = 70;
 const TITLE_TUCK_END = 16;
 const NUMBER_TUCK_START = 90;
 const NUMBER_TUCK_END = 42;
-// Panel + heading shift opposite the number (desktop only)
 const CARD_SHIFT_VW = 11;
 const NARROW_BREAKPOINT = 950;
-
 const MOTION_SPRING = { stiffness: 105, damping: 27, mass: 0.5 };
 
 function useIsNarrow(breakpoint = NARROW_BREAKPOINT) {
@@ -43,37 +41,19 @@ function useIsNarrow(breakpoint = NARROW_BREAKPOINT) {
   return isNarrow;
 }
 
-/**
- * Card + title + side number move together.
- * Number peeks from left/right; panel+heading shift the other way.
- * Below 950px: numbers hide, no lateral shift, panel widens to 90%.
- */
-export default function OfferingCard({
-  progress,
-  exitProgress,
-  children,
-  title,
-  number,
-  side = "left",
-}) {
-  const fromLeft = side === "left";
-  const isNarrow = useIsNarrow();
-  const isMobile = useIsMobile();
-
-  const cardOpacityRaw = useTransform(progress, (p) => {
+function useSharedTransforms(progress, exitProgress, fromLeft) {
+  const cardOpacity = useTransform(progress, (p) => {
     const t = Math.min(1, Math.max(0, p / 0.35));
     return easeOutCubic(t);
   });
 
-  const cardYRaw = useTransform(progress, (p) => {
+  const cardY = useTransform(progress, (p) => {
     const t = Math.min(1, Math.max(0, p / RISE_DURATION));
     const eased = easeOutExpo(t);
     return (1 - eased) * 52;
   });
 
-  // Number left → shift panel/heading right; number right → shift left.
-  // Applied only on wide screens so the preview stays centered below 950px.
-  const groupXRaw = useTransform(progress, (p) => {
+  const groupX = useTransform(progress, (p) => {
     const t = Math.min(1, Math.max(0, p / 0.45));
     const eased = easeOutCubic(t);
     const dir = fromLeft ? 1 : -1;
@@ -93,12 +73,13 @@ export default function OfferingCard({
     return easeOutCubic(t);
   });
 
-  const numberOpacityRaw = useTransform([progress, exitProgress], ([p, e]) => {
+  const numberOpacity = useTransform([progress, exitProgress], ([p, e]) => {
     const enterT = Math.min(1, Math.max(0, p / 0.22));
     const exitT = Math.min(1, Math.max(0, e));
     return easeOutCubic(enterT) * (1 - easeInOutCubic(exitT));
   });
-  const numberXRaw = useTransform([progress, exitProgress], ([p, e]) => {
+
+  const numberX = useTransform([progress, exitProgress], ([p, e]) => {
     const enterT = Math.min(1, Math.max(0, p / NUMBER_RISE_DURATION));
     const exitT = Math.min(1, Math.max(0, e));
     const enterEased = easeOutCubic(enterT);
@@ -112,57 +93,63 @@ export default function OfferingCard({
       : `calc(100% - ${tuck}%)`;
   });
 
-  const cardOpacity = useSpring(cardOpacityRaw, MOTION_SPRING);
-  const cardY = useSpring(cardYRaw, MOTION_SPRING);
-  const groupX = useSpring(groupXRaw, MOTION_SPRING);
-
-  const exitOpacityRaw = useTransform(exitProgress, (e) => {
+  const exitOpacity = useTransform(exitProgress, (e) => {
     const t = Math.min(1, Math.max(0, e));
     return 1 - easeInOutCubic(t);
   });
-  const exitYRaw = useTransform(exitProgress, (e) => {
+  const exitY = useTransform(exitProgress, (e) => {
     const t = Math.min(1, Math.max(0, e));
     return -easeInOutCubic(t) * 48;
   });
-  const exitScaleRaw = useTransform(exitProgress, (e) => {
+  const exitScale = useTransform(exitProgress, (e) => {
     const t = Math.min(1, Math.max(0, e));
     return 1 - easeInOutCubic(t) * 0.08;
   });
-  const exitBlurRaw = useTransform(exitProgress, (e) => {
+  const exitBlur = useTransform(exitProgress, (e) => {
     const t = Math.min(1, Math.max(0, e));
     return easeInOutCubic(t) * 14;
   });
 
-  const exitOpacity = useSpring(exitOpacityRaw, MOTION_SPRING);
-  const exitY = useSpring(exitYRaw, MOTION_SPRING);
-  const exitScale = useSpring(exitScaleRaw, MOTION_SPRING);
-  const exitBlur = useSpring(exitBlurRaw, MOTION_SPRING);
+  return {
+    cardOpacity,
+    cardY,
+    groupX,
+    titleY,
+    titleOpacity,
+    numberOpacity,
+    numberX,
+    exitOpacity,
+    exitY,
+    exitScale,
+    exitBlur,
+  };
+}
 
-  const numberOpacity = numberOpacityRaw;
-  const numberX = numberXRaw;
-
-  const combinedOpacity = useTransform(
-    [cardOpacity, exitOpacity],
-    ([a, b]) => a * b
-  );
-  const combinedY = useTransform(
-    [cardY, exitY],
-    ([rise, exit]) => `${rise + exit}vh`
-  );
-  const combinedFilter = useTransform(exitBlur, (v) =>
-    v > 0.05 ? `blur(${v}px)` : "blur(0px)"
-  );
-
+function OfferingShell({
+  fromLeft,
+  isNarrow,
+  groupX,
+  combinedY,
+  combinedOpacity,
+  exitScale,
+  filter,
+  numberOpacity,
+  numberX,
+  titleOpacity,
+  titleY,
+  title,
+  number,
+  children,
+}) {
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      {/* Group: number + title + panel share the same horizontal shift */}
       <motion.div
         style={{
           x: isNarrow ? 0 : groupX,
           y: combinedY,
           opacity: combinedOpacity,
           scale: exitScale,
-          filter: isMobile ? "none" : combinedFilter,
+          filter,
         }}
         className="relative flex h-[70vh] w-[90%] max-w-5xl items-start justify-center will-change-transform min-[950px]:w-[70%]"
       >
@@ -188,7 +175,7 @@ export default function OfferingCard({
         {title ? (
           <motion.h3
             style={{ opacity: titleOpacity, y: titleY }}
-            className="pointer-events-none absolute left-1/2 top-0 z-1 w-[130%] -translate-x-1/2 text-center font-climate-crisis text-[clamp(28px,5vw,76px)] leading-none tracking-tight text-white"
+            className="pointer-events-none absolute left-1/2 top-0 z-1 w-[130%] -translate-x-1/2 text-center font-ginto text-[clamp(28px,5vw,76px)] leading-none tracking-tight text-white"
           >
             {title}
           </motion.h3>
@@ -199,5 +186,116 @@ export default function OfferingCard({
         </div>
       </motion.div>
     </div>
+  );
+}
+
+/** Mobile: raw scroll drive, no springs, no blur filters. */
+function OfferingCardMobile({
+  progress,
+  exitProgress,
+  children,
+  title,
+  number,
+  side = "left",
+}) {
+  const fromLeft = side === "left";
+  const isNarrow = useIsNarrow();
+  const t = useSharedTransforms(progress, exitProgress, fromLeft);
+
+  const combinedOpacity = useTransform(
+    [t.cardOpacity, t.exitOpacity],
+    ([a, b]) => a * b
+  );
+  const combinedY = useTransform(
+    [t.cardY, t.exitY],
+    ([rise, exit]) => `${rise + exit}vh`
+  );
+
+  return (
+    <OfferingShell
+      fromLeft={fromLeft}
+      isNarrow={isNarrow}
+      groupX={t.groupX}
+      combinedY={combinedY}
+      combinedOpacity={combinedOpacity}
+      exitScale={t.exitScale}
+      filter="none"
+      numberOpacity={t.numberOpacity}
+      numberX={t.numberX}
+      titleOpacity={t.titleOpacity}
+      titleY={t.titleY}
+      title={title}
+      number={number}
+    >
+      {children}
+    </OfferingShell>
+  );
+}
+
+/** Desktop / tablet: spring-smoothed motion + exit blur. */
+function OfferingCardDesktop({
+  progress,
+  exitProgress,
+  children,
+  title,
+  number,
+  side = "left",
+}) {
+  const fromLeft = side === "left";
+  const isNarrow = useIsNarrow();
+  const t = useSharedTransforms(progress, exitProgress, fromLeft);
+
+  const cardOpacity = useSpring(t.cardOpacity, MOTION_SPRING);
+  const cardY = useSpring(t.cardY, MOTION_SPRING);
+  const groupX = useSpring(t.groupX, MOTION_SPRING);
+  const exitOpacity = useSpring(t.exitOpacity, MOTION_SPRING);
+  const exitY = useSpring(t.exitY, MOTION_SPRING);
+  const exitScale = useSpring(t.exitScale, MOTION_SPRING);
+  const exitBlur = useSpring(t.exitBlur, MOTION_SPRING);
+
+  const combinedOpacity = useTransform(
+    [cardOpacity, exitOpacity],
+    ([a, b]) => a * b
+  );
+  const combinedY = useTransform(
+    [cardY, exitY],
+    ([rise, exit]) => `${rise + exit}vh`
+  );
+  const combinedFilter = useTransform(exitBlur, (v) =>
+    v > 0.05 ? `blur(${v}px)` : "blur(0px)"
+  );
+
+  return (
+    <OfferingShell
+      fromLeft={fromLeft}
+      isNarrow={isNarrow}
+      groupX={groupX}
+      combinedY={combinedY}
+      combinedOpacity={combinedOpacity}
+      exitScale={exitScale}
+      filter={combinedFilter}
+      numberOpacity={t.numberOpacity}
+      numberX={t.numberX}
+      titleOpacity={t.titleOpacity}
+      titleY={t.titleY}
+      title={title}
+      number={number}
+    >
+      {children}
+    </OfferingShell>
+  );
+}
+
+/**
+ * Card + title + side number move together.
+ * Number peeks from left/right; panel+heading shift the other way.
+ * Below 950px: numbers hide, no lateral shift, panel widens to 90%.
+ */
+export default function OfferingCard(props) {
+  const isMobile = useIsMobile();
+  return isMobile ? (
+    <OfferingCardMobile {...props} />
+  ) : (
+    <OfferingCardDesktop {...props} />
   );
 }

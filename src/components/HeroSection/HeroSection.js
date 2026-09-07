@@ -120,13 +120,13 @@ export default function HeroSection({ active = true }) {
             duration: 0.9,
             ease: [0.25, 0.46, 0.45, 0.94],
           }}
-          className="font-gruppo text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
+          className="font-gg-sans text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
         >
           {HERO_COPY.tagline}
         </motion.p>
 
         <motion.h1
-          className="font-climate-crisis text-[clamp(30px,10vw,120px)] leading-[0.92] drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] md:leading-tight"
+          className="font-ginto text-[clamp(30px,10vw,120px)] leading-[0.92] drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] md:leading-tight"
           variants={{
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },
@@ -140,7 +140,7 @@ export default function HeroSection({ active = true }) {
         </motion.h1>
 
         <motion.h1
-          className="font-climate-crisis ml-[-15%] text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          className="font-ginto ml-[-15%] text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
           style={{ marginTop: isMobile ? -0 : -30 }}
           variants={{
             hidden: { opacity: 0, y: 40 },
@@ -155,7 +155,7 @@ export default function HeroSection({ active = true }) {
         </motion.h1>
 
         <motion.h1
-          className="font-climate-crisis ml-[9%] whitespace-nowrap text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          className="font-ginto ml-[9%] whitespace-nowrap text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
           style={{
             marginTop: isMobile ? -2 : -25,
             marginLeft: isMobile ? "10%" : "9%",

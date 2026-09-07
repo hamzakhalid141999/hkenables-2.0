@@ -45,14 +45,14 @@ export default function FullStackOfferCopy({ progress }) {
       <div className="flex w-full max-w-4xl flex-col items-center text-center">
         <motion.h3
           style={line1}
-          className="font-climate-crisis text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
+          className="font-ginto text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
         >
           Got an idea for a project or MVP?
         </motion.h3>
 
         <motion.p
           style={line2}
-          className="mt-5 max-w-2xl font-gruppo text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
+          className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
         >
           We don&apos;t just build it. We make it{" "}
           <span className="text-white">impossible to ignore</span>.
@@ -60,7 +60,7 @@ export default function FullStackOfferCopy({ progress }) {
 
         <motion.p
           style={line3}
-          className="mt-10 max-w-xl font-gruppo text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
+          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
         >
           Shipped at{" "}
           <span className="text-[#9aab6e]">AI speed</span>

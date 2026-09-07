@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 
 const GREEN = "#5E683C";
 
@@ -9,13 +9,13 @@ function ScreenChrome({ label, status }) {
     <div className="flex items-center justify-between border-b border-white/8 px-2 py-1.5 min-[830px]:px-3 min-[830px]:py-2.5">
       <div className="flex items-center gap-1.5 min-[830px]:gap-2">
         <span className="h-1.5 w-1.5 rounded-full bg-white/15 min-[830px]:h-2 min-[830px]:w-2" />
-        <span className="font-gruppo text-[8px] font-bold uppercase tracking-[0.14em] text-white min-[830px]:text-[10px] min-[830px]:tracking-[0.16em]">
+        <span className="font-gg-sans text-[8px] font-bold uppercase tracking-[0.14em] text-white min-[830px]:text-[10px] min-[830px]:tracking-[0.16em]">
           {label}
         </span>
       </div>
       <div className="flex items-center gap-1 min-[830px]:gap-1.5">
         <span className="h-1 w-1 rounded-full bg-[#9aab6e] min-[830px]:h-1.5 min-[830px]:w-1.5" />
-        <span className="font-gruppo text-[7px] uppercase tracking-[0.1em] text-[#9aab6e] min-[830px]:text-[9px] min-[830px]:tracking-[0.12em]">
+        <span className="font-gg-sans text-[7px] uppercase tracking-[0.1em] text-[#9aab6e] min-[830px]:text-[9px] min-[830px]:tracking-[0.12em]">
           {status}
         </span>
       </div>
@@ -23,16 +23,19 @@ function ScreenChrome({ label, status }) {
   );
 }
 
-export default function FullStackBuildCard({ progress }) {
-  const frontendOpacity = useTransform(progress, [0.04, 0.16], [0, 1]);
-  const frontendX = useTransform(progress, [0.04, 0.2], [-90, 0]);
-  const backendOpacity = useTransform(progress, [0.09, 0.21], [0, 1]);
-  const backendX = useTransform(progress, [0.09, 0.25], [90, 0]);
-  const databaseOpacity = useTransform(progress, [0.14, 0.26], [0, 1]);
-  const databaseY = useTransform(progress, [0.14, 0.3], [70, 0]);
+export default function FullStackBuildCard({ progress, lite = false }) {
+  const frozen = useMotionValue(1);
+  const drive = lite ? frozen : progress;
+
+  const frontendOpacity = useTransform(drive, [0.04, 0.16], [0, 1]);
+  const frontendX = useTransform(drive, [0.04, 0.2], [-90, 0]);
+  const backendOpacity = useTransform(drive, [0.09, 0.21], [0, 1]);
+  const backendX = useTransform(drive, [0.09, 0.25], [90, 0]);
+  const databaseOpacity = useTransform(drive, [0.14, 0.26], [0, 1]);
+  const databaseY = useTransform(drive, [0.14, 0.3], [70, 0]);
 
   // Manual development reaches 24%, then AI accelerates it rapidly to 100%.
-  const buildProgress = useTransform(progress, (value) => {
+  const buildProgress = useTransform(drive, (value) => {
     if (value <= 0.18) return 0;
     if (value <= 0.46) return ((value - 0.18) / 0.28) * 24;
     if (value >= 0.74) return 100;
@@ -94,34 +97,36 @@ export default function FullStackBuildCard({ progress }) {
     (value) => `${Math.round(value)}`
   );
 
-  const aiOpacity = useTransform(progress, [0.4, 0.51], [0, 1]);
-  const aiScale = useTransform(progress, [0.4, 0.56], [0.65, 1]);
-  const manualOpacity = useTransform(progress, [0.3, 0.43], [1, 0]);
-  const acceleratedOpacity = useTransform(progress, [0.46, 0.57], [0, 1]);
-  const beamScale = useTransform(progress, [0.45, 0.6], [0, 1]);
-  const beamOpacity = useTransform(progress, [0.44, 0.53], [0, 1]);
+  const aiOpacity = useTransform(drive, [0.4, 0.51], [0, 1]);
+  const aiScale = useTransform(drive, [0.4, 0.56], [0.65, 1]);
+  const manualOpacity = useTransform(drive, [0.3, 0.43], [1, 0]);
+  const acceleratedOpacity = useTransform(drive, [0.46, 0.57], [0, 1]);
+  const beamScale = useTransform(drive, [0.45, 0.6], [0, 1]);
+  const beamOpacity = useTransform(drive, [0.44, 0.53], [0, 1]);
 
   const packetOpacity = useTransform(
-    progress,
+    drive,
     [0.5, 0.55, 0.76, 0.82],
     [0, 1, 1, 0]
   );
-  const packetX = useTransform(progress, [0.5, 0.82], ["0vw", "54vw"]);
+  const packetX = useTransform(drive, [0.5, 0.82], ["0vw", "54vw"]);
 
-  const deployOpacity = useTransform(progress, [0.76, 0.9], [0, 1]);
-  const deployY = useTransform(progress, [0.76, 0.9], [16, 0]);
-  const completeGlow = useTransform(progress, [0.76, 0.94], [0, 1]);
+  const deployOpacity = useTransform(drive, [0.76, 0.9], [0, 1]);
+  const deployY = useTransform(drive, [0.76, 0.9], [16, 0]);
+  const completeGlow = useTransform(drive, [0.76, 0.94], [0, 1]);
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[28px] bg-[#191919] px-3 py-4 min-[830px]:px-7 min-[830px]:py-7">
-      <motion.div
-        style={{ opacity: completeGlow }}
-        className="pointer-events-none absolute inset-x-[18%] bottom-[-25%] h-[55%] rounded-full bg-[#5E683C]/30 blur-[80px]"
-      />
+      {!lite ? (
+        <motion.div
+          style={{ opacity: completeGlow }}
+          className="pointer-events-none absolute inset-x-[18%] bottom-[-25%] h-[55%] rounded-full bg-[#5E683C]/30 blur-[80px]"
+        />
+      ) : null}
 
       <div className="flex flex-col gap-2 min-[830px]:flex-row min-[830px]:items-center min-[830px]:justify-between">
         <div>
-          <div className="font-gruppo text-[9px] font-bold uppercase tracking-[0.18em] text-white min-[830px]:text-[10px] min-[830px]:tracking-[0.2em]">
+          <div className="font-gg-sans text-[9px] font-bold uppercase tracking-[0.18em] text-white min-[830px]:text-[10px] min-[830px]:tracking-[0.2em]">
             AI-powered development
           </div>
           <div className="mt-0.5 font-archivo-black text-[12px] text-white min-[830px]:mt-1 min-[830px]:text-[16px]">
@@ -131,13 +136,13 @@ export default function FullStackBuildCard({ progress }) {
         <div className="relative flex min-w-20 justify-start min-[830px]:min-w-24 min-[830px]:justify-end">
           <motion.div
             style={{ opacity: manualOpacity }}
-            className="absolute left-0 rounded-full border border-white/8 bg-white/4 px-2.5 py-1 font-gruppo text-[8px] uppercase tracking-[0.12em] text-white/35 min-[830px]:right-0 min-[830px]:left-auto min-[830px]:px-3 min-[830px]:py-1.5 min-[830px]:text-[9px] min-[830px]:tracking-[0.14em]"
+            className="absolute left-0 rounded-full border border-white/8 bg-white/4 px-2.5 py-1 font-gg-sans text-[8px] uppercase tracking-[0.12em] text-white/35 min-[830px]:right-0 min-[830px]:left-auto min-[830px]:px-3 min-[830px]:py-1.5 min-[830px]:text-[9px] min-[830px]:tracking-[0.14em]"
           >
             1× manual
           </motion.div>
           <motion.div
             style={{ opacity: acceleratedOpacity }}
-            className="rounded-full border border-[#5E683C]/50 bg-[#5E683C]/15 px-2.5 py-1 font-gruppo text-[8px] uppercase tracking-[0.12em] text-[#b4c487] min-[830px]:px-3 min-[830px]:py-1.5 min-[830px]:text-[9px] min-[830px]:tracking-[0.14em]"
+            className="rounded-full border border-[#5E683C]/50 bg-[#5E683C]/15 px-2.5 py-1 font-gg-sans text-[8px] uppercase tracking-[0.12em] text-[#b4c487] min-[830px]:px-3 min-[830px]:py-1.5 min-[830px]:text-[9px] min-[830px]:tracking-[0.14em]"
           >
             8× faster
           </motion.div>
@@ -151,7 +156,7 @@ export default function FullStackBuildCard({ progress }) {
           className="absolute left-1/2 top-0 z-20 -translate-x-1/2 min-[830px]:top-[2%]"
         >
           <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#9aab6e]/50 bg-[#5E683C] shadow-[0_0_35px_rgba(154,171,110,0.4)] min-[830px]:h-14 min-[830px]:w-14 min-[830px]:rounded-2xl">
-            <span className="font-climate-crisis text-[12px] text-black min-[830px]:text-[15px]">
+            <span className="font-ginto text-[12px] text-black min-[830px]:text-[15px]">
               AI
             </span>
             <motion.span
@@ -233,7 +238,7 @@ export default function FullStackBuildCard({ progress }) {
               </div>
               <div className="font-archivo-black text-[14px] text-white min-[830px]:mt-3 min-[830px]:text-[20px]">
                 <motion.span>{databaseLabel}</motion.span>
-                <span className="ml-1 font-gruppo text-[8px] font-normal text-white/35 min-[830px]:text-[9px]">
+                <span className="ml-1 font-gg-sans text-[8px] font-normal text-white/35 min-[830px]:text-[9px]">
                   tables
                 </span>
               </div>
@@ -250,7 +255,7 @@ export default function FullStackBuildCard({ progress }) {
               {[codeLineOne, codeLineTwo, codeLineThree, codeLineFour].map(
                 (width, index) => (
                   <div key={index} className="flex items-center gap-1.5 min-[830px]:gap-2">
-                    <span className="font-gruppo text-[7px] text-[#9aab6e]/55 min-[830px]:text-[8px]">
+                    <span className="font-gg-sans text-[7px] text-[#9aab6e]/55 min-[830px]:text-[8px]">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <motion.div
@@ -289,7 +294,7 @@ export default function FullStackBuildCard({ progress }) {
           />
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <span className="font-gruppo text-[9px] uppercase tracking-[0.14em] text-white/30">
+          <span className="font-gg-sans text-[9px] uppercase tracking-[0.14em] text-white/30">
             Full-stack build
           </span>
           <motion.span className="font-archivo-black text-[11px] text-white/70">

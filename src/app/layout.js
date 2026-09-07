@@ -1,22 +1,13 @@
-import {
-  Climate_Crisis,
-  Gruppo,
-  Archivo_Black,
-} from "next/font/google";
+import localFont from "next/font/local";
+import { Archivo_Black } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
-const climateCrisis = Climate_Crisis({
-  variable: "--font-climate-crisis",
-  subsets: ["latin"],
-  weight: "400",
-});
-
-const gruppo = Gruppo({
-  variable: "--font-gruppo",
-  subsets: ["latin"],
-  weight: "400",
+const gintoUltra = localFont({
+  src: "../fonts/ABCGintoNord-Ultra.otf",
+  variable: "--font-ginto-ultra",
+  display: "swap",
 });
 
 const archivoBlack = Archivo_Black({
@@ -34,7 +25,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${climateCrisis.variable} ${gruppo.variable} ${archivoBlack.variable} antialiased`}
+        className={`${gintoUltra.variable} ${archivoBlack.variable} antialiased`}
       >
         <SmoothScroll>{children}</SmoothScroll>
       </body>
