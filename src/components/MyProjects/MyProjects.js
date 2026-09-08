@@ -631,7 +631,7 @@ function MacProjectWindow({
 
     const interval = window.setInterval(() => {
       setActiveImage((current) => (current + 1) % screenshots.length);
-    }, 2000);
+    }, 1500);
 
     return () => window.clearInterval(interval);
   }, [shouldCycleScreens, screenshots.length]);
