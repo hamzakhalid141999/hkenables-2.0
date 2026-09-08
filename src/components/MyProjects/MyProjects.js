@@ -57,23 +57,9 @@ const MESH_LINE_OPACITY = 0.08;
 const PROJECTS = [
   {
     number: "01",
-    title: "H&S Auditor",
-    type: "AI Health & Safety Auditor",
-    description:
-      "An AI-powered health and safety auditor that can help you identify and mitigate risks in your workplace or sites and generates a detailed excel with recommendations.",
-    liveLink: "https://www.isekaiverse.io/",
-    primaryColor: "#192222",
-    secondaryColor: "#17FFC6",
-    foreground: "#111111",
-    textColor: "#FFFFFF",
-    // meshColor: "#FFFFFF", // optional — grid line tint; defaults to white
-    tech: [],
-    video: "/projects-screenshots/hns-audit.mp4",
-  },
-  {
-    number: "02",
     title: "BatchEdits",
     type: "Bulk Video Editor",
+    liveLink: "https://batchedits.com/",
     description:
       "An all-in-one bulk editor for podcasts, talking-head clips, narrated videos, and more. Cut awkward silences, customize captions, clip and crop, refine your transcript, and punch in or out with cinematic zooms.",
     primaryColor: "#FFFFFF",
@@ -96,10 +82,45 @@ const PROJECTS = [
     video: "/projects-screenshots/batch-edits.mp4",
     meshColor: "#A0581D", // optional — grid line tint; defaults to white
   },
+
+  {
+    number: "02",
+    title: "Estately.io",
+    type: "Property Management",
+    description:
+      "Estately brings all property operations into one powerful, easy-to-use platform. Manage tenants, assets, bookings, maintenance, compliance, and finances from a single dashboard. Custom made accounting solution so you can track every add-on's penny.\n\nWith smart automation, real-time reporting, and role-based access, Estately delivers complete visibility and control making complex property management simple and scalable.",
+    liveLink: "https://www.estately.io/",
+    primaryColor: "#dde8e4",
+    secondaryColor: "#73ad95",
+    foreground: "#111111",
+    textColor: "#000000",
+    meshColor: "#244135",
+    tech: [],
+    screenshots: Array.from(
+      { length: 22 },
+      (_, i) => `/projects-screenshots/e-${i + 1}.png`
+    ),
+  },
   {
     number: "03",
+    title: "H&S Auditor",
+    type: "AI Health & Safety Auditor",
+    description:
+      "An AI-powered health and safety auditor that can help you identify and mitigate risks in your workplace or sites and generates a detailed excel with recommendations.",
+    liveLink: "https://www.isekaiverse.io/",
+    primaryColor: "#192222",
+    secondaryColor: "#17FFC6",
+    foreground: "#111111",
+    textColor: "#FFFFFF",
+    // meshColor: "#FFFFFF", // optional — grid line tint; defaults to white
+    tech: [],
+    video: "/projects-screenshots/hns-audit.mp4",
+  },
+  {
+    number: "04",
     title: "Redbook",
     type: "Certified Listings Platform",
+    liveLink: "https://www.redbooklive.com/",
     description:
       "Redbook is an eco-system of 3 apps. RedBookLive delivers instant, up-to-date verification of LPCB-certified products and services — online and via PDF.\nI've solely built the Azure AD B2C single sign-on used across 10+ BRE applications, including Redbook, and contributed to the admin portal.",
     primaryColor: "#141535",
@@ -123,7 +144,7 @@ const PROJECTS = [
     ),
   },
   {
-    number: "04",
+    number: "05",
     title: "FARBE",
     type: "NFT Marketplace",
     description:
@@ -141,9 +162,10 @@ const PROJECTS = [
     ),
   },
   {
-    number: "05",
+    number: "06",
     title: "Facing North",
     type: "Travel Agency",
+    liveLink: "https://facing-north-dev.vercel.app/",
     description:
       "A travel platform for customized tours showcasing the natural beauty, cultural heritage, and way of life across Pakistan's northern region.",
     primaryColor: "#73EAFC",
@@ -158,7 +180,7 @@ const PROJECTS = [
     ),
   },
   {
-    number: "06",
+    number: "07",
     title: "Isekaiverse",
     type: "Anime Web3 Ecosystem",
     description:
@@ -175,12 +197,12 @@ const PROJECTS = [
     ),
   },
   {
-    number: "07",
+    number: "08",
     title: "Rentto",
     type: "Real Estate Portal",
+    liveLink: "https://rentto-web-kappa.vercel.app/",
     description:
       "A direct rental marketplace for workplaces and properties, connecting renters with owners without the friction of a middleman.",
-    liveLink: "https://renttoapp.com/",
     primaryColor: "#387F80",
     secondaryColor: "#f09737",
     foreground: "#FFFFFF",
@@ -192,7 +214,7 @@ const PROJECTS = [
     ),
   },
   {
-    number: "08",
+    number: "09",
     title: "Zilaay",
     type: "Real Estate Portal",
     description:
@@ -446,7 +468,7 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
               <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
                 Description
               </p>
-              <p className="whitespace-pre-line font-gg-sans text-[17px] font-bold leading-snug text-white/80">
+              <p className="whitespace-pre-line font-gg-sans text-[17px] font-normal leading-snug text-white/80">
                 {description}
               </p>
             </div>
@@ -501,7 +523,7 @@ function ProjectDescription({
     return (
       <motion.p
         style={{ y }}
-        className="mt-5 max-w-md whitespace-pre-line font-gg-sans text-[clamp(18px,1.4vw,20px)] font-bold leading-snug opacity-80"
+        className="mt-5 max-w-md whitespace-pre-line font-gg-sans text-[clamp(18px,1.4vw,20px)] font-normal leading-snug opacity-80"
       >
         {text}
       </motion.p>
@@ -512,7 +534,7 @@ function ProjectDescription({
     <div className="mt-5 max-w-md">
       <p
         ref={textRef}
-        className="line-clamp-3 whitespace-pre-line font-gg-sans text-[18px] font-bold leading-snug opacity-80"
+        className="line-clamp-3 whitespace-pre-line font-gg-sans text-[18px] font-normal leading-snug opacity-80"
       >
         {text}
       </p>
@@ -520,7 +542,7 @@ function ProjectDescription({
         <button
           type="button"
           onClick={onSeeMore}
-          className="mt-1.5 pointer-events-auto font-gg-sans text-[13px] font-bold uppercase tracking-[0.12em] underline underline-offset-2 opacity-70"
+          className="mt-1.5 pointer-events-auto font-gg-sans text-[13px] uppercase tracking-[0.12em] underline underline-offset-2 opacity-70"
         >
           see more
         </button>
@@ -564,11 +586,31 @@ function useProjectMediaWarmup(enabled) {
   }, [enabled]);
 }
 
+function ExternalLinkIcon({ className }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <path
+        d="M6.5 3.5H3.5A1 1 0 0 0 2.5 4.5v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3M9.5 2.5h4v4M7.5 8.5l6-6"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function MacProjectWindow({
   screenshots = [],
   video,
   title,
   foreground,
+  liveLink,
   isActive = false,
   warmMedia = false,
 }) {
@@ -589,7 +631,7 @@ function MacProjectWindow({
 
     const interval = window.setInterval(() => {
       setActiveImage((current) => (current + 1) % screenshots.length);
-    }, 1000);
+    }, 2000);
 
     return () => window.clearInterval(interval);
   }, [shouldCycleScreens, screenshots.length]);
@@ -727,6 +769,28 @@ function MacProjectWindow({
         >
           {statusLabel}
         </div>
+
+        {liveLink ? (
+          <AnimatePresence>
+            {isHovered || (isMobile && isActive) ? (
+              <motion.a
+                key="live-site-link"
+                href={liveLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: -10, scale: 0.92 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.94 }}
+                transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                className="absolute top-3 right-3 z-30 inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-3 py-1.5 font-gg-sans text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_28px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/75 hover:border-white/40"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Live site
+                <ExternalLinkIcon className="size-3.5 opacity-90" />
+              </motion.a>
+            ) : null}
+          </AnimatePresence>
+        ) : null}
       </div>
     </motion.div>
   );
@@ -825,6 +889,7 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
             video={project.video}
             title={project.title}
             foreground={project.foreground}
+            liveLink={project.liveLink}
             isActive={isActive}
             warmMedia={warmMedia}
           />
@@ -867,18 +932,6 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
             clampOnMobile={isMobile}
             onSeeMore={openDetails}
           />
-
-          <div className="mt-6">
-            {project.liveLink ? (
-              <span className="font-gg-sans text-[11px] uppercase tracking-[0.18em] opacity-55">
-                Live project ↗
-              </span>
-            ) : (
-              <span className="font-gg-sans text-[11px] uppercase tracking-[0.18em] opacity-45">
-                Selected work
-              </span>
-            )}
-          </div>
         </motion.div>
       </motion.div>
 
