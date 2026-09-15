@@ -15,6 +15,7 @@ import {
   prefetchOptimizedImage,
 } from "@/lib/optimizedImage";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { MagneticHotspot } from "@/components/MyOfferings/MagneticLink";
 
 /** Brand-coded tech tags shown under each project window. */
 const TECH_STYLES = {
@@ -24,6 +25,10 @@ const TECH_STYLES = {
   "Next.js": { bg: "#111111", text: "#FFFFFF" },
   NestJS: { bg: "#E0234E", text: "#FFFFFF" },
   "Node.js": { bg: "#339933", text: "#FFFFFF" },
+  MongoDB: { bg: "#47A248", text: "#FFFFFF" },
+  Terraform: { bg: "#7B42BC", text: "#FFFFFF" },
+  FastAPI: { bg: "#009688", text: "#FFFFFF" },
+  Anthropic: { bg: "#D4A27F", text: "#1a1a1a" },
   AWS: { bg: "#FF9900", text: "#1a1a1a" },
   Amazon: { bg: "#FF9900", text: "#1a1a1a" },
   Azure: { bg: "#0078D4", text: "#FFFFFF" },
@@ -95,7 +100,7 @@ const PROJECTS = [
     foreground: "#111111",
     textColor: "#000000",
     meshColor: "#244135",
-    tech: [],
+    tech: ["React", "MongoDB", "AWS", "Terraform", "NestJS"],
     screenshots: Array.from(
       { length: 22 },
       (_, i) => `/projects-screenshots/e-${i + 1}.png`
@@ -107,13 +112,12 @@ const PROJECTS = [
     type: "AI Health & Safety Auditor",
     description:
       "An AI-powered health and safety auditor that can help you identify and mitigate risks in your workplace or sites and generates a detailed excel with recommendations.",
-    liveLink: "https://www.isekaiverse.io/",
     primaryColor: "#192222",
     secondaryColor: "#17FFC6",
     foreground: "#111111",
     textColor: "#FFFFFF",
     // meshColor: "#FFFFFF", // optional — grid line tint; defaults to white
-    tech: [],
+    tech: ["React", "FastAPI", "Anthropic"],
     video: "/projects-screenshots/hns-audit.mp4",
   },
   {
@@ -149,7 +153,6 @@ const PROJECTS = [
     type: "NFT Marketplace",
     description:
       "An online NFT marketplace where artists could publish and sell their work, with support for multiple crypto wallets including MetaMask.",
-    liveLink: "https://www.isekaiverse.io/",
     primaryColor: "#FFFFFF",
     secondaryColor: "#17FFC6",
     foreground: "#111111",
@@ -184,7 +187,7 @@ const PROJECTS = [
     title: "Isekaiverse",
     type: "Anime Web3 Ecosystem",
     description:
-      "A Web3 entertainment ecosystem connecting fans, creators, and professionals with tools that help original brands and IP come to life.",
+      "A Web3 Anime NFT Marketplace where users can buy, sell, and trade Anime NFTs. Built using Next.js, AWS, and The Graph.",
     liveLink: "https://www.mysticreign.io/",
     primaryColor: "#5F11D1",
     secondaryColor: "#40EA6B",
@@ -196,44 +199,108 @@ const PROJECTS = [
       (_, i) => `/projects-screenshots/iv-${i + 1}.png`
     ),
   },
-  {
-    number: "08",
-    title: "Rentto",
-    type: "Real Estate Portal",
-    liveLink: "https://rentto-web-kappa.vercel.app/",
-    description:
-      "A direct rental marketplace for workplaces and properties, connecting renters with owners without the friction of a middleman.",
-    primaryColor: "#387F80",
-    secondaryColor: "#f09737",
-    foreground: "#FFFFFF",
-    textColor: "#FFFFFF",
-    tech: ["JavaScript", "Next.js", "AWS"],
-    screenshots: Array.from(
-      { length: 12 },
-      (_, i) => `/projects-screenshots/r-${i + 1}.png`
-    ),
-  },
-  {
-    number: "09",
-    title: "Zilaay",
-    type: "Real Estate Portal",
-    description:
-      "A modern property portal bringing buyers and sellers closer through international-standard listings and map-based boundary search.",
-    primaryColor: "#73EAFC",
-    secondaryColor: "#18B5CD",
-    meshColor: "#108EA1",
-    foreground: "#10252a",
-    textColor: "#183840",
-    tech: ["TypeScript", "Next.js", "AWS", "MetaMask"],
-    screenshots: Array.from(
-      { length: 12 },
-      (_, i) => `/projects-screenshots/z-${i + 1}.png`
-    ),
-  },
 ];
 
 /** Exposed so the scroll-snap logic in MyOfferings knows how many beats exist. */
 export const PROJECT_COUNT = PROJECTS.length;
+
+const FOOTER_CONTACTS = [
+  {
+    id: "linkedin",
+    src: "/contacts/linkedin.svg",
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/hamza-khalid-5a40931a5/",
+    hint: "Best place to reach out to me!",
+  },
+  {
+    id: "github",
+    src: "/contacts/github.svg",
+    label: "GitHub",
+    href: "https://github.com/hamzakhalid141999",
+    hint: "For the nerds",
+  },
+  {
+    id: "mail",
+    src: "/contacts/mail.svg",
+    label: "Email",
+    href: "mailto:hamzakhalid141999@gmail.com",
+    hint: "A DM on LinkedIn is faster, but mails are welcome too :)",
+  },
+];
+
+function FooterContact({ contact, index }) {
+  const isMail = contact.href.startsWith("mailto:");
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 36, scale: 0.82, filter: "blur(14px)" }}
+      animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: 16, scale: 0.9, filter: "blur(10px)" }}
+      transition={{
+        delay: index * 0.16,
+        type: "spring",
+        stiffness: 320,
+        damping: 26,
+        mass: 0.7,
+      }}
+      className="relative flex h-8 w-auto shrink-0 items-center sm:h-10 md:h-[20%]"
+      style={{ pointerEvents: "auto" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+    >
+      <AnimatePresence>
+        {hovered ? (
+          <motion.div
+            key={`${contact.id}-hint`}
+            role="tooltip"
+            initial={{ opacity: 0, y: 10, scale: 0.92, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: 6, scale: 0.96, filter: "blur(6px)" }}
+            transition={{ type: "spring", stiffness: 380, damping: 28, mass: 0.55 }}
+            className="pointer-events-none absolute bottom-[calc(100%+14px)] left-1/2 z-40 w-max max-w-[min(78vw,280px)] -translate-x-1/2"
+          >
+            <div className="relative rounded-2xl border border-white/10 bg-[#1a1a1a]/95 px-3.5 py-2.5 text-center shadow-[0_16px_40px_rgba(0,0,0,0.45)] backdrop-blur-md">
+              <p className="font-gg-sans text-[13px] font-medium leading-snug tracking-wide text-white/85 sm:text-[18px]">
+                {contact.hint}
+              </p>
+              <span
+                aria-hidden
+                className="absolute left-1/2 top-full h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border-r border-b border-white/10 bg-[#1a1a1a]/95"
+              />
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <MagneticHotspot
+        href={contact.href}
+        target={isMail ? undefined : "_blank"}
+        rel={isMail ? undefined : "noopener noreferrer"}
+        aria-label={contact.label}
+        color="#738732"
+        className="h-full"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={contact.src}
+          alt=""
+          className="relative z-10 h-full w-auto shrink-0 select-none object-contain md:h-[70%]"
+          draggable={false}
+        />
+        <span
+          aria-hidden
+          className="relative z-0 -ml-[0.25em] mt-2.5 font-archivo-black text-[clamp(36px,9vw,60px)] font-black leading-none tracking-tight transition-colors duration-300 md:mt-[0.55em] md:text-[clamp(18px,8.2vh,60px)]"
+          style={{ color: hovered ? "#738732" : "rgba(255,255,255,0.15)" }}
+        >
+          {contact.label}
+        </span>
+      </MagneticHotspot>
+    </motion.div>
+  );
+}
 
 /** Lightweight nav labels for the gallery controls. */
 export const PROJECT_NAV = PROJECTS.map(({ number, title, secondaryColor, foreground }) => ({
@@ -605,6 +672,89 @@ function ExternalLinkIcon({ className }) {
   );
 }
 
+function ProjectVideoPlayer({
+  src,
+  title,
+  isActive,
+  shouldPreload,
+}) {
+  const videoRef = useRef(null);
+  const userPausedRef = useRef(false);
+  const wasActiveRef = useRef(false);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || !shouldPreload) return undefined;
+    el.preload = "auto";
+    try {
+      el.load();
+    } catch {
+      // ignore
+    }
+    return undefined;
+  }, [shouldPreload, src]);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return undefined;
+
+    const onPlay = () => {
+      userPausedRef.current = false;
+    };
+    const onPause = () => {
+      // Ignore pause from leaving the project (handled below).
+      if (wasActiveRef.current) userPausedRef.current = true;
+    };
+
+    el.addEventListener("play", onPlay);
+    el.addEventListener("pause", onPause);
+    return () => {
+      el.removeEventListener("play", onPlay);
+      el.removeEventListener("pause", onPause);
+    };
+  }, [src]);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return undefined;
+
+    if (!isActive) {
+      userPausedRef.current = false;
+      wasActiveRef.current = false;
+      el.pause();
+      el.currentTime = 0;
+      return undefined;
+    }
+
+    const entered = !wasActiveRef.current;
+    wasActiveRef.current = true;
+    if (!entered && userPausedRef.current) return undefined;
+
+    const play = () => {
+      el.play().catch(() => {});
+    };
+    if (el.readyState >= 2) play();
+    else el.addEventListener("canplay", play, { once: true });
+    return () => el.removeEventListener("canplay", play);
+  }, [isActive]);
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      className="absolute inset-0 h-full w-full object-contain object-center"
+      muted
+      loop
+      playsInline
+      controls
+      controlsList="nodownload noremoteplayback"
+      preload={shouldPreload ? "auto" : "metadata"}
+      aria-label={`${title} preview`}
+      onClick={(e) => e.stopPropagation()}
+    />
+  );
+}
+
 function MacProjectWindow({
   screenshots = [],
   video,
@@ -617,14 +767,11 @@ function MacProjectWindow({
   const isMobile = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
-  const videoRef = useRef(null);
   const hasVideo = Boolean(video);
-  const shouldPlay = hasVideo && isActive;
-  const shouldPreloadVideo = hasVideo && (shouldPlay || warmMedia);
-  const canCycleScreens =
-    !hasVideo && screenshots.length > 1;
-  // Mobile: autoplay while project is active. Desktop: still hover-driven.
-  const shouldCycleScreens = canCycleScreens && (isMobile ? isActive : isHovered);
+  const shouldPreloadVideo = hasVideo && (isActive || warmMedia);
+  const canCycleScreens = !hasVideo && screenshots.length > 1;
+  // Auto-advance screenshots while this project is scrolled into view
+  const shouldCycleScreens = canCycleScreens && isActive;
 
   useEffect(() => {
     if (!shouldCycleScreens) return undefined;
@@ -636,78 +783,38 @@ function MacProjectWindow({
     return () => window.clearInterval(interval);
   }, [shouldCycleScreens, screenshots.length]);
 
-  // Restart slideshow from the first frame whenever this project leaves / re-enters
+  // Restart slideshow from the first frame when leaving / returning to a project
   useEffect(() => {
-    if (isMobile) {
-      if (!isActive) setActiveImage(0);
-      return undefined;
-    }
-    if (!isHovered) setActiveImage(0);
-    return undefined;
-  }, [isMobile, isActive, isHovered]);
+    if (!isActive) setActiveImage(0);
+  }, [isActive]);
 
-  // Prefetch hover frames through the optimizer so we never pull raw PNGs
+  // Prefetch frames through the optimizer so we never pull raw PNGs
   useEffect(() => {
     if (hasVideo || screenshots.length === 0) return undefined;
     screenshots.forEach((src) => prefetchOptimizedImage(src));
     return undefined;
   }, [screenshots, hasVideo]);
 
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el || !hasVideo || !shouldPreloadVideo) return undefined;
-    el.preload = "auto";
-    try {
-      el.load();
-    } catch {
-      // ignore
-    }
-    return undefined;
-  }, [shouldPreloadVideo, hasVideo, video]);
-
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el || !hasVideo) return undefined;
-
-    if (shouldPlay) {
-      const play = () => {
-        el.play().catch(() => {});
-      };
-      if (el.readyState >= 2) play();
-      else {
-        el.addEventListener("canplay", play, { once: true });
-        return () => el.removeEventListener("canplay", play);
-      }
-      return undefined;
-    }
-
-    el.pause();
-    return undefined;
-  }, [shouldPlay, hasVideo]);
-
   const statusLabel = hasVideo
-    ? shouldPlay
-      ? "Playing"
-      : "Video"
-    : shouldCycleScreens || (isMobile && isActive)
+    ? null
+    : shouldCycleScreens
       ? `${activeImage + 1} / ${screenshots.length}`
-      : isMobile
-        ? `${screenshots.length} shots`
-        : "Hover to explore";
+      : `${screenshots.length} shots`;
+
+  const showLiveLink = Boolean(liveLink) && (isActive || isHovered);
 
   return (
     <motion.div
-      className="pointer-events-auto w-full overflow-hidden rounded-[20px] border border-black/15 bg-[#ececec] shadow-[0_35px_90px_rgba(0,0,0,0.34)]"
+      className="w-full overflow-hidden rounded-[20px] border border-black/15 bg-[#ececec] shadow-[0_35px_90px_rgba(0,0,0,0.34)]"
       onHoverStart={() => {
         if (!isMobile) setIsHovered(true);
       }}
       onHoverEnd={() => {
-        if (!isMobile) {
-          setIsHovered(false);
-          setActiveImage(0);
-        }
+        if (!isMobile) setIsHovered(false);
       }}
-      whileHover={isMobile ? undefined : { y: -10, scale: 1.012 }}
+      whileHover={
+        isMobile || hasVideo ? undefined : { y: -10, scale: 1.012 }
+      }
       transition={{ type: "spring", stiffness: 180, damping: 22 }}
     >
       <div className="flex h-11 items-center border-b border-black/10 bg-[#e7e7e7] px-4">
@@ -723,15 +830,11 @@ function MacProjectWindow({
 
       <div className="relative aspect-16/10 overflow-hidden bg-[#111]">
         {hasVideo ? (
-          <video
-            ref={videoRef}
+          <ProjectVideoPlayer
             src={video}
-            className="absolute inset-0 h-full w-full object-contain object-center"
-            muted
-            loop
-            playsInline
-            preload={shouldPreloadVideo ? "auto" : "metadata"}
-            aria-label={`${title} preview`}
+            title={title}
+            isActive={isActive}
+            shouldPreload={shouldPreloadVideo}
           />
         ) : (
           screenshots.map((src, index) => (
@@ -759,38 +862,38 @@ function MacProjectWindow({
           ))
         )}
 
-        <div
-          className="absolute bottom-3 right-3 z-20 rounded-full border px-3 py-1 font-gg-sans text-[9px] uppercase tracking-[0.14em] backdrop-blur-md"
-          style={{
-            color: foreground,
-            borderColor: `${foreground}33`,
-            backgroundColor: `${foreground}12`,
-          }}
-        >
-          {statusLabel}
-        </div>
-
-        {liveLink ? (
-          <AnimatePresence>
-            {isHovered || (isMobile && isActive) ? (
-              <motion.a
-                key="live-site-link"
-                href={liveLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: -10, scale: 0.92 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.94 }}
-                transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                className="absolute top-3 right-3 z-30 inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-3 py-1.5 font-gg-sans text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_28px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/75 hover:border-white/40"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Live site
-                <ExternalLinkIcon className="size-3.5 opacity-90" />
-              </motion.a>
-            ) : null}
-          </AnimatePresence>
+        {statusLabel ? (
+          <div
+            className="absolute bottom-3 right-3 z-20 rounded-full border px-3 py-1 font-gg-sans text-[9px] uppercase tracking-[0.14em] backdrop-blur-md"
+            style={{
+              color: foreground,
+              borderColor: `${foreground}33`,
+              backgroundColor: `${foreground}12`,
+            }}
+          >
+            {statusLabel}
+          </div>
         ) : null}
+
+        <AnimatePresence>
+          {showLiveLink ? (
+            <motion.a
+              key="live-site-link"
+              href={liveLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              initial={{ opacity: 0, y: -10, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.94 }}
+              transition={{ type: "spring", stiffness: 420, damping: 28 }}
+              className="absolute top-3 right-3 z-30 inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-3 py-1.5 font-gg-sans text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_28px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/75 hover:border-white/40"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Live site
+              <ExternalLinkIcon className="size-3.5 opacity-90" />
+            </motion.a>
+          ) : null}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -807,30 +910,30 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
   const screenY = useTransform(
     progress,
     [start, mid, end],
-    ["48vh", "0vh", "-52vh"]
+    isLast ? ["48vh", "0vh", "0vh"] : ["48vh", "0vh", "-52vh"]
   );
   // Copy moves vertically as one group so its baseline position stays intact...
   const copyY = useTransform(
     progress,
     [start, mid, end],
-    ["32vh", "0vh", "-30vh"]
+    isLast ? ["32vh", "0vh", "0vh"] : ["32vh", "0vh", "-30vh"]
   );
   // ...while each line adds its own smaller vertical delta, creating parallax
   // between meta / title / description as they scroll (fastest → slowest).
   const metaYDelta = useTransform(
     progress,
     [start, mid, end],
-    ["14vh", "0vh", "-8vh"]
+    isLast ? ["14vh", "0vh", "0vh"] : ["14vh", "0vh", "-8vh"]
   );
   const titleYDelta = useTransform(
     progress,
     [start, mid, end],
-    ["8vh", "0vh", "-5vh"]
+    isLast ? ["8vh", "0vh", "0vh"] : ["8vh", "0vh", "-5vh"]
   );
   const descriptionYDelta = useTransform(
     progress,
     [start, mid, end],
-    ["4vh", "0vh", "-2vh"]
+    isLast ? ["4vh", "0vh", "0vh"] : ["4vh", "0vh", "-2vh"]
   );
   const opacity = useTransform(
     progress,
@@ -842,15 +945,19 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
   const screenScale = useTransform(
     progress,
     [start, mid, end],
-    [0.92, 1, 0.96]
+    isLast ? [0.92, 1, 1] : [0.92, 1, 0.96]
   );
   // Number rides in/out with the beat while staying top-left over the ribbon.
   const numberY = useTransform(
     progress,
     [start, mid, end],
-    ["18vh", "0vh", "-14vh"]
+    isLast ? ["18vh", "0vh", "0vh"] : ["18vh", "0vh", "-14vh"]
   );
-  const numberScale = useTransform(progress, [start, mid, end], [0.9, 1, 0.94]);
+  const numberScale = useTransform(
+    progress,
+    [start, mid, end],
+    isLast ? [0.9, 1, 1] : [0.9, 1, 0.94]
+  );
   const [detailsOpen, setDetailsOpen] = useState(false);
   const openDetails = useCallback(() => setDetailsOpen(true), []);
   const closeDetails = useCallback(() => setDetailsOpen(false), []);
@@ -882,7 +989,9 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
       >
         <motion.div
           style={isMobile ? undefined : { y: screenY, scale: screenScale }}
-          className="w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%]"
+          className={`w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%] ${
+            isActive ? "z-30 pointer-events-auto" : "z-10 pointer-events-none"
+          }`}
         >
           <MacProjectWindow
             screenshots={project.screenshots}
@@ -973,12 +1082,22 @@ function ChevronIcon({ direction = "left" }) {
  */
 function ProjectGalleryNav({
   progress,
+  footerProgress,
   activeIndex,
   onGoTo,
   onPrev,
   onNext,
 }) {
-  const opacity = useTransform(progress, [0.02, 0.07], [0, 1], { clamp: true });
+  const galleryOpacity = useTransform(progress, [0.02, 0.07], [0, 1], {
+    clamp: true,
+  });
+  const footerFade = useTransform(footerProgress, [0.78, 0.92], [1, 0], {
+    clamp: true,
+  });
+  const opacity = useTransform(
+    [galleryOpacity, footerFade],
+    ([g, f]) => g * f
+  );
   const y = useTransform(progress, [0.02, 0.08], [18, 0], { clamp: true });
   const pointerEvents = useTransform(opacity, (o) => (o > 0.35 ? "auto" : "none"));
 
@@ -1092,9 +1211,8 @@ function ProjectGalleryNav({
         <button
           type="button"
           onClick={onNext}
-          disabled={isLast}
-          aria-label="Next project"
-          className="flex size-11 shrink-0 items-center justify-center rounded-full border border-black/12 bg-white/70 text-black/80 shadow-sm backdrop-blur-md transition hover:bg-white hover:text-black active:scale-95 disabled:pointer-events-none disabled:opacity-35"
+          aria-label={isLast ? "Open footer" : "Next project"}
+          className="flex size-11 shrink-0 items-center justify-center rounded-full border border-black/12 bg-white/70 text-black/80 shadow-sm backdrop-blur-md transition hover:bg-white hover:text-black active:scale-95"
         >
           <ChevronIcon direction="right" />
         </button>
@@ -1109,11 +1227,13 @@ function ProjectGalleryNav({
  * 1. Curtain: white landing; "MY PROJECTS" eases left → center.
  * 2. Intro: heading scoots up; intro copy fades in (still white, no ribbon).
  * 3. Gallery: white land exits; project color + diagonal ribbon enter; snap beats.
+ * 4. Footer: gallery lifts to unveil a static black footer with portrait focus.
  */
 export default function MyProjects({
   curtainProgress,
   introProgress,
   projectsProgress,
+  footerProgress,
   activeProjectIndex = 0,
   onGoToProject,
   onNextProject,
@@ -1126,6 +1246,8 @@ export default function MyProjects({
   const [warmMedia, setWarmMedia] = useState(false);
   /** Live scroll-derived index — keeps look-ahead mounts in sync during fast snaps. */
   const [progressIndex, setProgressIndex] = useState(0);
+  /** Contact icons appear once the footer unveil has fully settled. */
+  const [showFooterContacts, setShowFooterContacts] = useState(false);
   const isMobile = useIsMobile();
 
   useProjectMediaWarmup(warmMedia);
@@ -1139,6 +1261,13 @@ export default function MyProjects({
   useMotionValueEvent(curtainProgress, "change", (value) => {
     if (value > 0.01) setWarmMedia(true);
   });
+
+  useMotionValueEvent(footerProgress, "change", (value) => {
+    setShowFooterContacts(value >= 0.92);
+  });
+  useEffect(() => {
+    setShowFooterContacts(footerProgress.get() >= 0.92);
+  }, [footerProgress]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -1261,12 +1390,89 @@ export default function MyProjects({
     clamp: true,
   });
 
+  // —— Phase 4: lift gallery to unveil static footer ——
+  const THEME_GREEN = "#738732";
+  const FOOTER_VH = 80;
+  const galleryLiftY = useTransform(
+    footerProgress,
+    [0, 1],
+    ["0vh", `-${FOOTER_VH}vh`],
+    { clamp: true }
+  );
+  // Keep footer invisible during Offerings/Projects so its black never
+  // peeks through the offerings curtain border-radius.
+  const footerLayerOpacity = useTransform(
+    footerProgress,
+    [0, 0.02],
+    [0, 1],
+    { clamp: true }
+  );
+  const footerWordBlur = useTransform(footerProgress, [0, 1], [28, 0], {
+    clamp: true,
+  });
+  const footerWordFilter = useTransform(footerWordBlur, (b) =>
+    b > 0.08 ? `blur(${b}px)` : "none"
+  );
+  // Starts 20% below the fold, rises to ~10% below (still clipped)
+  const footerWordY = useTransform(footerProgress, [0, 1], ["14vh", "0vh"], {
+    clamp: true,
+  });
+  // Late wipe: just before footer is fully open, clear projects → solid green strip
+  const galleryClearOpacity = useTransform(footerProgress, [0.78, 0.92], [1, 0], {
+    clamp: true,
+  });
+  const galleryGreenOpacity = useTransform(footerProgress, [0.78, 0.92], [0, 1], {
+    clamp: true,
+  });
+  const meshOpacity = useTransform(
+    [galleryOpacity, galleryClearOpacity],
+    ([g, c]) => g * c
+  );
+  const ribbonFadeOpacity = useTransform(
+    [ribbonOpacity, galleryClearOpacity],
+    ([r, c]) => r * c
+  );
+  const galleryContentOpacity = useTransform(
+    [galleryOpacity, galleryClearOpacity],
+    ([g, c]) => g * c
+  );
+
   return (
     <motion.section
       id="myProjects"
       className="absolute inset-0 z-0 h-full w-full overflow-hidden"
       aria-label="My Projects"
     >
+      {/* Static footer — hidden until unveil so Offerings radius never shows black */}
+      <motion.footer
+        style={{ opacity: footerLayerOpacity }}
+        className="absolute inset-x-0 bottom-0 z-0 h-[80vh] overflow-visible bg-black"
+        aria-label="HKENABLES"
+      >
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-9 px-6 md:top-[30%] md:flex-row md:items-start md:justify-center md:gap-[clamp(2rem,5vw,4.5rem)] md:px-0">
+          <AnimatePresence>
+            {showFooterContacts
+              ? FOOTER_CONTACTS.map((contact, index) => (
+                  <FooterContact key={contact.id} contact={contact} index={index} />
+                ))
+              : null}
+          </AnimatePresence>
+        </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[55%] overflow-hidden">
+          <motion.h2
+            style={{ filter: footerWordFilter, y: footerWordY }}
+            className="absolute bottom-0 left-0 w-full origin-bottom scale-y-65 cursor-default whitespace-nowrap text-center font-gondens text-[clamp(3.75rem,18vw,22rem)] uppercase leading-none tracking-tight text-white/30 will-change-[transform,filter]"
+          >
+            HKENABLES
+          </motion.h2>
+        </div>
+      </motion.footer>
+
+      {/* Gallery layer — scrolls up to unveil the footer */}
+      <motion.div
+        className="absolute inset-0 z-10 will-change-transform"
+        style={{ y: galleryLiftY }}
+      >
       {/* Opaque white underlayer for curtain + intro (stays put under project color) */}
       <motion.div
         className="absolute inset-0 z-0 bg-white"
@@ -1284,7 +1490,7 @@ export default function MyProjects({
         aria-hidden
         className="pointer-events-none absolute inset-0 z-2"
         style={{
-          opacity: galleryOpacity,
+          opacity: meshOpacity,
           backgroundImage: meshBackgroundImage,
           backgroundSize: "48px 48px",
         }}
@@ -1294,21 +1500,10 @@ export default function MyProjects({
         aria-hidden
         style={{
           x: ribbonX,
-          opacity: ribbonOpacity,
+          opacity: ribbonFadeOpacity,
           background: ribbonGradient,
         }}
         className="absolute z-10 top-[-22%] left-[-42%] h-[260px] w-[720px] rotate-[-35deg] sm:top-[-14%] sm:left-[-32%] sm:h-[300px] sm:w-[820px] md:top-[-10%] md:left-[-27%] md:h-85 md:w-355"
-      />
-
-      {/* Soft white radial glow — bottom-right of the project gallery (desktop only) */}
-      <motion.div
-        aria-hidden
-        style={{
-          opacity: galleryOpacity,
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.12) 42%, rgba(255,255,255,0) 72%)",
-        }}
-        className="pointer-events-none absolute -bottom-[22%] -right-[16%] z-10 hidden size-[70vw] max-h-180 max-w-180 min-h-80 min-w-80 rounded-full md:block"
       />
 
       {/* Intro chrome: slides in from left, then title + subtitle as a vertical stack. */}
@@ -1338,7 +1533,7 @@ export default function MyProjects({
               filter: isMobile ? "none" : subFilter,
               x: "-50%",
             }}
-            className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gg-sans text-[21px] font-bold leading-snug tracking-wide text-black/55 sm:text-[clamp(16px,1.5vw,34px)]"
+            className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gg-sans text-[21px] font-medium leading-snug tracking-wide text-black/55 sm:text-[clamp(16px,1.5vw,38px)]"
           >
             Scroll to see some of the stuff I&apos;ve worked on or helped build :)
           </motion.p>
@@ -1347,7 +1542,7 @@ export default function MyProjects({
 
       <motion.div
         className="absolute inset-0 z-20"
-        style={{ opacity: galleryOpacity }}
+        style={{ opacity: galleryContentOpacity }}
       >
         {PROJECTS.map((project, index) => {
           // Span active ↔ live progress so fast snaps never unmount the in-between beat.
@@ -1381,12 +1576,21 @@ export default function MyProjects({
       {onGoToProject && onNextProject && onPrevProject ? (
         <ProjectGalleryNav
           progress={projectsProgress}
+          footerProgress={footerProgress}
           activeIndex={activeProjectIndex}
           onGoTo={onGoToProject}
           onPrev={onPrevProject}
           onNext={onNextProject}
         />
       ) : null}
+
+      {/* Solid green — only the projects strip above the footer, late in the unveil */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-40"
+        style={{ backgroundColor: THEME_GREEN, opacity: galleryGreenOpacity }}
+      />
+      </motion.div>
     </motion.section>
   );
 }

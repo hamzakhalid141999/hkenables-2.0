@@ -43,11 +43,14 @@ const CURTAIN_SCROLL_VH = 1.35;
 /** Landing beat: heading settles + intro copy appears before the gallery. */
 const PROJECTS_INTRO_SCROLL_VH = 1.25;
 const PROJECTS_SCROLL_VH = 10;
+/** Extra pin distance to unveil the post-gallery footer (matches ~80vh lift). */
+const FOOTER_SCROLL_VH = 0.85;
 const TOTAL_SCROLL_VH =
   OFFERINGS_SCROLL_VH +
   CURTAIN_SCROLL_VH +
   PROJECTS_INTRO_SCROLL_VH +
-  PROJECTS_SCROLL_VH;
+  PROJECTS_SCROLL_VH +
+  FOOTER_SCROLL_VH;
 const OFFERINGS_END = OFFERINGS_SCROLL_VH / TOTAL_SCROLL_VH;
 const CURTAIN_END =
   (OFFERINGS_SCROLL_VH + CURTAIN_SCROLL_VH) / TOTAL_SCROLL_VH;
@@ -56,6 +59,13 @@ const INTRO_END =
   (OFFERINGS_SCROLL_VH + CURTAIN_SCROLL_VH + PROJECTS_INTRO_SCROLL_VH) /
   TOTAL_SCROLL_VH;
 const GALLERY_START = INTRO_END;
+/** End of project snaps / start of footer unveil. */
+const GALLERY_END =
+  (OFFERINGS_SCROLL_VH +
+    CURTAIN_SCROLL_VH +
+    PROJECTS_INTRO_SCROLL_VH +
+    PROJECTS_SCROLL_VH) /
+  TOTAL_SCROLL_VH;
 
 // Pin progress phases (0→1 across the offerings portion only)
 const SAAS_CARD_END = 0.14;
@@ -138,11 +148,16 @@ export default function MyOfferings() {
    */
   useEffect(() => {
     const galleryLocal = (pin) =>
-      Math.min(1, Math.max(0, (pin - GALLERY_START) / (1 - GALLERY_START)));
+      Math.min(
+        1,
+        Math.max(0, (pin - GALLERY_START) / (GALLERY_END - GALLERY_START))
+      );
 
     const isInIntro = (pin) =>
       pin > CURTAIN_END + 0.001 && pin < GALLERY_START - 0.001;
-    const isInGallery = (pin) => pin >= GALLERY_START - 0.001 && pin < 0.999;
+    const isInGallery = (pin) =>
+      pin >= GALLERY_START - 0.001 && pin < GALLERY_END - 0.002;
+    const isInFooter = (pin) => pin >= GALLERY_END - 0.002;
     const introReady = (pin) => {
       const span = GALLERY_START - CURTAIN_END;
       if (span <= 0) return true;
@@ -160,7 +175,8 @@ export default function MyOfferings() {
 
     const scrollYForIndex = (index) => {
       const targetLocal = (index + 0.5) / PROJECT_COUNT;
-      const targetPin = GALLERY_START + targetLocal * (1 - GALLERY_START);
+      const targetPin =
+        GALLERY_START + targetLocal * (GALLERY_END - GALLERY_START);
       return pinToScrollY(targetPin);
     };
 
@@ -239,10 +255,23 @@ export default function MyOfferings() {
       goNext: () => {
         const pin = pinProgressRef.current;
         if (isInIntro(pin)) return snapToIndex(0, { fromUi: true });
+        if (isInFooter(pin)) return false;
+        if (lockedProjectRef.current >= PROJECT_COUNT - 1) {
+          const targetScrollY = pinToScrollY(1);
+          return animateToScrollY(targetScrollY, { duration: SNAP_DURATION });
+        }
         return snapToIndex(lockedProjectRef.current + 1, { fromUi: true });
       },
       goPrev: () => {
         const pin = pinProgressRef.current;
+        if (isInFooter(pin)) {
+          // Ease back to last project mid — longer so it feels like Lenis inertia
+          lockedProjectRef.current = PROJECT_COUNT - 1;
+          setActiveProjectIndex(PROJECT_COUNT - 1);
+          return animateToScrollY(scrollYForIndex(PROJECT_COUNT - 1), {
+            duration: 1.05,
+          });
+        }
         if (!isInGallery(pin)) return false;
         if (lockedProjectRef.current === 0) {
           return snapToIntroEnd({ fromUi: true });
@@ -257,6 +286,12 @@ export default function MyOfferings() {
 
       const pin = pinProgressRef.current;
       const direction = rawDelta > 0 ? 1 : -1;
+
+      // Footer unveils/covers with free Lenis scroll — no project snaps here.
+      if (isInFooter(pin)) {
+        lockedProjectRef.current = PROJECT_COUNT - 1;
+        return false;
+      }
 
       if (isInIntro(pin)) {
         if (direction > 0 && introReady(pin)) {
@@ -280,11 +315,27 @@ export default function MyOfferings() {
 
       if (!isInGallery(pin)) return false;
 
+      const local = galleryLocal(pin);
+      const lastMid = (PROJECT_COUNT - 0.5) / PROJECT_COUNT;
+
+      // Returning from footer: free-scroll through the tail past last settle
+      // until we reach the last project mid, then resume normal snaps.
+      if (
+        direction < 0 &&
+        lockedProjectRef.current >= PROJECT_COUNT - 1 &&
+        local > lastMid + SNAP_DEADZONE
+      ) {
+        lockedProjectRef.current = PROJECT_COUNT - 1;
+        setActiveProjectIndex(PROJECT_COUNT - 1);
+        return false;
+      }
+
       if (direction < 0 && lockedProjectRef.current === 0) {
         return snapToIntroEnd();
       }
 
       const next = lockedProjectRef.current + direction;
+      // Past the last project: release snap so the footer can unveil freely.
       if (next < 0 || next >= PROJECT_COUNT) return false;
 
       return snapToIndex(next);
@@ -292,6 +343,10 @@ export default function MyOfferings() {
 
     const onWheel = (event) => {
       const pin = pinProgressRef.current;
+
+      // Footer is free-scroll — never intercept, let Lenis carry inertia.
+      if (isInFooter(pin) && !isSnappingRef.current) return;
+
       const inSnapZone =
         isInIntro(pin) || isInGallery(pin) || isSnappingRef.current;
       if (!inSnapZone) return;
@@ -317,6 +372,9 @@ export default function MyOfferings() {
     };
     const onTouchMove = (event) => {
       const pin = pinProgressRef.current;
+
+      if (isInFooter(pin) && !isSnappingRef.current) return;
+
       const inSnapZone =
         isInIntro(pin) || isInGallery(pin) || isSnappingRef.current;
       if (!inSnapZone) return;
@@ -327,6 +385,7 @@ export default function MyOfferings() {
       const y = event.touches[0]?.clientY ?? touchStartY;
       const delta = touchStartY - y;
       if (Math.abs(delta) < 24) return;
+
       if (trySnapFromDelta(delta)) {
         event.preventDefault();
         touchStartY = y;
@@ -335,7 +394,7 @@ export default function MyOfferings() {
 
     const onKeyDown = (event) => {
       const pin = pinProgressRef.current;
-      if (!isInIntro(pin) && !isInGallery(pin)) return;
+      if (!isInIntro(pin) && !isInGallery(pin) && !isInFooter(pin)) return;
 
       if (/^[1-9]$/.test(event.key)) {
         const idx = Number(event.key) - 1;
@@ -346,21 +405,53 @@ export default function MyOfferings() {
       }
 
       if (event.key === "ArrowDown" || event.key === "PageDown") {
+        if (isInFooter(pin)) return;
         if (isInIntro(pin)) {
           if (introReady(pin) && snapToIndex(0)) event.preventDefault();
+        } else if (lockedProjectRef.current >= PROJECT_COUNT - 1) {
+          const targetScrollY = pinToScrollY(1);
+          if (animateToScrollY(targetScrollY)) event.preventDefault();
         } else if (snapToIndex(lockedProjectRef.current + 1)) {
           event.preventDefault();
         }
       } else if (event.key === "ArrowUp" || event.key === "PageUp") {
-        if (isInGallery(pin) && lockedProjectRef.current === 0) {
+        if (isInFooter(pin)) {
+          lockedProjectRef.current = PROJECT_COUNT - 1;
+          setActiveProjectIndex(PROJECT_COUNT - 1);
+          if (
+            animateToScrollY(scrollYForIndex(PROJECT_COUNT - 1), {
+              duration: 1.05,
+            })
+          ) {
+            event.preventDefault();
+          }
+        } else if (isInGallery(pin) && lockedProjectRef.current === 0) {
           if (snapToIntroEnd()) event.preventDefault();
+        } else if (
+          isInGallery(pin) &&
+          lockedProjectRef.current >= PROJECT_COUNT - 1 &&
+          galleryLocal(pin) > (PROJECT_COUNT - 0.5) / PROJECT_COUNT + SNAP_DEADZONE
+        ) {
+          // Still in last-project tail after footer — ease to last mid first
+          if (
+            animateToScrollY(scrollYForIndex(PROJECT_COUNT - 1), {
+              duration: 0.9,
+            })
+          ) {
+            event.preventDefault();
+          }
         } else if (snapToIndex(lockedProjectRef.current - 1)) {
           event.preventDefault();
         }
       } else if (event.key === "Home") {
         if (snapToIndex(0, { fromUi: true })) event.preventDefault();
       } else if (event.key === "End") {
-        if (snapToIndex(PROJECT_COUNT - 1, { fromUi: true })) {
+        if (isInFooter(pin) || lockedProjectRef.current >= PROJECT_COUNT - 1) {
+          const targetScrollY = pinToScrollY(1);
+          if (animateToScrollY(targetScrollY, { duration: SNAP_DURATION })) {
+            event.preventDefault();
+          }
+        } else if (snapToIndex(PROJECT_COUNT - 1, { fromUi: true })) {
           event.preventDefault();
         }
       }
@@ -369,6 +460,13 @@ export default function MyOfferings() {
     const syncLockFromProgress = () => {
       if (isSnappingRef.current) return;
       const pin = pinProgressRef.current;
+      if (isInFooter(pin)) {
+        lockedProjectRef.current = PROJECT_COUNT - 1;
+        setActiveProjectIndex((prev) =>
+          prev === PROJECT_COUNT - 1 ? prev : PROJECT_COUNT - 1
+        );
+        return;
+      }
       if (!isInGallery(pin)) return;
       const local = galleryLocal(pin);
       const idx = Math.min(
@@ -441,10 +539,13 @@ export default function MyOfferings() {
   );
   const projectsProgress = useTransform(
     pinProgress,
-    [INTRO_END, 1],
+    [INTRO_END, GALLERY_END],
     [0, 1],
     { clamp: true }
   );
+  const footerProgress = useTransform(pinProgress, [GALLERY_END, 1], [0, 1], {
+    clamp: true,
+  });
 
   // Drive card/copy progress from raw scroll (Lenis already smooths).
   const pinDrive = offeringsProgress;
@@ -607,6 +708,7 @@ export default function MyOfferings() {
               curtainProgress={curtainDrive}
               introProgress={introProgress}
               projectsProgress={projectsProgress}
+              footerProgress={footerProgress}
               activeProjectIndex={activeProjectIndex}
               onGoToProject={goToProject}
               onNextProject={goToNextProject}
@@ -621,7 +723,7 @@ export default function MyOfferings() {
             style={{
               x: curtainX,
               // Mobile: fixed radius — animating border-radius every frame is costly
-              borderRadius: isMobile ? `${MOBILE_TOP_RADIUS}px 0 0 0` : borderRadius,
+              borderRadius: isMobile ? 0 : borderRadius,
             }}
           >
             <div className="relative z-10 overflow-hidden px-5 pt-14 sm:px-8 md:px-12 lg:px-16 md:pt-16">
@@ -635,7 +737,7 @@ export default function MyOfferings() {
 
             {mountSaas ? (
               <>
-                <div className="absolute inset-0 z-20">
+                <div className="pointer-events-none absolute inset-0 z-20">
                   <OfferingSlot
                     title="SaaS Landing Page"
                     number={1}
@@ -653,7 +755,7 @@ export default function MyOfferings() {
                     y: copyExitY,
                     filter: isMobile ? "none" : copyExitFilter,
                   }}
-                  className="absolute inset-0 z-30"
+                  className="pointer-events-none absolute inset-0 z-30"
                 >
                   <SaasOfferCopy progress={copyProgress} />
                 </motion.div>
@@ -662,7 +764,7 @@ export default function MyOfferings() {
 
             {mountFullStack ? (
               <>
-                <div className="absolute inset-0 z-40">
+                <div className="pointer-events-none absolute inset-0 z-40">
                   <OfferingSlot
                     title="Full-Stack Dev"
                     number={2}
@@ -683,7 +785,7 @@ export default function MyOfferings() {
                     y: fullStackCopyExitY,
                     filter: isMobile ? "none" : fullStackCopyExitFilter,
                   }}
-                  className="absolute inset-0 z-50"
+                  className="pointer-events-none absolute inset-0 z-50"
                 >
                   <FullStackOfferCopy progress={fullStackCopyProgress} />
                 </motion.div>
@@ -692,7 +794,7 @@ export default function MyOfferings() {
 
             {mountRevamp ? (
               <>
-                <div className="absolute inset-0 z-60">
+                <div className="pointer-events-none absolute inset-0 z-60">
                   <OfferingSlot
                     title="Website Revamps"
                     number={3}
@@ -707,7 +809,7 @@ export default function MyOfferings() {
                   </OfferingSlot>
                 </div>
 
-                <div className="absolute inset-0 z-70">
+                <div className="pointer-events-none absolute inset-0 z-70">
                   <WebsiteRevampOfferCopy
                     progress={revampCopyProgress}
                     curtainProgress={curtainDrive}

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import OrbitingCircles from "./orbitingCircles";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -28,6 +28,7 @@ const CIRCLE_DIAMETER_2 = 240;
 export default function HeroSection({ active = true }) {
   const isMobile = useIsMobile();
   const mouseX = useMotionValue(0);
+  const taglineRef = useRef(null);
 
   const smoothX = useSpring(mouseX, {
     stiffness: 80,
@@ -50,6 +51,42 @@ export default function HeroSection({ active = true }) {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, active]);
+
+  useEffect(() => {
+    const el = taglineRef.current;
+    if (!el) return undefined;
+
+    const logFont = async () => {
+      try {
+        if (document.fonts?.ready) await document.fonts.ready;
+      } catch {
+        // ignore
+      }
+      const style = getComputedStyle(el);
+      const family = style.fontFamily;
+      const weight = style.fontWeight;
+      let matched = "(document.fonts unavailable)";
+      try {
+        matched =
+          [...document.fonts].find((f) =>
+            family.toLowerCase().includes(f.family.toLowerCase().replace(/['"]/g, ""))
+          )?.family ?? "(no matching loaded face)";
+      } catch {
+        // ignore
+      }
+      console.log("[font check] hero tagline", {
+        computedFontFamily: family,
+        fontWeight: weight,
+        matchedLoadedFace: matched,
+        usingGgSans:
+          /gg.?sans|__ggSans/i.test(family) ||
+          /gg.?sans/i.test(String(matched)),
+      });
+    };
+
+    logFont();
+    return undefined;
+  }, []);
 
   return (
     <section className="relative flex h-screen min-h-[600px] w-full items-center justify-center overflow-hidden bg-black px-4 sm:px-6 md:px-8">
@@ -112,6 +149,7 @@ export default function HeroSection({ active = true }) {
         }}
       >
         <motion.p
+          ref={taglineRef}
           variants={{
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },
@@ -120,13 +158,13 @@ export default function HeroSection({ active = true }) {
             duration: 0.9,
             ease: [0.25, 0.46, 0.45, 0.94],
           }}
-          className="font-gg-sans text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
+          className="font-gg-sans font-normal text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
         >
           {HERO_COPY.tagline}
         </motion.p>
 
         <motion.h1
-          className="font-ginto text-[clamp(30px,10vw,120px)] leading-[0.92] drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] md:leading-tight"
+          className="font-ginto-ultra text-[clamp(30px,10vw,120px)] leading-[0.92] drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] md:leading-tight"
           variants={{
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },
@@ -140,7 +178,7 @@ export default function HeroSection({ active = true }) {
         </motion.h1>
 
         <motion.h1
-          className="font-ginto ml-[-15%] text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          className="font-ginto-ultra ml-[-15%] text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
           style={{ marginTop: isMobile ? -0 : -30 }}
           variants={{
             hidden: { opacity: 0, y: 40 },
@@ -155,7 +193,7 @@ export default function HeroSection({ active = true }) {
         </motion.h1>
 
         <motion.h1
-          className="font-ginto ml-[9%] whitespace-nowrap text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
+          className="font-ginto-ultra ml-[9%] whitespace-nowrap text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
           style={{
             marginTop: isMobile ? -2 : -25,
             marginLeft: isMobile ? "10%" : "9%",

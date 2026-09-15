@@ -196,7 +196,7 @@ export default function SaasOfferCopy({ progress }) {
           className="mt-10 max-w-xl font-gg-sans text-[clamp(14px,1.8vw,24px)] leading-relaxed text-white/45"
         >
           See the latest example where we have{" "}
-          <span className="text-white/80">115+ signups</span> in less than a
+          <span className="text-white/80">230+ signups</span> in less than a
           month
         </motion.p>
 

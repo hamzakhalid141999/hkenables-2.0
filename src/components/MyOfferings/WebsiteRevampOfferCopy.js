@@ -62,17 +62,15 @@ export default function WebsiteRevampOfferCopy({ progress, curtainProgress }) {
           style={line2}
           className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
         >
-          We don&apos;t patch it. We{" "}
-          <span className="text-white">reinvent it</span>.
+          I don&apos;t patch it. I{" "}
+          <span className="text-white">reinvent</span>.
         </motion.p>
 
         <motion.p
           style={line3}
           className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
         >
-          Revamps that turn visitors into{" "}
-          <span className="text-[#9aab6e]">engaged users</span>
-          {" "} and keep them coming back.
+          Your brand is cool. Your website isn't. Make it stand out from the rest of the 1000+ websites out there.
         </motion.p>
       </motion.div>
     </div>

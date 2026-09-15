@@ -2,6 +2,7 @@
 
 import { motion, useTransform } from "framer-motion";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { MagneticHotspot } from "./MagneticLink";
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
@@ -62,9 +63,22 @@ export default function FullStackOfferCopy({ progress }) {
           style={line3}
           className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
         >
-          Shipped at{" "}
-          <span className="text-[#9aab6e]">AI speed</span>
-          {" "}- frontend, backend, and database, from concept to production.
+          Founders are busy, I let them take the back-seat and take charge of the
+          product myself. Don&apos;t take my word for it,{" "}
+          <MagneticHotspot
+            href="https://www.linkedin.com/in/hamza-khalid-5a40931a5/details/recommendations/?detailScreenTabIndex=0"
+            magnet={false}
+            hitPad={8}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Read LinkedIn recommendations"
+            className="inline"
+          >
+            <span className="text-[#9aab6e] underline decoration-[#9aab6e]/40 underline-offset-4 transition-colors hover:text-[#b4c47e] hover:decoration-[#9aab6e]/70">
+              see for yourself
+            </span>
+          </MagneticHotspot>{" "}
+          :)
         </motion.p>
       </div>
     </div>
