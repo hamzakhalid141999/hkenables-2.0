@@ -10,9 +10,9 @@ import { useIsMobile } from "@/hooks/useIsMobile";
  * Font sizes are set in the JSX `className` blocks below (search for "text-").
  */
 export const HERO_COPY = {
-  tagline: "We Make",
+  tagline: "I Design & Build",
   line1: "REAL GOOD",
-  line2: "SITES",
+  line2: "STUFF",
   line3Prefix: "THAT",
   line3Accent: "MOVE",
 };
