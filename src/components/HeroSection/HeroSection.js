@@ -14,7 +14,7 @@ export const HERO_COPY = {
   line1: "REAL GOOD",
   line2: "STUFF",
   line3Prefix: "THAT",
-  line3Accent: "MOVE",
+  line3Accent: "MOVES",
 };
 
 const ORBIT_COUNT = 10;
@@ -158,7 +158,7 @@ export default function HeroSection({ active = true }) {
             duration: 0.9,
             ease: [0.25, 0.46, 0.45, 0.94],
           }}
-          className="font-gg-sans font-normal text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
+          className="font-gg-sans font-medium text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
         >
           {HERO_COPY.tagline}
         </motion.p>

@@ -48,20 +48,25 @@ export default function FullStackOfferCopy({ progress }) {
           style={line1}
           className="font-ginto text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
         >
-          Got an idea for a project or MVP?
+          Convert that idea into a SaaS!
         </motion.h3>
 
         <motion.p
           style={line2}
-          className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
+          className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-[33px] text-white/70"
         >
-          We don&apos;t just build it. We make it{" "}
-          <span className="text-white">impossible to ignore</span>.
+          I can ship fast, so can others. But I can ship it not looking like another AI slop UI/UX
+          <br />
+          <br />
+          <span className="text-white/45 text-[22px] font-bold">"94% of first impressions of a business are related to website design" - Marketing LTB</span>
+          <br />
+          <span className="text-white/45 text-[22px] font-bold">"Startups that start with an MVP are often cited as ~60–70% more likely to succeed" - American Chase</span>
+        
         </motion.p>
 
         <motion.p
           style={line3}
-          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
+          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-[30px] text-white/45"
         >
           Founders are busy, I let them take the back-seat and take charge of the
           product myself. Don&apos;t take my word for it,{" "}

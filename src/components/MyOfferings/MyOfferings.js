@@ -21,6 +21,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 /** Duration (s) of the programmatic snap scroll animation. */
 const SNAP_DURATION = 0.78;
+/** Faster snaps on touch — less “coasting” between projects. */
+const SNAP_DURATION_MOBILE = 0.42;
 /** Extra duration per skipped project when jumping far. */
 const SNAP_JUMP_BONUS = 0.1;
 /** Ignore trackpad noise smaller than this (px). */
@@ -180,6 +182,9 @@ export default function MyOfferings() {
       return pinToScrollY(targetPin);
     };
 
+    const snapDuration = () =>
+      isMobile ? SNAP_DURATION_MOBILE : SNAP_DURATION;
+
     const animateToScrollY = (targetScrollY, { duration, onSettled } = {}) => {
       const lenis = lenisRef.current;
       if (!lenis || targetScrollY == null) return false;
@@ -188,7 +193,7 @@ export default function MyOfferings() {
       lenis.stop();
       lenis.start();
       lenis.scrollTo(targetScrollY, {
-        duration: duration ?? SNAP_DURATION,
+        duration: duration ?? snapDuration(),
         easing: easeInOutCubic,
         force: true,
         lock: true,
@@ -199,7 +204,7 @@ export default function MyOfferings() {
       });
       window.setTimeout(() => {
         isSnappingRef.current = false;
-      }, (duration ?? SNAP_DURATION) * 1000 + 120);
+      }, (duration ?? snapDuration()) * 1000 + 120);
       return true;
     };
 
@@ -226,9 +231,10 @@ export default function MyOfferings() {
       if (targetScrollY == null) return false;
 
       const distance = Math.abs(targetIndex - lockedProjectRef.current);
+      const base = snapDuration();
       const duration = Math.min(
-        1.15,
-        SNAP_DURATION + Math.max(0, distance - 1) * SNAP_JUMP_BONUS
+        isMobile ? 0.75 : 1.15,
+        base + Math.max(0, distance - 1) * SNAP_JUMP_BONUS
       );
 
       lockedProjectRef.current = targetIndex;
@@ -258,7 +264,7 @@ export default function MyOfferings() {
         if (isInFooter(pin)) return false;
         if (lockedProjectRef.current >= PROJECT_COUNT - 1) {
           const targetScrollY = pinToScrollY(1);
-          return animateToScrollY(targetScrollY, { duration: SNAP_DURATION });
+          return animateToScrollY(targetScrollY, { duration: snapDuration() });
         }
         return snapToIndex(lockedProjectRef.current + 1, { fromUi: true });
       },
@@ -269,7 +275,7 @@ export default function MyOfferings() {
           lockedProjectRef.current = PROJECT_COUNT - 1;
           setActiveProjectIndex(PROJECT_COUNT - 1);
           return animateToScrollY(scrollYForIndex(PROJECT_COUNT - 1), {
-            duration: 1.05,
+            duration: isMobile ? 0.55 : 1.05,
           });
         }
         if (!isInGallery(pin)) return false;
@@ -448,7 +454,7 @@ export default function MyOfferings() {
       } else if (event.key === "End") {
         if (isInFooter(pin) || lockedProjectRef.current >= PROJECT_COUNT - 1) {
           const targetScrollY = pinToScrollY(1);
-          if (animateToScrollY(targetScrollY, { duration: SNAP_DURATION })) {
+          if (animateToScrollY(targetScrollY, { duration: snapDuration() })) {
             event.preventDefault();
           }
         } else if (snapToIndex(PROJECT_COUNT - 1, { fromUi: true })) {
@@ -490,7 +496,7 @@ export default function MyOfferings() {
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [isMobile]);
 
   const goToProject = useCallback((index) => {
     navApiRef.current.goTo(index);
@@ -719,7 +725,7 @@ export default function MyOfferings() {
           )}
 
           <motion.div
-            className="relative z-10 h-full w-full overflow-hidden bg-[#141414] will-change-transform"
+            className="pointer-events-none relative z-10 h-full w-full overflow-hidden bg-[#141414] will-change-transform"
             style={{
               x: curtainX,
               // Mobile: fixed radius — animating border-radius every frame is costly
@@ -766,7 +772,7 @@ export default function MyOfferings() {
               <>
                 <div className="pointer-events-none absolute inset-0 z-40">
                   <OfferingSlot
-                    title="Full-Stack Dev"
+                    title="Develop, but fast"
                     number={2}
                     side="right"
                     progress={fullStackProgress}

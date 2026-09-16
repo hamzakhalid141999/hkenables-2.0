@@ -93,7 +93,7 @@ const PROJECTS = [
     title: "Estately.io",
     type: "Property Management",
     description:
-      "Estately brings all property operations into one powerful, easy-to-use platform. Manage tenants, assets, bookings, maintenance, compliance, and finances from a single dashboard. Custom made accounting solution so you can track every add-on's penny.\n\nWith smart automation, real-time reporting, and role-based access, Estately delivers complete visibility and control making complex property management simple and scalable.",
+      "Estately brings all property operations into one powerful, easy-to-use platform. Manage tenants, assets, bookings, maintenance, compliance, and finances from a single dashboard. Custom made accounting solution so you can track every add-on's penny.\n\nI've worked on a complete acco",
     liveLink: "https://www.estately.io/",
     primaryColor: "#dde8e4",
     secondaryColor: "#73ad95",
@@ -215,7 +215,7 @@ const FOOTER_CONTACTS = [
   {
     id: "github",
     src: "/contacts/github.svg",
-    label: "GitHub",
+    label: "Github",
     href: "https://github.com/hamzakhalid141999",
     hint: "For the nerds",
   },
@@ -287,13 +287,14 @@ function FooterContact({ contact, index }) {
         <img
           src={contact.src}
           alt=""
-          className="relative z-10 h-full w-auto shrink-0 select-none object-contain md:h-[70%]"
+          className="relative opacity-15 z-0 max-h-[100px] w-auto shrink-0 select-none transition-colors duration-300 object-contain md:h-[70%]"
+          style={{ opacity: hovered ? 1 : 0.15 }}
           draggable={false}
         />
         <span
           aria-hidden
-          className="relative z-0 -ml-[0.25em] mt-2.5 font-archivo-black text-[clamp(36px,9vw,60px)] font-black leading-none tracking-tight transition-colors duration-300 md:mt-[0.55em] md:text-[clamp(18px,8.2vh,60px)]"
-          style={{ color: hovered ? "#738732" : "rgba(255,255,255,0.15)" }}
+          className="relative z-10 -ml-[0.45em] mt-2.5 font-archivo-black text-[clamp(36px,9vw,60px)] font-black leading-none tracking-tight transition-colors duration-300 md:mt-[0.75em] md:text-[clamp(18px,8.2vh,60px)]"
+          style={{ color: hovered ? "#738732" : "#393939" }}
         >
           {contact.label}
         </span>
@@ -429,21 +430,27 @@ function TechTags({
 }) {
   const truncated = clampOnMobile && items.length > TECH_MOBILE_VISIBLE;
   const visible = truncated ? items.slice(0, TECH_MOBILE_VISIBLE) : items;
+  // Mobile: no scroll-driven enter/exit — static chips only
+  const staticMode = clampOnMobile;
 
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2">
-      {visible.map((name, index) => (
-        <TechTag
-          key={name}
-          name={name}
-          index={index}
-          count={visible.length}
-          progress={progress}
-          start={start}
-          mid={mid}
-          end={end}
-        />
-      ))}
+      {visible.map((name, index) =>
+        staticMode ? (
+          <TechTagStatic key={name} name={name} />
+        ) : (
+          <TechTag
+            key={name}
+            name={name}
+            index={index}
+            count={visible.length}
+            progress={progress}
+            start={start}
+            mid={mid}
+            end={end}
+          />
+        )
+      )}
       {truncated ? (
         <button
           type="button"
@@ -982,10 +989,18 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
       {/*
         Mobile: one column — image + tech, then copy directly underneath.
         Desktop: md:contents unwraps so screen/copy can sit in their absolute slots.
+
+        Critical: inactive beats must NOT capture touch. Look-ahead mounts are
+        full-screen and opacity:0 still receives events — that blocked mobile scroll.
+        Also avoid overflow-y-auto on mobile (nested scroll fights Lenis).
       */}
       <motion.div
         style={isMobile ? { y: screenY, scale: screenScale } : undefined}
-        className="absolute inset-x-0 top-[7vh] bottom-0 z-20 flex w-full flex-col overflow-y-auto overscroll-contain px-[5%] pointer-events-auto md:pointer-events-none md:contents"
+        className={`absolute inset-x-0 top-[7vh] bottom-0 z-20 flex w-full flex-col px-[5%] md:pointer-events-none md:contents ${
+          isMobile
+            ? "pointer-events-none"
+            : "pointer-events-auto overflow-y-auto overscroll-contain"
+        }`}
       >
         <motion.div
           style={isMobile ? undefined : { y: screenY, scale: screenScale }}
@@ -1015,7 +1030,7 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
 
         <motion.div
           style={isMobile ? undefined : { y: copyY }}
-          className="z-40 mt-6 w-full pb-28 md:absolute md:bottom-[10vh] md:left-[calc(5vw+36px)] md:mt-0 md:w-[min(42vw,520px)] md:pb-0"
+          className="pointer-events-none z-40 mt-6 w-full pb-28 md:absolute md:bottom-[10vh] md:left-[calc(5vw+36px)] md:mt-0 md:w-[min(42vw,520px)] md:pb-0"
         >
           <motion.div
             style={{ y: isMobile ? 0 : metaYDelta }}
@@ -1407,14 +1422,8 @@ export default function MyProjects({
     [0, 1],
     { clamp: true }
   );
-  const footerWordBlur = useTransform(footerProgress, [0, 1], [28, 0], {
-    clamp: true,
-  });
-  const footerWordFilter = useTransform(footerWordBlur, (b) =>
-    b > 0.08 ? `blur(${b}px)` : "none"
-  );
-  // Starts 20% below the fold, rises to ~10% below (still clipped)
-  const footerWordY = useTransform(footerProgress, [0, 1], ["14vh", "0vh"], {
+  // Starts below the fold, rises into place (no blur)
+  const footerWordY = useTransform(footerProgress, [0, 1], ["35vh", "0vh"], {
     clamp: true,
   });
   // Late wipe: just before footer is fully open, clear projects → solid green strip
@@ -1460,8 +1469,8 @@ export default function MyProjects({
         </div>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[55%] overflow-hidden">
           <motion.h2
-            style={{ filter: footerWordFilter, y: footerWordY }}
-            className="absolute bottom-0 left-0 w-full origin-bottom scale-y-65 cursor-default whitespace-nowrap text-center font-gondens text-[clamp(3.75rem,18vw,22rem)] uppercase leading-none tracking-tight text-white/30 will-change-[transform,filter]"
+            style={{ y: footerWordY }}
+            className="absolute bottom-0 left-0 w-full origin-bottom scale-y-65 cursor-default whitespace-nowrap text-center font-gondens text-[clamp(3.75rem,18vw,22rem)] uppercase leading-none tracking-tight text-white/30 will-change-transform"
           >
             HKENABLES
           </motion.h2>
@@ -1470,18 +1479,18 @@ export default function MyProjects({
 
       {/* Gallery layer — scrolls up to unveil the footer */}
       <motion.div
-        className="absolute inset-0 z-10 will-change-transform"
+        className="pointer-events-none absolute inset-0 z-10 will-change-transform"
         style={{ y: galleryLiftY }}
       >
       {/* Opaque white underlayer for curtain + intro (stays put under project color) */}
       <motion.div
-        className="absolute inset-0 z-0 bg-white"
+        className="pointer-events-none absolute inset-0 z-0 bg-white"
         style={{ opacity: whiteBaseOpacity }}
       />
 
       {/* Per-project color — opaque, covers white (and never shows the Hero) */}
       <motion.div
-        className="absolute inset-0 z-1"
+        className="pointer-events-none absolute inset-0 z-1"
         style={{ backgroundColor: projectBgColor, opacity: projectBgOpacity }}
       />
 
@@ -1503,7 +1512,7 @@ export default function MyProjects({
           opacity: ribbonFadeOpacity,
           background: ribbonGradient,
         }}
-        className="absolute z-10 top-[-22%] left-[-42%] h-[260px] w-[720px] rotate-[-35deg] sm:top-[-14%] sm:left-[-32%] sm:h-[300px] sm:w-[820px] md:top-[-10%] md:left-[-27%] md:h-85 md:w-355"
+        className="pointer-events-none absolute z-10 top-[-22%] left-[-42%] h-[260px] w-[720px] rotate-[-35deg] sm:top-[-14%] sm:left-[-32%] sm:h-[300px] sm:w-[820px] md:top-[-10%] md:left-[-27%] md:h-85 md:w-355"
       />
 
       {/* Intro chrome: slides in from left, then title + subtitle as a vertical stack. */}
@@ -1541,7 +1550,7 @@ export default function MyProjects({
       </motion.div>
 
       <motion.div
-        className="absolute inset-0 z-20"
+        className="pointer-events-none absolute inset-0 z-20"
         style={{ opacity: galleryContentOpacity }}
       >
         {PROJECTS.map((project, index) => {

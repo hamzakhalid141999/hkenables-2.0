@@ -60,15 +60,18 @@ export default function WebsiteRevampOfferCopy({ progress, curtainProgress }) {
 
         <motion.p
           style={line2}
-          className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-snug text-white/70"
+          className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-[30px] text-white/70"
         >
           I don&apos;t patch it. I{" "}
-          <span className="text-white">reinvent</span>.
+          <span className="text-white">reinvent</span>
+          <br />
+          <br />
+          <span className="text-white/45 text-[22px] font-bold leading-[2px]">"80% of website redesigns are initiated because of outdated aesthetics. 38% of visitors leave a page if the layout is unattractive" - Marketing LTB</span>
         </motion.p>
 
         <motion.p
           style={line3}
-          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-relaxed text-white/45"
+          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-[30px] text-white/45"
         >
           Your brand is cool. Your website isn't. Make it stand out from the rest of the 1000+ websites out there.
         </motion.p>
