@@ -28,14 +28,14 @@ function SnapSlide({ id, className = "", children }) {
 
 function StaticOfferingCard({ title, children }) {
   return (
-    <div className="flex h-full w-full flex-col items-center px-5 pt-14">
-      <p className="mb-3 font-gg-sans text-[10px] uppercase tracking-[0.22em] text-white/35">
+    <div className="flex h-full w-full flex-col items-center justify-center px-4 py-6">
+      <p className="mb-1 font-gg-sans text-[10px] uppercase tracking-[0.22em] text-white/35">
         My Offerings
       </p>
-      <h3 className="mb-5 text-center font-ginto text-[clamp(26px,7vw,42px)] leading-none tracking-tight text-white">
+      <h3 className="mb-3 shrink-0 text-center font-ginto text-[clamp(22px,6vw,34px)] leading-none tracking-tight text-white">
         {title}
       </h3>
-      <div className="h-[min(58dvh,520px)] w-full max-w-5xl overflow-hidden rounded-[28px] bg-[#1a1a1a] shadow-[0_8px_40px_rgba(0,0,0,0.20)]">
+      <div className="h-[min(64dvh,560px)] w-full max-w-5xl overflow-hidden rounded-[28px] bg-[#1a1a1a] shadow-[0_8px_40px_rgba(0,0,0,0.20)]">
         {children}
       </div>
     </div>
@@ -51,7 +51,11 @@ function CopyLine({ active, delay, children, className }) {
           ? { opacity: 1, y: 0, filter: "blur(0px)" }
           : { opacity: 0, y: 22, filter: "blur(8px)" }
       }
-      transition={{ duration: 0.55, delay: active ? delay : 0, ease: copyEase }}
+      transition={{
+        duration: 0.68,
+        delay: active ? delay : 0,
+        ease: copyEase,
+      }}
       className={className}
     >
       {children}
@@ -74,14 +78,14 @@ export default function MyOfferingsMobile() {
         {(active) => (
           <div className="flex h-full w-full items-center justify-center px-6">
             <div className="flex w-full max-w-4xl flex-col items-center text-center">
-              <CopyLine active={active} delay={0.05}>
+              <CopyLine active={active} delay={0.08}>
                 <h3 className="font-ginto text-[clamp(32px,8vw,64px)] leading-[1.05] tracking-tight text-white">
                   Design, Develop and Engineer
                 </h3>
               </CopyLine>
               <CopyLine
                 active={active}
-                delay={0.16}
+                delay={0.48}
                 className="mt-5 max-w-2xl"
               >
                 <p className="font-gg-sans text-[clamp(18px,4.2vw,28px)] leading-snug text-white/70">
@@ -90,7 +94,7 @@ export default function MyOfferingsMobile() {
               </CopyLine>
               <CopyLine
                 active={active}
-                delay={0.28}
+                delay={0.88}
                 className="mt-10 max-w-xl"
               >
                 <p className="font-gg-sans text-[clamp(14px,3.6vw,24px)] leading-relaxed text-white/45">
@@ -99,7 +103,7 @@ export default function MyOfferingsMobile() {
                   than a month
                 </p>
               </CopyLine>
-              <CopyLine active={active} delay={0.4}>
+              <CopyLine active={active} delay={1.22}>
                 <a
                   href="https://www.batchedits.com"
                   target="_blank"
@@ -126,14 +130,14 @@ export default function MyOfferingsMobile() {
         {(active) => (
           <div className="flex h-full w-full items-center justify-center px-6">
             <div className="flex w-full max-w-4xl flex-col items-center text-center">
-              <CopyLine active={active} delay={0.05}>
+              <CopyLine active={active} delay={0.08}>
                 <h3 className="font-ginto text-[clamp(32px,8vw,64px)] leading-[1.05] tracking-tight text-white">
                   Convert that idea into a SaaS!
                 </h3>
               </CopyLine>
               <CopyLine
                 active={active}
-                delay={0.16}
+                delay={0.48}
                 className="mt-5 max-w-2xl"
               >
                 <p className="font-gg-sans text-[clamp(20px,4.2vw,28px)] leading-[33px] text-white/70">
@@ -149,7 +153,7 @@ export default function MyOfferingsMobile() {
               </CopyLine>
               <CopyLine
                 active={active}
-                delay={0.3}
+                delay={1.02}
                 className="mt-10 max-w-xl"
               >
                 <p className="font-gg-sans text-[clamp(18px,3.8vw,24px)] leading-[30px] text-white/45">
@@ -183,14 +187,14 @@ export default function MyOfferingsMobile() {
         {(active) => (
           <div className="flex h-full w-full items-center justify-center px-6">
             <div className="flex w-full max-w-4xl flex-col items-center text-center">
-              <CopyLine active={active} delay={0.05}>
+              <CopyLine active={active} delay={0.08}>
                 <h3 className="font-ginto text-[clamp(32px,8vw,64px)] leading-[1.05] tracking-tight text-white">
                   Website looking tired?
                 </h3>
               </CopyLine>
               <CopyLine
                 active={active}
-                delay={0.16}
+                delay={0.48}
                 className="mt-5 max-w-2xl"
               >
                 <p className="font-gg-sans text-[clamp(20px,4.2vw,28px)] leading-[30px] text-white/70">
@@ -207,7 +211,7 @@ export default function MyOfferingsMobile() {
               </CopyLine>
               <CopyLine
                 active={active}
-                delay={0.3}
+                delay={1.02}
                 className="mt-10 max-w-xl"
               >
                 <p className="font-gg-sans text-[clamp(18px,3.8vw,24px)] leading-[30px] text-white/45">

@@ -28,7 +28,7 @@ export default function SaasBuildCard({
     }
     autoProgress.set(0);
     const controls = animate(autoProgress, 1, {
-      duration: 3.2,
+      duration: 7.2,
       ease: [0.22, 1, 0.36, 1],
     });
     return () => controls.stop();

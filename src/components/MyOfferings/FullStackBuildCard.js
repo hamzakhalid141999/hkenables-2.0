@@ -41,7 +41,7 @@ export default function FullStackBuildCard({
     }
     autoProgress.set(0);
     const controls = animate(autoProgress, 1, {
-      duration: 3.4,
+      duration: 7.4,
       ease: [0.22, 1, 0.36, 1],
     });
     return () => controls.stop();

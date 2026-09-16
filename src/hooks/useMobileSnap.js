@@ -56,6 +56,7 @@ export function useNearestSectionSnap(enabled) {
 
     const snap = () => {
       if (snapping) return;
+      if (!document.documentElement.classList.contains("mobile-snap")) return;
       const top = nearestTop();
       if (top == null) return;
       snapping = true;

@@ -976,7 +976,7 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
   return (
     <motion.article
       style={{
-        opacity: isMobile ? (isActive ? 1 : 0) : opacity,
+        opacity,
         color: project.textColor ?? "#000000",
       }}
       className="pointer-events-none absolute inset-0"
@@ -998,13 +998,12 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
         Also avoid overflow-y-auto on mobile (nested scroll fights Lenis).
       */}
       <motion.div
-        style={isMobile ? undefined : { y: screenY, scale: screenScale }}
-          className={`absolute inset-x-0 top-[7vh] bottom-0 z-20 flex w-full flex-col px-[5%] pointer-events-none md:contents ${
+        className={`absolute inset-x-0 top-[7vh] bottom-0 z-20 flex w-full flex-col px-[5%] pointer-events-none md:contents ${
             isMobile ? "" : "overflow-y-auto overscroll-contain md:overflow-visible"
           }`}
       >
         <motion.div
-          style={isMobile ? undefined : { y: screenY, scale: screenScale }}
+          style={{ y: screenY, scale: screenScale }}
           className={`w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%] pointer-events-none ${
             isActive ? "z-30" : "z-10"
           }`}
@@ -1030,11 +1029,11 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
         </motion.div>
 
         <motion.div
-          style={isMobile ? undefined : { y: copyY }}
+          style={{ y: copyY }}
           className="pointer-events-none z-40 mt-6 w-full pb-28 md:absolute md:bottom-[10vh] md:left-[calc(5vw+36px)] md:mt-0 md:w-[min(42vw,520px)] md:pb-0"
         >
           <motion.div
-            style={{ y: isMobile ? 0 : metaYDelta }}
+            style={{ y: metaYDelta }}
             className="mb-4 flex items-center gap-4 font-gg-sans uppercase tracking-[0.22em] opacity-60"
           >
             <span className="h-px w-10 bg-current opacity-40 font-bold" />
@@ -1043,7 +1042,7 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
 
           <motion.h3
             style={{
-              y: isMobile ? 0 : titleYDelta,
+              y: titleYDelta,
               color: project.secondaryColor,
             }}
             className="relative z-40 font-archivo-black text-[clamp(36px,7.5vw,110px)] leading-[0.88] tracking-tight"
@@ -1053,7 +1052,7 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
 
           <ProjectDescription
             text={project.description}
-            y={isMobile ? 0 : descriptionYDelta}
+            y={descriptionYDelta}
             clampOnMobile={isMobile}
             onSeeMore={openDetails}
           />
@@ -1267,7 +1266,6 @@ export default function MyProjects({
   const [progressIndex, setProgressIndex] = useState(0);
   /** Contact icons appear once the footer unveil has fully settled. */
   const [showFooterContacts, setShowFooterContacts] = useState(false);
-  const isMobile = useIsMobile();
 
   useProjectMediaWarmup(warmMedia);
 
@@ -1526,7 +1524,7 @@ export default function MyProjects({
           y: exitY,
           opacity: introChromeOpacity,
           scale: exitScale,
-          filter: isMobile ? "none" : exitFilter,
+          filter: exitFilter,
           visibility: introChromeVisibility,
         }}
         className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center px-6 will-change-[transform,filter,opacity]"
@@ -1543,7 +1541,7 @@ export default function MyProjects({
             style={{
               opacity: subOpacity,
               y: subY,
-              filter: isMobile ? "none" : subFilter,
+              filter: subFilter,
               x: "-50%",
             }}
             className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gg-sans text-[21px] font-medium leading-snug tracking-wide text-black/55 sm:text-[clamp(16px,1.5vw,38px)]"
@@ -1560,16 +1558,12 @@ export default function MyProjects({
         {PROJECTS.map((project, index) => {
           const spanLo = Math.min(progressIndex, activeProjectIndex);
           const spanHi = Math.max(progressIndex, activeProjectIndex);
-          const mountLo = isMobile
-            ? activeProjectIndex
-            : Math.max(0, spanLo - 1);
-          const mountHi = isMobile
-            ? activeProjectIndex
-            : Math.min(PROJECT_COUNT - 1, spanHi + 2);
+          const mountLo = Math.max(0, spanLo - 1);
+          const mountHi = Math.min(PROJECT_COUNT - 1, spanHi + 2);
           const isMounted = index >= mountLo && index <= mountHi;
 
           if (!isMounted && galleryVisible) return null;
-          if (!galleryVisible && index > (isMobile ? 0 : 1)) return null;
+          if (!galleryVisible && index > 1) return null;
 
           const nearActive = Math.abs(index - activeProjectIndex) <= 1;
           const nearProgress = Math.abs(index - progressIndex) <= 1;
