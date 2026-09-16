@@ -29,7 +29,8 @@ export function useSnapActive(threshold = 0.45) {
 
 /**
  * After a fling settles, lock onto the nearest [data-snap] section.
- * Does not intercept touchmove — CSS snap does the live work; this catches leftovers.
+ * Direction-aware: when scrolling up, prefer the previous section so the
+ * footer doesn't pull you back mid-gesture.
  */
 export function useNearestSectionSnap(enabled) {
   useEffect(() => {
@@ -37,21 +38,41 @@ export function useNearestSectionSnap(enabled) {
 
     let timer = 0;
     let snapping = false;
+    let lastY = window.scrollY;
+    /** 1 = down, -1 = up */
+    let direction = 1;
 
     const nearestTop = () => {
       const sections = document.querySelectorAll("[data-snap]");
       if (!sections.length) return null;
+
+      const vh = window.innerHeight || 800;
       let bestEl = null;
       let bestDist = Number.POSITIVE_INFINITY;
+
       sections.forEach((section) => {
-        const dist = Math.abs(section.getBoundingClientRect().top);
+        const top = section.getBoundingClientRect().top;
+        // Bias toward the section in the travel direction so a small
+        // upward fling from the footer doesn't lose to absolute nearest.
+        let dist;
+        if (direction < 0) {
+          // Going up: sections still below the fold are heavily penalized.
+          dist = top > vh * 0.2 ? top + vh : Math.abs(top);
+        } else {
+          // Going down: sections already above are heavily penalized.
+          dist = top < -vh * 0.2 ? -top + vh : Math.abs(top);
+        }
+
         if (dist < bestDist) {
           bestDist = dist;
           bestEl = section;
         }
       });
-      if (!bestEl || bestDist < 18) return null;
-      return window.scrollY + bestEl.getBoundingClientRect().top;
+
+      if (!bestEl) return null;
+      const top = bestEl.getBoundingClientRect().top;
+      if (Math.abs(top) < 18) return null;
+      return window.scrollY + top;
     };
 
     const snap = () => {
@@ -67,8 +88,13 @@ export function useNearestSectionSnap(enabled) {
     };
 
     const onScroll = () => {
+      const y = window.scrollY;
+      if (Math.abs(y - lastY) > 2) {
+        direction = y > lastY ? 1 : -1;
+      }
+      lastY = y;
       window.clearTimeout(timer);
-      timer = window.setTimeout(snap, 90);
+      timer = window.setTimeout(snap, 110);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });

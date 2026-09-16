@@ -1,6 +1,6 @@
 import localFont from "next/font/local";
 import { Archivo_Black } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/next"
 import SmoothScroll from "@/components/SmoothScroll";
 import "lenis/dist/lenis.css";
 import "./globals.css";
