@@ -306,6 +306,52 @@ function ProjectWindow({ project, active }) {
   );
 }
 
+function ProjectDescriptionMobile({ text, onSeeMore }) {
+  const [needsMore, setNeedsMore] = useState(false);
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return undefined;
+
+    const measure = () => {
+      setNeedsMore(el.scrollHeight > el.clientHeight + 1);
+    };
+
+    measure();
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(measure)
+        : null;
+    ro?.observe(el);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [text]);
+
+  return (
+    <div className="mt-3 max-w-md">
+      <p
+        ref={textRef}
+        className="line-clamp-8 whitespace-pre-line font-gg-sans text-[16px] font-normal leading-snug opacity-80"
+      >
+        {text}
+      </p>
+      {needsMore ? (
+        <button
+          type="button"
+          onClick={onSeeMore}
+          className="mt-1.5 font-gg-sans text-[13px] uppercase tracking-[0.12em] underline underline-offset-2 opacity-70"
+        >
+          see more
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 function ProjectSnapCard({ project, active, onSeeMore }) {
   const tech = project.tech ?? [];
   const truncated = tech.length > TECH_VISIBLE;
@@ -364,16 +410,10 @@ function ProjectSnapCard({ project, active, onSeeMore }) {
           >
             {project.title}
           </h3>
-          <p className="mt-3 line-clamp-3 max-w-md font-gg-sans text-[16px] font-normal leading-snug opacity-80">
-            {project.description}
-          </p>
-          <button
-            type="button"
-            onClick={onSeeMore}
-            className="mt-1.5 font-gg-sans text-[13px] uppercase tracking-[0.12em] underline underline-offset-2 opacity-70"
-          >
-            see more
-          </button>
+          <ProjectDescriptionMobile
+            text={project.description}
+            onSeeMore={onSeeMore}
+          />
         </div>
       </div>
     </article>
