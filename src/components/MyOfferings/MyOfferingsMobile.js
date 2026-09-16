@@ -32,7 +32,7 @@ function StaticOfferingCard({ title, children }) {
       <p className="mb-1 font-gg-sans text-[10px] uppercase tracking-[0.22em] text-white/35">
         My Offerings
       </p>
-      <h3 className="mb-3 shrink-0 text-center font-ginto text-[clamp(22px,6vw,34px)] leading-none tracking-tight text-white">
+      <h3 className="mb-[-6px] shrink-0 text-center font-ginto text-[clamp(22px,8vw,30px)] leading-none tracking-tight text-white">
         {title}
       </h3>
       <div className="h-[min(64dvh,560px)] w-full max-w-5xl overflow-hidden rounded-[28px] bg-[#1a1a1a] shadow-[0_8px_40px_rgba(0,0,0,0.20)]">
