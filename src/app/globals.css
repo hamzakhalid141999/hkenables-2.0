@@ -39,6 +39,17 @@ html {
   overscroll-behavior: none;
 }
 
+html.mobile-snap,
+html.mobile-snap body {
+  scroll-snap-type: y mandatory;
+  scroll-padding: 0;
+}
+
+html.mobile-snap [data-snap] {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile, useHasMounted } from "@/hooks/useIsMobile";
 
 const PIN_SCROLL_VH = 1;
 export const ABOUT_OVERLAP_VH = 1;
@@ -11,9 +11,13 @@ const REVEAL_START = 0;
 const REVEAL_END = 1 / (PIN_SCROLL_VH + 1);
 const REVEAL_RANGE = REVEAL_END - REVEAL_START - CHAR_PROGRESS_SPAN;
 const FOCUS_END = REVEAL_END * 0.5;
-const TEXT_EXIT_START = 0.30;
+const TEXT_EXIT_START = 0.3;
 const DARK = "rgb(68, 68, 68)";
 const WHITE = "rgb(255,255,255)";
+
+const TITLE_TEXT = "About Me";
+const BODY_TEXT =
+  "I build impactful digital experiences that don't just look good, they drive user retention and convert. From frontend to full-stack solutions, I deliver fast, AI-powered development tailored to your goals.";
 
 function Char({ children, charIndex, totalChars, progressSpring, isStroke = false }) {
   const charProgress = useTransform(progressSpring, (v) => {
@@ -44,10 +48,34 @@ function Char({ children, charIndex, totalChars, progressSpring, isStroke = fals
   );
 }
 
-export default function DescriptionSection() {
+function AboutMeMobile() {
+  return (
+    <section
+      data-snap
+      className="relative z-20 h-dvh w-full shrink-0 snap-start snap-always overflow-hidden bg-black"
+    >
+      <div className="pointer-events-none absolute inset-0 grid grid-cols-8 opacity-50">
+        <div className="absolute top-0 left-0 z-30 h-[50%] w-full bg-linear-to-b from-black to-transparent" />
+        <div className="absolute bottom-0 left-0 z-30 h-[70%] w-full bg-linear-to-b from-transparent to-[#5E683C]" />
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="h-full w-full border-r-[0.5px] border-[#5E683C]" />
+        ))}
+      </div>
+      <div className="relative z-20 flex h-full flex-col justify-center gap-10 px-5">
+        <h1 className="font-ginto text-[clamp(42px,11vw,100px)] leading-none text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.46)]">
+          {TITLE_TEXT}
+        </h1>
+        <p className="font-archivo-black text-[clamp(18px,6.2vw,36px)] leading-none tracking-tight text-white">
+          {BODY_TEXT}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function AboutMeDesktop() {
   const sectionRef = useRef(null);
   const scrollTrackRef = useRef(null);
-  const isMobile = useIsMobile();
 
   const { scrollYProgress: sectionScrollProgress } = useScroll({
     target: sectionRef,
@@ -74,18 +102,12 @@ export default function DescriptionSection() {
   const blurAmount = useTransform(progressSpring, [0, FOCUS_END * 0.75, FOCUS_END], [18, 4, 0]);
   const focusFilter = useTransform(blurAmount, (v) => `blur(${v}px)`);
   const focusOpacity = useTransform(progressSpring, [0, FOCUS_END * 0.45, FOCUS_END], [0.15, 0.5, 1]);
-
-  const greenOpacity = useTransform(progressSpring, [0.78, 1], [0, 1]);
   const contentY = useTransform(progressSpring, [0.78, 1], [0, -140]);
   const textExitOpacity = useTransform(sectionProgressSpring, [TEXT_EXIT_START, 1], [1, 0]);
 
-  const titleText = "About Me";
-  const titleChars = titleText.split("");
-
-  const bodyText =
-    "I build impactful digital experiences that don't just look good, they drive user retention and convert. From frontend to full-stack solutions, I deliver fast, AI-powered development tailored to your goals.";
-  const bodyWords = bodyText.split(/\s+/);
-  const totalRevealChars = titleChars.length + bodyText.length;
+  const titleChars = TITLE_TEXT.split("");
+  const bodyWords = BODY_TEXT.split(/\s+/);
+  const totalRevealChars = titleChars.length + BODY_TEXT.length;
 
   return (
     <div
@@ -103,7 +125,6 @@ export default function DescriptionSection() {
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <div className="h-full w-full">
           <div className="relative h-full w-full bg-black flex flex-col items-center py-20 md:py-32 overflow-hidden">
-            {/* Grid + original gradients */}
             <div className="w-full h-full grid absolute top-0 left-0 grid-cols-8 opacity-50 pointer-events-none">
               <div style={{ zIndex: 30 }} className="absolute top-0 left-0 w-full h-[50%] bg-linear-to-b from-black to-transparent" />
               <div style={{ zIndex: 30 }} className="absolute bottom-0 left-0 w-full h-[70%] bg-linear-to-b from-transparent to-[#5E683C]" />
@@ -122,7 +143,7 @@ export default function DescriptionSection() {
               style={{
                 y: contentY,
                 opacity: focusOpacity,
-                filter: isMobile ? "none" : focusFilter,
+                filter: focusFilter,
               }}
             >
               <motion.div className="w-[90%]" style={{ opacity: textExitOpacity }}>
@@ -171,4 +192,11 @@ export default function DescriptionSection() {
       </div>
     </div>
   );
+}
+
+export default function DescriptionSection() {
+  const isMobile = useIsMobile();
+  const mounted = useHasMounted();
+  if (!mounted) return <div className="h-dvh w-full bg-black" aria-hidden />;
+  return isMobile ? <AboutMeMobile /> : <AboutMeDesktop />;
 }

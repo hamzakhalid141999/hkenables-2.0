@@ -42,7 +42,7 @@ export default function HeroSection({ active = true }) {
   });
 
   useEffect(() => {
-    if (!active) return undefined;
+    if (!active || isMobile) return undefined;
     const handleMouseMove = (e) => {
       const centerX = window.innerWidth / 2;
       mouseX.set(e.clientX - centerX);
@@ -50,13 +50,14 @@ export default function HeroSection({ active = true }) {
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, active]);
+  }, [mouseX, active, isMobile]);
 
   useEffect(() => {
     const el = taglineRef.current;
     if (!el) return undefined;
 
     const logFont = async () => {
+      if (window.matchMedia("(max-width: 767px)").matches) return;
       try {
         if (document.fonts?.ready) await document.fonts.ready;
       } catch {
@@ -89,7 +90,11 @@ export default function HeroSection({ active = true }) {
   }, []);
 
   return (
-    <section className="relative flex h-screen min-h-[600px] w-full items-center justify-center overflow-hidden bg-black px-4 sm:px-6 md:px-8">
+    <section
+      className={`relative flex w-full items-center justify-center overflow-hidden bg-black px-4 sm:px-6 md:px-8 ${
+        isMobile ? "h-full" : "h-screen min-h-[600px]"
+      }`}
+    >
       <div
         style={{ zIndex: 30 }}
         className="absolute bottom-0 left-0 h-[15%] w-full bg-gradient-to-b from-transparent to-black"
@@ -127,7 +132,7 @@ export default function HeroSection({ active = true }) {
         }}
       />
 
-      {active ? (
+      {active && !isMobile ? (
         <OrbitingCircles
           orbitCount={ORBIT_COUNT}
           orbitRadius={ORBIT_RADIUS}
@@ -158,7 +163,7 @@ export default function HeroSection({ active = true }) {
             duration: 0.9,
             ease: [0.25, 0.46, 0.45, 0.94],
           }}
-          className="font-gg-sans font-medium text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
+          className="font-gg-sans mb-4 font-medium text-[22px] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)] sm:text-[30px] md:text-[36px] lg:text-[40px]"
         >
           {HERO_COPY.tagline}
         </motion.p>
@@ -169,6 +174,7 @@ export default function HeroSection({ active = true }) {
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },
           }}
+          style={{ marginLeft: isMobile ? "-13%" : "0" }}
           transition={{
             duration: 0.9,
             ease: [0.25, 0.46, 0.45, 0.94],
@@ -179,7 +185,7 @@ export default function HeroSection({ active = true }) {
 
         <motion.h1
           className="font-ginto-ultra ml-[-15%] text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
-          style={{ marginTop: isMobile ? -0 : -30 }}
+          style={{ marginTop: isMobile ? -0 : -30, marginLeft: isMobile ? "-29%" : "0" }}
           variants={{
             hidden: { opacity: 0, y: 40 },
             visible: { opacity: 1, y: 0 },
@@ -195,8 +201,8 @@ export default function HeroSection({ active = true }) {
         <motion.h1
           className="font-ginto-ultra ml-[9%] whitespace-nowrap text-[clamp(30px,10vw,120px)] leading-tight drop-shadow-[0_4px_8px_rgba(255,255,255,0.7)]"
           style={{
-            marginTop: isMobile ? -2 : -25,
-            marginLeft: isMobile ? "10%" : "9%",
+            marginTop: isMobile ? '-8px' : -25,
+            marginLeft: isMobile ? "3%" : "9%",
           }}
           variants={{
             hidden: { opacity: 0, y: 40 },
@@ -211,7 +217,7 @@ export default function HeroSection({ active = true }) {
           <motion.span
             style={{
               display: "inline-block",
-              skewX,
+              skewX: isMobile ? 0 : skewX,
               transformOrigin: "left center",
             }}
           >

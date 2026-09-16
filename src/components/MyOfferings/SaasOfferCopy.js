@@ -79,6 +79,7 @@ function GlowWord({ children, glow }) {
  * "Design / Develop / Engineer" cycle a white text glow once the heading is in view.
  */
 export default function SaasOfferCopy({ progress }) {
+  const isMobile = useIsMobile();
   const line1 = useLineMotion(progress, 0.02, 0.2);
   const line2 = useLineMotion(progress, 0.18, 0.38);
   const line3 = useLineMotion(progress, 0.4, 0.6);
@@ -109,6 +110,7 @@ export default function SaasOfferCopy({ progress }) {
   }, []);
 
   useMotionValueEvent(progress, "change", (value) => {
+    if (isMobile) return;
     const inView = value >= GLOW_ACTIVE_AT && value <= GLOW_INACTIVE_ABOVE;
     const fullyLeft = value < GLOW_RESET_BELOW || value > GLOW_INACTIVE_ABOVE;
 
@@ -174,7 +176,7 @@ export default function SaasOfferCopy({ progress }) {
     <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6 sm:px-10">
       <div className="flex w-full max-w-4xl flex-col items-center text-center">
         <motion.h3
-          style={line1}
+          style={isMobile ? undefined : line1}
           className="font-ginto text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
         >
           <GlowWord glow={designGlow}>Design</GlowWord>
@@ -185,14 +187,14 @@ export default function SaasOfferCopy({ progress }) {
         </motion.h3>
 
         <motion.p
-          style={line2}
+          style={isMobile ? undefined : line2}
           className="mt-5 max-w-2xl font-gg-sans text-[clamp(18px,2.8vw,28px)] leading-snug text-white/70"
         >
           your SaaS landing pages, that attract and convert users
         </motion.p>
 
         <motion.p
-          style={line3}
+          style={isMobile ? undefined : line3}
           className="mt-10 max-w-xl font-gg-sans text-[clamp(14px,1.8vw,24px)] leading-relaxed text-white/45"
         >
           See the latest example where we have{" "}

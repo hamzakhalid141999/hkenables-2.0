@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { useEffect } from "react";
 
 const GREEN = "#5E683C";
 
@@ -23,9 +24,28 @@ function ScreenChrome({ label, status }) {
   );
 }
 
-export default function FullStackBuildCard({ progress, lite = false }) {
+export default function FullStackBuildCard({
+  progress,
+  lite = false,
+  active = false,
+}) {
   const frozen = useMotionValue(1);
-  const drive = lite ? frozen : progress;
+  const autoProgress = useMotionValue(0);
+  const drive = lite ? autoProgress : progress ?? frozen;
+
+  useEffect(() => {
+    if (!lite) return undefined;
+    if (!active) {
+      autoProgress.set(0);
+      return undefined;
+    }
+    autoProgress.set(0);
+    const controls = animate(autoProgress, 1, {
+      duration: 1.5,
+      ease: [0.22, 1, 0.36, 1],
+    });
+    return () => controls.stop();
+  }, [lite, active, autoProgress]);
 
   const frontendOpacity = useTransform(drive, [0.04, 0.16], [0, 1]);
   const frontendX = useTransform(drive, [0.04, 0.2], [-90, 0]);
@@ -159,14 +179,17 @@ export default function FullStackBuildCard({ progress, lite = false }) {
             <span className="font-ginto text-[12px] text-black min-[830px]:text-[15px]">
               AI
             </span>
+            {lite ? null : (
             <motion.span
               animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 1.8, repeat: Infinity }}
               className="absolute inset-0 rounded-xl border border-[#9aab6e]/70 min-[830px]:rounded-2xl"
             />
+            )}
           </div>
         </motion.div>
 
+        {lite ? null : (
         <motion.div
           style={{ opacity: beamOpacity }}
           className="pointer-events-none absolute left-1/2 top-[12%] z-10 hidden h-[27%] w-[72%] -translate-x-1/2 min-[830px]:block"
@@ -184,7 +207,7 @@ export default function FullStackBuildCard({ progress, lite = false }) {
             className="absolute left-1/2 top-0 h-full w-px origin-top bg-linear-to-b from-[#9aab6e] to-transparent"
           />
         </motion.div>
-
+        )}
         <div className="absolute inset-x-0 bottom-[5%] top-[14%] grid min-h-0 grid-cols-1 grid-rows-3 gap-2 min-[830px]:bottom-[7%] min-[830px]:top-[27%] min-[830px]:grid-cols-[1fr_0.72fr_1fr] min-[830px]:grid-rows-1 min-[830px]:gap-4">
           {/* Frontend screen */}
           <motion.div
@@ -209,10 +232,12 @@ export default function FullStackBuildCard({ progress, lite = false }) {
                 style={{ width: frontendCtaWidth }}
                 className="h-5 min-w-1 rounded-md bg-[#5E683C] min-[830px]:h-6"
               />
+              {lite ? null : (
               <div className="mt-auto hidden grid-cols-2 gap-2 min-[830px]:grid">
                 <div className="h-10 rounded-lg border border-white/6 bg-white/3" />
                 <div className="h-10 rounded-lg border border-white/6 bg-white/3" />
               </div>
+              )}
             </div>
           </motion.div>
 
@@ -275,6 +300,7 @@ export default function FullStackBuildCard({ progress, lite = false }) {
           </motion.div>
         </div>
 
+        {lite ? null : (
         <motion.div
           style={{ opacity: packetOpacity }}
           className="pointer-events-none absolute inset-x-[8%] bottom-[3%] z-30 h-px bg-white/6"
@@ -284,6 +310,7 @@ export default function FullStackBuildCard({ progress, lite = false }) {
             className="absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[#b4c487] shadow-[0_0_18px_#9aab6e]"
           />
         </motion.div>
+        )}
       </div>
 
       <div className="relative mt-3">

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   motion,
+  useMotionValue,
   useMotionValueEvent,
   useScroll,
   useSpring,
@@ -17,7 +18,8 @@ import FullStackOfferCopy from "./FullStackOfferCopy";
 import WebsiteRevampBuildCard from "./WebsiteRevampBuildCard";
 import WebsiteRevampOfferCopy from "./WebsiteRevampOfferCopy";
 import MyProjects, { PROJECT_COUNT } from "@/components/MyProjects/MyProjects";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile, useHasMounted } from "@/hooks/useIsMobile";
+import MyOfferingsMobile from "./MyOfferingsMobile";
 
 /** Duration (s) of the programmatic snap scroll animation. */
 const SNAP_DURATION = 0.78;
@@ -47,6 +49,13 @@ const PROJECTS_INTRO_SCROLL_VH = 1.25;
 const PROJECTS_SCROLL_VH = 10;
 /** Extra pin distance to unveil the post-gallery footer (matches ~80vh lift). */
 const FOOTER_SCROLL_VH = 0.85;
+const MOBILE_OFFERING_BEATS = 6;
+/** One short snap per card/copy beat — no 12-screen scrub. */
+const MOBILE_OFFERINGS_VH = 4.2;
+const MOBILE_CURTAIN_VH = 0.65;
+const MOBILE_INTRO_VH = 0.65;
+const MOBILE_PROJECTS_VH = 5.6;
+const MOBILE_FOOTER_VH = 0.75;
 const TOTAL_SCROLL_VH =
   OFFERINGS_SCROLL_VH +
   CURTAIN_SCROLL_VH +
@@ -98,11 +107,45 @@ function OfferingSlot({ title, progress, exitProgress, number, side, children })
 }
 
 export default function MyOfferings() {
+  const isMobile = useIsMobile();
+  const mounted = useHasMounted();
+  if (!mounted) return <div className="min-h-dvh bg-[#141414]" aria-hidden />;
+  if (isMobile) return <MyOfferingsMobile />;
+  return <MyOfferingsDesktop />;
+}
+
+function MyOfferingsDesktop() {
   const sectionRef = useRef(null);
   const trackRef = useRef(null);
-  const isMobile = useIsMobile();
+  const isMobile = false;
 
-  const trackHeightVh = TOTAL_SCROLL_VH * 100;
+  const offeringsVh = isMobile ? MOBILE_OFFERINGS_VH : OFFERINGS_SCROLL_VH;
+  const curtainVh = isMobile ? MOBILE_CURTAIN_VH : CURTAIN_SCROLL_VH;
+  const introVh = isMobile ? MOBILE_INTRO_VH : PROJECTS_INTRO_SCROLL_VH;
+  const projectsVh = isMobile ? MOBILE_PROJECTS_VH : PROJECTS_SCROLL_VH;
+  const footerVh = isMobile ? MOBILE_FOOTER_VH : FOOTER_SCROLL_VH;
+  const totalVh = offeringsVh + curtainVh + introVh + projectsVh + footerVh;
+  const offeringsEnd = offeringsVh / totalVh;
+  const curtainEnd = (offeringsVh + curtainVh) / totalVh;
+  const introEnd = (offeringsVh + curtainVh + introVh) / totalVh;
+  const galleryStart = introEnd;
+  const galleryEnd =
+    (offeringsVh + curtainVh + introVh + projectsVh) / totalVh;
+  const trackHeightVh = totalVh * 100;
+
+  const frozenOne = useMotionValue(1);
+  const frozenZero = useMotionValue(0);
+
+  const layoutRef = useRef({});
+  layoutRef.current = {
+    isMobile,
+    offeringsEnd,
+    curtainEnd,
+    introEnd,
+    galleryStart,
+    galleryEnd,
+    offeringBeats: MOBILE_OFFERING_BEATS,
+  };
 
   const { scrollYProgress: entranceProgress } = useScroll({
     target: sectionRef,
@@ -122,6 +165,7 @@ export default function MyOfferings() {
   const isSnappingRef = useRef(false);
   /** Project index we last settled on. */
   const lockedProjectRef = useRef(0);
+  const lockedOfferingBeatRef = useRef(0);
   const lenisRef = useRef(null);
   /** Live nav API used by gallery UI controls (and keyboard). */
   const navApiRef = useRef({
@@ -131,6 +175,7 @@ export default function MyOfferings() {
   });
 
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
+  const [offeringBeat, setOfferingBeat] = useState(0);
   /** Mobile: only mount offering beats near the current pin progress. */
   const [mobileMount, setMobileMount] = useState({
     saas: true,
@@ -149,21 +194,29 @@ export default function MyOfferings() {
    * UI controls call the same snap API via navApiRef.
    */
   useEffect(() => {
-    const galleryLocal = (pin) =>
-      Math.min(
-        1,
-        Math.max(0, (pin - GALLERY_START) / (GALLERY_END - GALLERY_START))
-      );
+    const galleryLocal = (pin) => {
+      const { galleryStart, galleryEnd } = layoutRef.current;
+      const span = galleryEnd - galleryStart;
+      if (span <= 0) return 0;
+      return Math.min(1, Math.max(0, (pin - galleryStart) / span));
+    };
 
-    const isInIntro = (pin) =>
-      pin > CURTAIN_END + 0.001 && pin < GALLERY_START - 0.001;
-    const isInGallery = (pin) =>
-      pin >= GALLERY_START - 0.001 && pin < GALLERY_END - 0.002;
-    const isInFooter = (pin) => pin >= GALLERY_END - 0.002;
+    const isInIntro = (pin) => {
+      const { curtainEnd, galleryStart } = layoutRef.current;
+      return pin > curtainEnd + 0.001 && pin < galleryStart - 0.001;
+    };
+    const isInGallery = (pin) => {
+      const { galleryStart, galleryEnd } = layoutRef.current;
+      return pin >= galleryStart - 0.001 && pin < galleryEnd - 0.002;
+    };
+    const isInFooter = (pin) => pin >= layoutRef.current.galleryEnd - 0.002;
+    const isInOfferings = (pin) =>
+      layoutRef.current.isMobile && pin < layoutRef.current.offeringsEnd - 0.001;
     const introReady = (pin) => {
-      const span = GALLERY_START - CURTAIN_END;
+      const { curtainEnd, galleryStart } = layoutRef.current;
+      const span = galleryStart - curtainEnd;
       if (span <= 0) return true;
-      return (pin - CURTAIN_END) / span >= 0.45;
+      return (pin - curtainEnd) / span >= 0.45;
     };
 
     const pinToScrollY = (targetPin) => {
@@ -176,9 +229,10 @@ export default function MyOfferings() {
     };
 
     const scrollYForIndex = (index) => {
+      const { galleryStart, galleryEnd } = layoutRef.current;
       const targetLocal = (index + 0.5) / PROJECT_COUNT;
       const targetPin =
-        GALLERY_START + targetLocal * (GALLERY_END - GALLERY_START);
+        galleryStart + targetLocal * (galleryEnd - galleryStart);
       return pinToScrollY(targetPin);
     };
 
@@ -215,7 +269,7 @@ export default function MyOfferings() {
       const targetIndex = Math.min(PROJECT_COUNT - 1, Math.max(0, index));
       const pin = pinProgressRef.current;
 
-      if (pin < CURTAIN_END + 0.001 && !fromUi) return false;
+      if (pin < layoutRef.current.curtainEnd + 0.001 && !fromUi) return false;
 
       const local = isInGallery(pin) ? galleryLocal(pin) : -1;
       const targetLocal = (targetIndex + 0.5) / PROJECT_COUNT;
@@ -245,7 +299,7 @@ export default function MyOfferings() {
     const snapToIntroEnd = ({ fromUi = false } = {}) => {
       if (isSnappingRef.current && !fromUi) return false;
       if (fromUi) isSnappingRef.current = false;
-      const targetScrollY = pinToScrollY(GALLERY_START - 0.002);
+      const targetScrollY = pinToScrollY(layoutRef.current.galleryStart - 0.002);
       const ok = animateToScrollY(targetScrollY, {
         onSettled: () => {
           lockedProjectRef.current = 0;
@@ -286,12 +340,48 @@ export default function MyOfferings() {
       },
     };
 
+    const snapToOfferingBeat = (beat, { fromUi = false } = {}) => {
+      const { offeringsEnd, offeringBeats } = layoutRef.current;
+      const target = Math.min(offeringBeats - 1, Math.max(0, beat));
+      if (isSnappingRef.current && !fromUi) return false;
+      const targetPin = ((target + 0.5) / offeringBeats) * offeringsEnd;
+      const targetScrollY = pinToScrollY(targetPin);
+      if (targetScrollY == null) return false;
+      lockedOfferingBeatRef.current = target;
+      setOfferingBeat(target);
+      return animateToScrollY(targetScrollY, { duration: snapDuration() });
+    };
+
     const trySnapFromDelta = (rawDelta) => {
       if (isSnappingRef.current) return true;
       if (Math.abs(rawDelta) < WHEEL_DELTA_MIN) return false;
 
       const pin = pinProgressRef.current;
       const direction = rawDelta > 0 ? 1 : -1;
+      const { offeringsEnd, introEnd, galleryStart, offeringBeats, isMobile: mobile } =
+        layoutRef.current;
+
+      if (mobile && pin < offeringsEnd - 0.001) {
+        const local = pin / offeringsEnd;
+        const beat = Math.min(
+          offeringBeats - 1,
+          Math.max(0, Math.round(local * offeringBeats - 0.5))
+        );
+        lockedOfferingBeatRef.current = beat;
+        const next = beat + direction;
+        if (next < 0) return false;
+        if (next >= offeringBeats) {
+          return animateToScrollY(pinToScrollY(introEnd - 0.002), {
+            duration: snapDuration(),
+          });
+        }
+        return snapToOfferingBeat(next);
+      }
+
+      if (mobile && pin >= offeringsEnd && pin < galleryStart) {
+        if (direction > 0) return snapToIndex(0, { fromUi: true });
+        return snapToOfferingBeat(offeringBeats - 1, { fromUi: true });
+      }
 
       // Footer unveils/covers with free Lenis scroll — no project snaps here.
       if (isInFooter(pin)) {
@@ -354,7 +444,10 @@ export default function MyOfferings() {
       if (isInFooter(pin) && !isSnappingRef.current) return;
 
       const inSnapZone =
-        isInIntro(pin) || isInGallery(pin) || isSnappingRef.current;
+        isInOfferings(pin) ||
+        isInIntro(pin) ||
+        isInGallery(pin) ||
+        isSnappingRef.current;
       if (!inSnapZone) return;
 
       if (isSnappingRef.current) {
@@ -382,7 +475,10 @@ export default function MyOfferings() {
       if (isInFooter(pin) && !isSnappingRef.current) return;
 
       const inSnapZone =
-        isInIntro(pin) || isInGallery(pin) || isSnappingRef.current;
+        isInOfferings(pin) ||
+        isInIntro(pin) ||
+        isInGallery(pin) ||
+        isSnappingRef.current;
       if (!inSnapZone) return;
       if (isSnappingRef.current) {
         event.preventDefault();
@@ -485,15 +581,15 @@ export default function MyOfferings() {
     const progressInterval = window.setInterval(syncLockFromProgress, 120);
 
     window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true, capture: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false, capture: true });
     window.addEventListener("keydown", onKeyDown);
 
     return () => {
       window.clearInterval(progressInterval);
       window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchstart", onTouchStart, { capture: true });
+      window.removeEventListener("touchmove", onTouchMove, { capture: true });
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [isMobile]);
@@ -525,32 +621,37 @@ export default function MyOfferings() {
     [isMobile ? MOBILE_TOP_RADIUS : MAX_TOP_RADIUS, 0]
   );
 
-  const offeringsProgress = useTransform(
-    pinProgress,
-    [0, OFFERINGS_END],
-    [0, 1],
-    { clamp: true }
-  );
-  const curtainProgress = useTransform(
-    pinProgress,
-    [OFFERINGS_END, CURTAIN_END],
-    [0, 1],
-    { clamp: true }
-  );
-  const introProgress = useTransform(
-    pinProgress,
-    [CURTAIN_END, INTRO_END],
-    [0, 1],
-    { clamp: true }
-  );
-  const projectsProgress = useTransform(
-    pinProgress,
-    [INTRO_END, GALLERY_END],
-    [0, 1],
-    { clamp: true }
-  );
-  const footerProgress = useTransform(pinProgress, [GALLERY_END, 1], [0, 1], {
-    clamp: true,
+  const offeringsProgress = useTransform(pinProgress, (p) => {
+    const end = layoutRef.current.offeringsEnd || OFFERINGS_END;
+    if (p <= 0) return 0;
+    if (p >= end) return 1;
+    return p / end;
+  });
+  const curtainProgress = useTransform(pinProgress, (p) => {
+    const start = layoutRef.current.offeringsEnd || OFFERINGS_END;
+    const end = layoutRef.current.curtainEnd || CURTAIN_END;
+    if (p <= start) return 0;
+    if (p >= end) return 1;
+    return (p - start) / Math.max(end - start, 0.0001);
+  });
+  const introProgress = useTransform(pinProgress, (p) => {
+    const start = layoutRef.current.curtainEnd || CURTAIN_END;
+    const end = layoutRef.current.introEnd || INTRO_END;
+    if (p <= start) return 0;
+    if (p >= end) return 1;
+    return (p - start) / Math.max(end - start, 0.0001);
+  });
+  const projectsProgress = useTransform(pinProgress, (p) => {
+    const start = layoutRef.current.introEnd || INTRO_END;
+    const end = layoutRef.current.galleryEnd || GALLERY_END;
+    if (p <= start) return 0;
+    if (p >= end) return 1;
+    return (p - start) / Math.max(end - start, 0.0001);
+  });
+  const footerProgress = useTransform(pinProgress, (p) => {
+    const start = layoutRef.current.galleryEnd || GALLERY_END;
+    if (p <= start) return 0;
+    return Math.min(1, (p - start) / Math.max(1 - start, 0.0001));
   });
 
   // Drive card/copy progress from raw scroll (Lenis already smooths).
@@ -558,25 +659,17 @@ export default function MyOfferings() {
 
   useMotionValueEvent(pinDrive, "change", (p) => {
     if (!isMobile) return;
-    const next = {
-      saas: p < SAAS_COPY_EXIT_END + 0.02,
-      fullstack:
-        p >= FULL_STACK_START - 0.02 && p < FULL_STACK_COPY_EXIT_END + 0.02,
-      revamp: p >= REVAMP_START - 0.02,
-    };
-    setMobileMount((prev) =>
-      prev.saas === next.saas &&
-      prev.fullstack === next.fullstack &&
-      prev.revamp === next.revamp
-        ? prev
-        : next
+    const beat = Math.min(
+      MOBILE_OFFERING_BEATS - 1,
+      Math.max(0, Math.floor(p * MOBILE_OFFERING_BEATS))
     );
+    lockedOfferingBeatRef.current = beat;
+    setOfferingBeat((prev) => (prev === beat ? prev : beat));
   });
 
   useMotionValueEvent(pinProgress, "change", (p) => {
     if (!isMobile) return;
-    // Warm projects just before the curtain peel so the handoff stays smooth
-    if (p >= OFFERINGS_END - 0.06) setProjectsReady(true);
+    if (p >= layoutRef.current.offeringsEnd - 0.08) setProjectsReady(true);
   });
 
   useEffect(() => {
@@ -586,6 +679,7 @@ export default function MyOfferings() {
     }
     setProjectsReady(false);
     setMobileMount({ saas: true, fullstack: false, revamp: false });
+    setOfferingBeat(0);
     return undefined;
   }, [isMobile]);
 
@@ -708,7 +802,7 @@ export default function MyOfferings() {
         className="relative w-full"
         style={{ height: `${trackHeightVh}vh` }}
       >
-        <div className="sticky top-0 h-screen w-full overflow-hidden">
+        <div className="sticky top-0 h-screen w-full overflow-hidden [touch-action:pan-y]">
           {projectsReady ? (
             <MyProjects
               curtainProgress={curtainDrive}
@@ -728,19 +822,80 @@ export default function MyOfferings() {
             className="pointer-events-none relative z-10 h-full w-full overflow-hidden bg-[#141414] will-change-transform"
             style={{
               x: curtainX,
-              // Mobile: fixed radius — animating border-radius every frame is costly
               borderRadius: isMobile ? 0 : borderRadius,
             }}
           >
             <div className="relative z-10 overflow-hidden px-5 pt-14 sm:px-8 md:px-12 lg:px-16 md:pt-16">
               <motion.h2
-                style={{ x: headingX, opacity: headingOpacity }}
+        style={isMobile ? { opacity: headingOpacity } : { x: headingX, opacity: headingOpacity }}
                 className="whitespace-nowrap font-ginto text-[clamp(28px,8vw,120px)] uppercase leading-none tracking-tight text-white/90"
               >
                 MY OFFERINGS
               </motion.h2>
             </div>
 
+            {isMobile ? (
+              <>
+                {offeringBeat === 0 ? (
+                  <div className="pointer-events-none absolute inset-0 z-20">
+                    <OfferingSlot
+                      title="SaaS Landing Page"
+                      number={1}
+                      side="left"
+                      progress={frozenOne}
+                      exitProgress={frozenZero}
+                    >
+                      <SaasBuildCard progress={frozenOne} lite />
+                    </OfferingSlot>
+                  </div>
+                ) : null}
+                {offeringBeat === 1 ? (
+                  <div className="pointer-events-none absolute inset-0 z-30">
+                    <SaasOfferCopy progress={frozenOne} />
+                  </div>
+                ) : null}
+                {offeringBeat === 2 ? (
+                  <div className="pointer-events-none absolute inset-0 z-40">
+                    <OfferingSlot
+                      title="Develop, but fast"
+                      number={2}
+                      side="right"
+                      progress={frozenOne}
+                      exitProgress={frozenZero}
+                    >
+                      <FullStackBuildCard progress={frozenOne} lite />
+                    </OfferingSlot>
+                  </div>
+                ) : null}
+                {offeringBeat === 3 ? (
+                  <div className="pointer-events-none absolute inset-0 z-50">
+                    <FullStackOfferCopy progress={frozenOne} />
+                  </div>
+                ) : null}
+                {offeringBeat === 4 ? (
+                  <div className="pointer-events-none absolute inset-0 z-60">
+                    <OfferingSlot
+                      title="Website Revamps"
+                      number={3}
+                      side="left"
+                      progress={frozenOne}
+                      exitProgress={frozenZero}
+                    >
+                      <WebsiteRevampBuildCard progress={frozenOne} lite />
+                    </OfferingSlot>
+                  </div>
+                ) : null}
+                {offeringBeat === 5 ? (
+                  <div className="pointer-events-none absolute inset-0 z-70">
+                    <WebsiteRevampOfferCopy
+                      progress={frozenOne}
+                      curtainProgress={frozenZero}
+                    />
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <>
             {mountSaas ? (
               <>
                 <div className="pointer-events-none absolute inset-0 z-20">
@@ -751,7 +906,7 @@ export default function MyOfferings() {
                     progress={saasCardProgress}
                     exitProgress={saasExitProgress}
                   >
-                    <SaasBuildCard progress={saasCardProgress} lite={isMobile} />
+                    <SaasBuildCard progress={saasCardProgress} lite={false} />
                   </OfferingSlot>
                 </div>
 
@@ -759,7 +914,7 @@ export default function MyOfferings() {
                   style={{
                     opacity: copyExitOpacity,
                     y: copyExitY,
-                    filter: isMobile ? "none" : copyExitFilter,
+                    filter: copyExitFilter,
                   }}
                   className="pointer-events-none absolute inset-0 z-30"
                 >
@@ -780,7 +935,7 @@ export default function MyOfferings() {
                   >
                     <FullStackBuildCard
                       progress={fullStackProgress}
-                      lite={isMobile}
+                      lite={false}
                     />
                   </OfferingSlot>
                 </div>
@@ -789,7 +944,7 @@ export default function MyOfferings() {
                   style={{
                     opacity: fullStackCopyExitOpacity,
                     y: fullStackCopyExitY,
-                    filter: isMobile ? "none" : fullStackCopyExitFilter,
+                    filter: fullStackCopyExitFilter,
                   }}
                   className="pointer-events-none absolute inset-0 z-50"
                 >
@@ -810,7 +965,7 @@ export default function MyOfferings() {
                   >
                     <WebsiteRevampBuildCard
                       progress={revampProgress}
-                      lite={isMobile}
+                      lite={false}
                     />
                   </OfferingSlot>
                 </div>
@@ -823,6 +978,8 @@ export default function MyOfferings() {
                 </div>
               </>
             ) : null}
+              </>
+            )}
           </motion.div>
         </div>
       </div>

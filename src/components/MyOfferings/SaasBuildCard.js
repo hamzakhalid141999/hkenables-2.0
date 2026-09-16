@@ -1,18 +1,38 @@
 "use client";
 
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { useEffect } from "react";
 
 const GREEN = "#5E683C";
 const GREEN_SOFT = "rgba(94, 104, 60, 0.55)";
 
 /**
  * Skeleton SaaS homepage — scroll builds layout + conversion signals.
- * `progress` is 0→1 while this card is active.
- * `lite`: freeze at the finished frame (mobile) — no per-scroll scrubbing.
+ * `progress` is 0→1 while this card is active (desktop scrub).
+ * `lite`: mobile layout. Pass `active` to auto-play 0→1 on snap-in.
  */
-export default function SaasBuildCard({ progress, lite = false }) {
+export default function SaasBuildCard({
+  progress,
+  lite = false,
+  active = false,
+}) {
   const frozen = useMotionValue(1);
-  const drive = lite ? frozen : progress;
+  const autoProgress = useMotionValue(0);
+  const drive = lite ? autoProgress : progress ?? frozen;
+
+  useEffect(() => {
+    if (!lite) return undefined;
+    if (!active) {
+      autoProgress.set(0);
+      return undefined;
+    }
+    autoProgress.set(0);
+    const controls = animate(autoProgress, 1, {
+      duration: 1.35,
+      ease: [0.22, 1, 0.36, 1],
+    });
+    return () => controls.stop();
+  }, [lite, active, autoProgress]);
 
   const navOpacity = useTransform(drive, [0.12, 0.28], [0, 1]);
   const navY = useTransform(drive, [0.12, 0.28], [14, 0]);
@@ -51,11 +71,13 @@ export default function SaasBuildCard({ progress, lite = false }) {
           <div className="h-6 w-6 rounded-md [@media(min-height:720px)]:h-8 [@media(min-height:720px)]:w-8 [@media(min-height:720px)]:rounded-lg" style={{ background: GREEN }} />
           <div className="h-2.5 w-16 rounded-full bg-white/15 [@media(min-height:720px)]:h-3 [@media(min-height:720px)]:w-20" />
         </div>
+        {lite ? null : (
         <div className="hidden items-center gap-2 [@media(min-height:720px)]:flex">
           <div className="h-2.5 w-12 rounded-full bg-white/10" />
           <div className="h-2.5 w-12 rounded-full bg-white/10" />
           <div className="h-2.5 w-12 rounded-full bg-white/10" />
         </div>
+        )}
         <div
           className="h-6 w-16 rounded-full [@media(min-height:720px)]:h-8 [@media(min-height:720px)]:w-20"
           style={{ background: `${GREEN}99` }}
@@ -90,7 +112,11 @@ export default function SaasBuildCard({ progress, lite = false }) {
       {/* Feature skeleton row — can shrink / hide on very short screens */}
       <motion.div
         style={{ opacity: featureOpacity, y: featureY }}
-        className="mb-2 hidden min-h-0 shrink grid-cols-3 gap-2 [@media(min-height:640px)]:grid [@media(min-height:720px)]:mb-4 [@media(min-height:720px)]:gap-2.5 [@media(min-height:820px)]:mb-6 [@media(min-height:820px)]:gap-3"
+        className={`mb-2 min-h-0 shrink grid-cols-3 gap-2 ${
+          lite
+            ? "grid"
+            : "hidden [@media(min-height:640px)]:grid [@media(min-height:720px)]:mb-4 [@media(min-height:720px)]:gap-2.5 [@media(min-height:820px)]:mb-6 [@media(min-height:820px)]:gap-3"
+        }`}
       >
         {[0, 1, 2].map((i) => (
           <div
@@ -106,8 +132,6 @@ export default function SaasBuildCard({ progress, lite = false }) {
           </div>
         ))}
       </motion.div>
-
-      {/* Growth chart + live users — always kept in view */}
       <div className="mt-auto grid min-h-0 shrink-0 grid-cols-[1.4fr_1fr] gap-2 [@media(min-height:720px)]:gap-3">
         <motion.div
           style={{ opacity: chartOpacity }}

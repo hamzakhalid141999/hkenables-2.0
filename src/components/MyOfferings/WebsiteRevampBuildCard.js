@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
+import { useEffect } from "react";
 
 const GREEN = "#5E683C";
 const GREEN_LIGHT = "#9aab6e";
@@ -117,9 +118,28 @@ function NewSite() {
 /**
  * Website revamp — outdated site transforms into a high-engagement redesign.
  */
-export default function WebsiteRevampBuildCard({ progress, lite = false }) {
+export default function WebsiteRevampBuildCard({
+  progress,
+  lite = false,
+  active = false,
+}) {
   const frozen = useMotionValue(1);
-  const drive = lite ? frozen : progress;
+  const autoProgress = useMotionValue(0);
+  const drive = lite ? autoProgress : progress ?? frozen;
+
+  useEffect(() => {
+    if (!lite) return undefined;
+    if (!active) {
+      autoProgress.set(0);
+      return undefined;
+    }
+    autoProgress.set(0);
+    const controls = animate(autoProgress, 1, {
+      duration: 1.45,
+      ease: [0.22, 1, 0.36, 1],
+    });
+    return () => controls.stop();
+  }, [lite, active, autoProgress]);
 
   const stageOpacity = useTransform(drive, [0.05, 0.18], [0, 1]);
   const stageY = useTransform(drive, [0.05, 0.22], [24, 0]);

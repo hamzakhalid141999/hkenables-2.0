@@ -37,6 +37,7 @@ function useLineMotion(progress, start, end) {
  * Post Full-Stack card copy — lines reveal one at a time.
  */
 export default function FullStackOfferCopy({ progress }) {
+  const isMobile = useIsMobile();
   const line1 = useLineMotion(progress, 0.02, 0.2);
   const line2 = useLineMotion(progress, 0.18, 0.38);
   const line3 = useLineMotion(progress, 0.4, 0.62);
@@ -45,14 +46,14 @@ export default function FullStackOfferCopy({ progress }) {
     <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6 sm:px-10">
       <div className="flex w-full max-w-4xl flex-col items-center text-center">
         <motion.h3
-          style={line1}
+          style={isMobile ? undefined : line1}
           className="font-ginto text-[clamp(32px,6.5vw,64px)] leading-[1.05] tracking-tight text-white"
         >
           Convert that idea into a SaaS!
         </motion.h3>
 
         <motion.p
-          style={line2}
+          style={isMobile ? undefined : line2}
           className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-[33px] text-white/70"
         >
           I can ship fast, so can others. But I can ship it not looking like another AI slop UI/UX
@@ -65,7 +66,7 @@ export default function FullStackOfferCopy({ progress }) {
         </motion.p>
 
         <motion.p
-          style={line3}
+          style={isMobile ? undefined : line3}
           className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-[30px] text-white/45"
         >
           Founders are busy, I let them take the back-seat and take charge of the

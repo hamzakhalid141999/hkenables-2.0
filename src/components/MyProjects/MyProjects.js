@@ -59,7 +59,7 @@ function techStyle(name) {
 const DEFAULT_MESH_COLOR = "#FFFFFF";
 const MESH_LINE_OPACITY = 0.08;
 
-const PROJECTS = [
+export const PROJECTS = [
   {
     number: "01",
     title: "BatchEdits",
@@ -93,7 +93,7 @@ const PROJECTS = [
     title: "Estately.io",
     type: "Property Management",
     description:
-      "Estately brings all property operations into one powerful, easy-to-use platform. Manage tenants, assets, bookings, maintenance, compliance, and finances from a single dashboard. Custom made accounting solution so you can track every add-on's penny.\n\nI've worked on a complete acco",
+      "Estately brings all property operations into one powerful, easy-to-use platform. Manage tenants, assets, bookings, maintenance, compliance, and finances from a single dashboard. Custom made accounting solution so you can track every add-on's penny.\n\nWorked on a complete, fully functional accounting module, alongwith templating workflows for task management and visitor management",
     liveLink: "https://www.estately.io/",
     primaryColor: "#dde8e4",
     secondaryColor: "#73ad95",
@@ -749,7 +749,7 @@ function ProjectVideoPlayer({
     <video
       ref={videoRef}
       src={src}
-      className="absolute inset-0 h-full w-full object-contain object-center"
+      className="pointer-events-auto absolute inset-0 h-full w-full object-contain object-center"
       muted
       loop
       playsInline
@@ -812,7 +812,7 @@ function MacProjectWindow({
 
   return (
     <motion.div
-      className="w-full overflow-hidden rounded-[20px] border border-black/15 bg-[#ececec] shadow-[0_35px_90px_rgba(0,0,0,0.34)]"
+      className={`${isMobile || !isActive ? "pointer-events-none" : "pointer-events-auto"} w-full overflow-hidden rounded-[20px] border border-black/15 bg-[#ececec] shadow-[0_35px_90px_rgba(0,0,0,0.34)]`}
       onHoverStart={() => {
         if (!isMobile) setIsHovered(true);
       }}
@@ -893,7 +893,7 @@ function MacProjectWindow({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.94 }}
               transition={{ type: "spring", stiffness: 420, damping: 28 }}
-              className="absolute top-3 right-3 z-30 inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-3 py-1.5 font-gg-sans text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_28px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/75 hover:border-white/40"
+              className="pointer-events-auto absolute top-3 right-3 z-30 inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-3 py-1.5 font-gg-sans text-[11px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_28px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/75 hover:border-white/40"
               onClick={(e) => e.stopPropagation()}
             >
               Live site
@@ -975,7 +975,10 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
 
   return (
     <motion.article
-      style={{ opacity, color: project.textColor ?? "#000000" }}
+      style={{
+        opacity: isMobile ? (isActive ? 1 : 0) : opacity,
+        color: project.textColor ?? "#000000",
+      }}
       className="pointer-events-none absolute inset-0"
       aria-label={`${project.title} project`}
     >
@@ -995,17 +998,15 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
         Also avoid overflow-y-auto on mobile (nested scroll fights Lenis).
       */}
       <motion.div
-        style={isMobile ? { y: screenY, scale: screenScale } : undefined}
-        className={`absolute inset-x-0 top-[7vh] bottom-0 z-20 flex w-full flex-col px-[5%] md:pointer-events-none md:contents ${
-          isMobile
-            ? "pointer-events-none"
-            : "pointer-events-auto overflow-y-auto overscroll-contain"
-        }`}
+        style={isMobile ? undefined : { y: screenY, scale: screenScale }}
+          className={`absolute inset-x-0 top-[7vh] bottom-0 z-20 flex w-full flex-col px-[5%] pointer-events-none md:contents ${
+            isMobile ? "" : "overflow-y-auto overscroll-contain md:overflow-visible"
+          }`}
       >
         <motion.div
           style={isMobile ? undefined : { y: screenY, scale: screenScale }}
-          className={`w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%] ${
-            isActive ? "z-30 pointer-events-auto" : "z-10 pointer-events-none"
+          className={`w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%] pointer-events-none ${
+            isActive ? "z-30" : "z-10"
           }`}
         >
           <MacProjectWindow
@@ -1103,6 +1104,7 @@ function ProjectGalleryNav({
   onPrev,
   onNext,
 }) {
+  const isMobile = useIsMobile();
   const galleryOpacity = useTransform(progress, [0.02, 0.07], [0, 1], {
     clamp: true,
   });
@@ -1122,10 +1124,11 @@ function ProjectGalleryNav({
 
   return (
     <>
-      {/* Vertical index rail — parked off-left, slides in when the cursor nears */}
+      {/* Vertical index rail — desktop only (not even in the mobile DOM) */}
+      {!isMobile ? (
       <motion.div
         style={{ opacity, y, pointerEvents }}
-        className="group/rail absolute left-0 top-1/2 z-60 hidden h-[72vh] w-32 -translate-y-1/2 md:block"
+        className="group/rail absolute left-0 top-1/2 z-60 h-[72vh] w-32 -translate-y-1/2"
       >
         <nav
           className="absolute left-5 top-1/2 flex -translate-x-11 -translate-y-1/2 flex-col items-start gap-1 transition-transform duration-500 ease-out group-hover/rail:translate-x-0 lg:left-7"
@@ -1190,6 +1193,7 @@ function ProjectGalleryNav({
         </p>
         </nav>
       </motion.div>
+      ) : null}
 
       {/* Bottom transport bar — prev / current / next */}
       <motion.div
@@ -1554,17 +1558,18 @@ export default function MyProjects({
         style={{ opacity: galleryContentOpacity }}
       >
         {PROJECTS.map((project, index) => {
-          // Span active ↔ live progress so fast snaps never unmount the in-between beat.
-          // +2 look-ahead pre-mounts the next window (and its screenshots) before opacity rises.
           const spanLo = Math.min(progressIndex, activeProjectIndex);
           const spanHi = Math.max(progressIndex, activeProjectIndex);
-          const mountLo = Math.max(0, spanLo - 1);
-          const mountHi = Math.min(PROJECT_COUNT - 1, spanHi + 2);
+          const mountLo = isMobile
+            ? activeProjectIndex
+            : Math.max(0, spanLo - 1);
+          const mountHi = isMobile
+            ? activeProjectIndex
+            : Math.min(PROJECT_COUNT - 1, spanHi + 2);
           const isMounted = index >= mountLo && index <= mountHi;
 
           if (!isMounted && galleryVisible) return null;
-          // Before gallery is visible, prep the first two so the first snap is instant
-          if (!galleryVisible && index > 1) return null;
+          if (!galleryVisible && index > (isMobile ? 0 : 1)) return null;
 
           const nearActive = Math.abs(index - activeProjectIndex) <= 1;
           const nearProgress = Math.abs(index - progressIndex) <= 1;

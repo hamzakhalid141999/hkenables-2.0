@@ -3,7 +3,7 @@
 import { ReactLenis, useLenis } from "lenis/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile, useHasMounted } from "@/hooks/useIsMobile";
 
 function ScrollToTopOnRouteChange() {
   const lenis = useLenis();
@@ -20,34 +20,30 @@ function ScrollToTopOnRouteChange() {
 
 export default function SmoothScroll({ children }) {
   const isMobile = useIsMobile();
+  const mounted = useHasMounted();
+
+  useEffect(() => {
+    const on = mounted && isMobile;
+    document.documentElement.classList.toggle("mobile-snap", on);
+    document.body.classList.toggle("mobile-snap", on);
+    return () => {
+      document.documentElement.classList.remove("mobile-snap");
+      document.body.classList.remove("mobile-snap");
+    };
+  }, [isMobile, mounted]);
 
   const options = useMemo(
-    () =>
-      isMobile
-        ? {
-            // Own touch so we can kill post-gesture coasting
-            syncTouch: true,
-            // Instant follow while finger is down
-            syncTouchLerp: 1,
-            // |v|^0 ≈ 1px on release → no rubbery inertia
-            touchInertiaExponent: 0,
-            lerp: 0.35,
-            touchMultiplier: 1.1,
-          }
-        : {
-            lerp: 0.16,
-            syncTouch: false,
-          },
-    [isMobile]
+    () => ({
+      lerp: 0.16,
+      syncTouch: false,
+    }),
+    []
   );
 
+  if (!mounted || isMobile) return children;
+
   return (
-    <ReactLenis
-      // Remount when breakpoint flips so Lenis picks up touch options
-      key={isMobile ? "lenis-mobile" : "lenis-desktop"}
-      root
-      options={options}
-    >
+    <ReactLenis root options={options}>
       <ScrollToTopOnRouteChange />
       {children}
     </ReactLenis>
