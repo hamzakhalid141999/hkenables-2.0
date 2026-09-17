@@ -7,7 +7,10 @@ import FullStackBuildCard from "./FullStackBuildCard";
 import WebsiteRevampBuildCard from "./WebsiteRevampBuildCard";
 import MyProjectsMobile from "@/components/MyProjects/MyProjectsMobile";
 import { SNAP_SECTION } from "@/hooks/useMobileSnap";
+import { THEME, lighten, withAlpha } from "@/theme/palette";
 
+const SAAS_LINK = lighten(THEME.saas, 0.38);
+const FULLSTACK_LINK = lighten(THEME.fullstack, 0.38);
 const copyEase = [0.22, 1, 0.36, 1];
 
 function SnapSlide({ id, className = "", children }) {
@@ -66,7 +69,7 @@ function CopyLine({ active, delay, children, className }) {
 export default function MyOfferingsMobile() {
   return (
     <div id="myOfferings" className="relative z-40 w-full bg-[#141414]">
-      <SnapSlide className="bg-[#141414]">
+      <SnapSlide id="notch-saas" className="bg-[#141414]">
         {(active) => (
           <StaticOfferingCard title="SaaS Landing Page">
             <SaasBuildCard lite active={active} />
@@ -108,7 +111,11 @@ export default function MyOfferingsMobile() {
                   href="https://www.batchedits.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative z-10 mt-6 inline-block font-gg-sans text-[clamp(15px,1.9vw,18px)] text-[#9aab6e] underline decoration-[#9aab6e]/40 underline-offset-4"
+                  className="relative z-10 mt-6 inline-block font-gg-sans text-[clamp(15px,1.9vw,18px)] underline underline-offset-4"
+                  style={{
+                    color: SAAS_LINK,
+                    textDecorationColor: withAlpha(SAAS_LINK, 0.4),
+                  }}
                 >
                   www.batchedits.com
                 </a>
@@ -118,7 +125,7 @@ export default function MyOfferingsMobile() {
         )}
       </SnapSlide>
 
-      <SnapSlide className="bg-[#141414]">
+      <SnapSlide id="notch-fullstack" className="bg-[#141414]">
         {(active) => (
           <StaticOfferingCard title="Develop, but fast">
             <FullStackBuildCard lite active={active} />
@@ -163,7 +170,11 @@ export default function MyOfferingsMobile() {
                     href="https://www.linkedin.com/in/hamza-khalid-5a40931a5/details/recommendations/?detailScreenTabIndex=0"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#9aab6e] underline decoration-[#9aab6e]/40 underline-offset-4"
+                    className="underline underline-offset-4"
+                    style={{
+                      color: FULLSTACK_LINK,
+                      textDecorationColor: withAlpha(FULLSTACK_LINK, 0.4),
+                    }}
                   >
                     see for yourself
                   </a>{" "}
@@ -175,7 +186,7 @@ export default function MyOfferingsMobile() {
         )}
       </SnapSlide>
 
-      <SnapSlide className="bg-[#141414]">
+      <SnapSlide id="notch-revamp" className="bg-[#141414]">
         {(active) => (
           <StaticOfferingCard title="Website Revamps">
             <WebsiteRevampBuildCard lite active={active} />

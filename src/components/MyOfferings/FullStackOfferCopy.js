@@ -3,6 +3,11 @@
 import { motion, useTransform } from "framer-motion";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MagneticHotspot } from "./MagneticLink";
+import { THEME, lighten, withAlpha } from "@/theme/palette";
+
+const LINK = THEME.fullstack;
+const LINK_TEXT = lighten(LINK, 0.38);
+const LINK_HOVER = lighten(LINK, 0.5);
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
@@ -79,8 +84,29 @@ export default function FullStackOfferCopy({ progress }) {
             rel="noopener noreferrer"
             aria-label="Read LinkedIn recommendations"
             className="inline"
+            color={LINK}
           >
-            <span className="text-[#9aab6e] underline decoration-[#9aab6e]/40 underline-offset-4 transition-colors hover:text-[#b4c47e] hover:decoration-[#9aab6e]/70">
+            <span
+              className="underline underline-offset-4 transition-colors"
+              style={{
+                color: LINK_TEXT,
+                textDecorationColor: withAlpha(LINK_TEXT, 0.4),
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = LINK_HOVER;
+                e.currentTarget.style.textDecorationColor = withAlpha(
+                  LINK_TEXT,
+                  0.7
+                );
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = LINK_TEXT;
+                e.currentTarget.style.textDecorationColor = withAlpha(
+                  LINK_TEXT,
+                  0.4
+                );
+              }}
+            >
               see for yourself
             </span>
           </MagneticHotspot>{" "}

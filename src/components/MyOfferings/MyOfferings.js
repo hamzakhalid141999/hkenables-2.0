@@ -802,6 +802,37 @@ function MyOfferingsDesktop() {
         className="relative w-full"
         style={{ height: `${trackHeightVh}vh` }}
       >
+        {/* Notch scroll markers — percentage along the pin track */}
+        <div
+          id="notch-saas"
+          aria-hidden
+          className="pointer-events-none absolute left-0 h-px w-full"
+          style={{ top: `0%` }}
+        />
+        <div
+          id="notch-fullstack"
+          aria-hidden
+          className="pointer-events-none absolute left-0 h-px w-full"
+          style={{ top: `${FULL_STACK_START * offeringsEnd * 100}%` }}
+        />
+        <div
+          id="notch-revamp"
+          aria-hidden
+          className="pointer-events-none absolute left-0 h-px w-full"
+          style={{ top: `${REVAMP_START * offeringsEnd * 100}%` }}
+        />
+        <div
+          id="notch-projects"
+          aria-hidden
+          className="pointer-events-none absolute left-0 h-px w-full"
+          style={{ top: `${introEnd * 100}%` }}
+        />
+        <div
+          id="contactMe"
+          aria-hidden
+          className="pointer-events-none absolute left-0 h-px w-full"
+          style={{ top: `${galleryEnd * 100}%` }}
+        />
         <div className="sticky top-0 h-screen w-full overflow-hidden [touch-action:pan-y]">
           {projectsReady ? (
             <MyProjects

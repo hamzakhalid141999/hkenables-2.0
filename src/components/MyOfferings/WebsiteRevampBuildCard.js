@@ -2,9 +2,10 @@
 
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
+import { THEME, THEME_LIGHT } from "@/theme/palette";
 
-const GREEN = "#5E683C";
-const GREEN_LIGHT = "#9aab6e";
+const GREEN = THEME.revamp;
+const GREEN_LIGHT = THEME_LIGHT.revamp;
 
 function BrowserChrome({ label, tone = "old" }) {
   const isNew = tone === "new";
@@ -188,7 +189,7 @@ export default function WebsiteRevampBuildCard({
       {!lite ? (
         <motion.div
           style={{ opacity: glowOpacity }}
-          className="pointer-events-none absolute inset-x-[20%] bottom-[-20%] h-[50%] rounded-full bg-[#5E683C]/28 blur-[80px]"
+          className="pointer-events-none absolute inset-x-[20%] bottom-[-20%] h-[50%] rounded-full bg-[#43898A]/28 blur-[80px]"
         />
       ) : null}
 
@@ -203,7 +204,7 @@ export default function WebsiteRevampBuildCard({
         </div>
         <motion.div
           style={{ opacity: resultOpacity }}
-          className="rounded-full border border-[#5E683C]/50 bg-[#5E683C]/15 px-3 py-1.5 font-gg-sans text-[9px] uppercase tracking-[0.14em] text-[#b4c487]"
+          className="rounded-full border border-[#43898A]/50 bg-[#43898A]/15 px-3 py-1.5 font-gg-sans text-[9px] uppercase tracking-[0.14em] text-[#a8d0d0]"
         >
           Engagement up
         </motion.div>
@@ -230,7 +231,7 @@ export default function WebsiteRevampBuildCard({
 
           <motion.div
             style={{ left: wipeLeft, opacity: wipeOpacity }}
-            className="absolute top-0 z-20 h-full w-0.5 -translate-x-1/2 bg-[#b4c487] shadow-[0_0_18px_#9aab6e]"
+            className="absolute top-0 z-20 h-full w-0.5 -translate-x-1/2 bg-[#a8d0d0] shadow-[0_0_18px_#8ab6b6]"
           />
 
           <motion.span
@@ -258,7 +259,7 @@ export default function WebsiteRevampBuildCard({
             <div className="font-gg-sans text-[8px] uppercase tracking-[0.14em] text-white/35 sm:text-[9px]">
               Engagement
             </div>
-            <motion.div className="mt-1 font-archivo-black text-[18px] text-[#b4c487] sm:text-[22px]">
+            <motion.div className="mt-1 font-archivo-black text-[18px] text-[#a8d0d0] sm:text-[22px]">
               {engagementLabel}
             </motion.div>
           </div>
@@ -296,9 +297,9 @@ export default function WebsiteRevampBuildCard({
 
       <motion.div
         style={{ opacity: resultOpacity, y: resultY }}
-        className="absolute bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-[#9aab6e]/35 bg-[#25291d] px-4 py-2 shadow-[0_0_30px_rgba(94,104,60,0.3)]"
+        className="absolute bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-[#8ab6b6]/35 bg-[#25291d] px-4 py-2 shadow-[0_0_30px_rgba(67, 137, 138,0.3)]"
       >
-        <span className="h-2 w-2 rounded-full bg-[#b4c487] shadow-[0_0_10px_#9aab6e]" />
+        <span className="h-2 w-2 rounded-full bg-[#a8d0d0] shadow-[0_0_10px_#8ab6b6]" />
         <span className="whitespace-nowrap font-archivo-black text-[10px] text-white sm:text-[11px]">
           Visitors stay longer. Convert more.
         </span>

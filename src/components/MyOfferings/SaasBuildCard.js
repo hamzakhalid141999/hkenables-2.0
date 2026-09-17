@@ -2,9 +2,10 @@
 
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
+import { THEME, withAlpha } from "@/theme/palette";
 
-const GREEN = "#5E683C";
-const GREEN_SOFT = "rgba(94, 104, 60, 0.55)";
+const GREEN = THEME.saas;
+const GREEN_SOFT = withAlpha(THEME.saas, 0.55);
 
 /**
  * Skeleton SaaS homepage — scroll builds layout + conversion signals.

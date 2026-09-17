@@ -280,7 +280,7 @@ function FooterContact({ contact, index }) {
         target={isMail ? undefined : "_blank"}
         rel={isMail ? undefined : "noopener noreferrer"}
         aria-label={contact.label}
-        color="#738732"
+        color="#2A7B9B"
         className="h-full"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -294,7 +294,7 @@ function FooterContact({ contact, index }) {
         <span
           aria-hidden
           className="relative z-10 -ml-[0.45em] mt-2.5 font-archivo-black text-[clamp(36px,9vw,60px)] font-black leading-none tracking-tight transition-colors duration-300 md:mt-[0.75em] md:text-[clamp(18px,8.2vh,60px)]"
-          style={{ color: hovered ? "#738732" : "#393939" }}
+          style={{ color: hovered ? "#2A7B9B" : "#393939" }}
         >
           {contact.label}
         </span>
@@ -1408,7 +1408,7 @@ export default function MyProjects({
   });
 
   // —— Phase 4: lift gallery to unveil static footer ——
-  const THEME_GREEN = "#738732";
+  const THEME_GREEN = "#2A7B9B";
   const FOOTER_VH = 80;
   const galleryLiftY = useTransform(
     footerProgress,

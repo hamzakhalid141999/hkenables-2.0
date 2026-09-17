@@ -2,8 +2,9 @@
 
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
+import { THEME } from "@/theme/palette";
 
-const GREEN = "#5E683C";
+const GREEN = THEME.fullstack;
 
 function ScreenChrome({ label, status }) {
   return (
@@ -15,8 +16,8 @@ function ScreenChrome({ label, status }) {
         </span>
       </div>
       <div className="flex items-center gap-1 min-[830px]:gap-1.5">
-        <span className="h-1 w-1 rounded-full bg-[#9aab6e] min-[830px]:h-1.5 min-[830px]:w-1.5" />
-        <span className="font-gg-sans text-[7px] uppercase tracking-[0.1em] text-[#9aab6e] min-[830px]:text-[9px] min-[830px]:tracking-[0.12em]">
+        <span className="h-1 w-1 rounded-full bg-[#99bfab] min-[830px]:h-1.5 min-[830px]:w-1.5" />
+        <span className="font-gg-sans text-[7px] uppercase tracking-[0.1em] text-[#99bfab] min-[830px]:text-[9px] min-[830px]:tracking-[0.12em]">
           {status}
         </span>
       </div>
@@ -140,7 +141,7 @@ export default function FullStackBuildCard({
       {!lite ? (
         <motion.div
           style={{ opacity: completeGlow }}
-          className="pointer-events-none absolute inset-x-[18%] bottom-[-25%] h-[55%] rounded-full bg-[#5E683C]/30 blur-[80px]"
+          className="pointer-events-none absolute inset-x-[18%] bottom-[-25%] h-[55%] rounded-full bg-[#5A9778]/30 blur-[80px]"
         />
       ) : null}
 
@@ -162,7 +163,7 @@ export default function FullStackBuildCard({
           </motion.div>
           <motion.div
             style={{ opacity: acceleratedOpacity }}
-            className="rounded-full border border-[#5E683C]/50 bg-[#5E683C]/15 px-2.5 py-1 font-gg-sans text-[8px] uppercase tracking-[0.12em] text-[#b4c487] min-[830px]:px-3 min-[830px]:py-1.5 min-[830px]:text-[9px] min-[830px]:tracking-[0.14em]"
+            className="rounded-full border border-[#5A9778]/50 bg-[#5A9778]/15 px-2.5 py-1 font-gg-sans text-[8px] uppercase tracking-[0.12em] text-[#b5d4c0] min-[830px]:px-3 min-[830px]:py-1.5 min-[830px]:text-[9px] min-[830px]:tracking-[0.14em]"
           >
             8× faster
           </motion.div>
@@ -175,7 +176,7 @@ export default function FullStackBuildCard({
           style={{ opacity: aiOpacity, scale: aiScale }}
           className="absolute left-1/2 top-0 z-20 -translate-x-1/2 min-[830px]:top-[2%]"
         >
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#9aab6e]/50 bg-[#5E683C] shadow-[0_0_35px_rgba(154,171,110,0.4)] min-[830px]:h-14 min-[830px]:w-14 min-[830px]:rounded-2xl">
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[#99bfab]/50 bg-[#5A9778] shadow-[0_0_35px_rgba(153, 191, 171,0.4)] min-[830px]:h-14 min-[830px]:w-14 min-[830px]:rounded-2xl">
             <span className="font-ginto text-[12px] text-black min-[830px]:text-[15px]">
               AI
             </span>
@@ -183,7 +184,7 @@ export default function FullStackBuildCard({
             <motion.span
               animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 1.8, repeat: Infinity }}
-              className="absolute inset-0 rounded-xl border border-[#9aab6e]/70 min-[830px]:rounded-2xl"
+              className="absolute inset-0 rounded-xl border border-[#99bfab]/70 min-[830px]:rounded-2xl"
             />
             )}
           </div>
@@ -196,15 +197,15 @@ export default function FullStackBuildCard({
         >
           <motion.div
             style={{ scaleX: beamScale, rotate: 17 }}
-            className="absolute left-1/2 top-0 h-px w-1/2 origin-left bg-linear-to-r from-[#9aab6e] to-transparent"
+            className="absolute left-1/2 top-0 h-px w-1/2 origin-left bg-linear-to-r from-[#99bfab] to-transparent"
           />
           <motion.div
             style={{ scaleX: beamScale, rotate: 163 }}
-            className="absolute left-1/2 top-0 h-px w-1/2 origin-left bg-linear-to-r from-[#9aab6e] to-transparent"
+            className="absolute left-1/2 top-0 h-px w-1/2 origin-left bg-linear-to-r from-[#99bfab] to-transparent"
           />
           <motion.div
             style={{ scaleY: beamScale }}
-            className="absolute left-1/2 top-0 h-full w-px origin-top bg-linear-to-b from-[#9aab6e] to-transparent"
+            className="absolute left-1/2 top-0 h-full w-px origin-top bg-linear-to-b from-[#99bfab] to-transparent"
           />
         </motion.div>
         )}
@@ -218,7 +219,7 @@ export default function FullStackBuildCard({
             <div className="flex h-[calc(100%_-_30px)] min-h-0 flex-col p-2 min-[830px]:h-[calc(100%_-_38px)] min-[830px]:p-4">
               <div className="mb-2 flex items-center justify-between min-[830px]:mb-3">
                 <div className="h-1.5 w-8 rounded-full bg-white/10 min-[830px]:h-2 min-[830px]:w-10" />
-                <div className="h-4 w-8 rounded-full bg-[#5E683C]/60 min-[830px]:h-5 min-[830px]:w-10" />
+                <div className="h-4 w-8 rounded-full bg-[#5A9778]/60 min-[830px]:h-5 min-[830px]:w-10" />
               </div>
               <motion.div
                 style={{ width: frontendHeroWidth }}
@@ -230,7 +231,7 @@ export default function FullStackBuildCard({
               />
               <motion.div
                 style={{ width: frontendCtaWidth }}
-                className="h-5 min-w-1 rounded-md bg-[#5E683C] min-[830px]:h-6"
+                className="h-5 min-w-1 rounded-md bg-[#5A9778] min-[830px]:h-6"
               />
               {lite ? null : (
               <div className="mt-auto hidden grid-cols-2 gap-2 min-[830px]:grid">
@@ -248,10 +249,10 @@ export default function FullStackBuildCard({
           >
             <ScreenChrome label="Database" status="Syncing" />
             <div className="relative flex h-[calc(100%_-_30px)] min-h-0 flex-row items-center justify-center gap-3 px-3 min-[830px]:h-[calc(100%_-_38px)] min-[830px]:flex-col min-[830px]:px-2">
-              <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-[50%/12%] border border-[#9aab6e]/35 bg-black/20 min-[830px]:h-[58%] min-[830px]:w-[72%] min-[830px]:min-w-14">
+              <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-[50%/12%] border border-[#99bfab]/35 bg-black/20 min-[830px]:h-[58%] min-[830px]:w-[72%] min-[830px]:min-w-14">
                 <motion.div
                   style={{ height: databaseFill }}
-                  className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#5E683C] to-[#9aab6e]/45"
+                  className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#5A9778] to-[#99bfab]/45"
                 />
                 {[24, 45, 66].map((top) => (
                   <div
@@ -280,13 +281,13 @@ export default function FullStackBuildCard({
               {[codeLineOne, codeLineTwo, codeLineThree, codeLineFour].map(
                 (width, index) => (
                   <div key={index} className="flex items-center gap-1.5 min-[830px]:gap-2">
-                    <span className="font-gg-sans text-[7px] text-[#9aab6e]/55 min-[830px]:text-[8px]">
+                    <span className="font-gg-sans text-[7px] text-[#99bfab]/55 min-[830px]:text-[8px]">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <motion.div
                       style={{ width }}
                       className={`h-1.5 rounded-full min-[830px]:h-2 ${
-                        index === 1 ? "bg-[#9aab6e]/55" : "bg-white/10"
+                        index === 1 ? "bg-[#99bfab]/55" : "bg-white/10"
                       }`}
                     />
                   </div>
@@ -294,7 +295,7 @@ export default function FullStackBuildCard({
               )}
               <div className="mt-2 rounded-lg border border-white/6 bg-black/15 p-1.5 min-[830px]:mt-5 min-[830px]:p-2">
                 <div className="mb-1.5 h-1 w-8 rounded-full bg-white/10 min-[830px]:mb-2 min-[830px]:h-1.5 min-[830px]:w-10" />
-                <div className="h-1 w-[72%] rounded-full bg-[#5E683C]/50 min-[830px]:h-1.5" />
+                <div className="h-1 w-[72%] rounded-full bg-[#5A9778]/50 min-[830px]:h-1.5" />
               </div>
             </div>
           </motion.div>
@@ -307,7 +308,7 @@ export default function FullStackBuildCard({
         >
           <motion.span
             style={{ x: packetX }}
-            className="absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[#b4c487] shadow-[0_0_18px_#9aab6e]"
+            className="absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[#b5d4c0] shadow-[0_0_18px_#99bfab]"
           />
         </motion.div>
         )}
@@ -317,7 +318,7 @@ export default function FullStackBuildCard({
         <div className="h-1.5 overflow-hidden rounded-full bg-white/6">
           <motion.div
             style={{ width: buildWidth }}
-            className="h-full rounded-full bg-linear-to-r from-[#5E683C] to-[#b4c487]"
+            className="h-full rounded-full bg-linear-to-r from-[#5A9778] to-[#b5d4c0]"
           />
         </div>
         <div className="mt-2 flex items-center justify-between">
@@ -332,9 +333,9 @@ export default function FullStackBuildCard({
 
       <motion.div
         style={{ opacity: deployOpacity, y: deployY }}
-        className="absolute bottom-3 left-1/2 z-40 flex max-w-[92%] -translate-x-1/2 items-center gap-1.5 rounded-full border border-[#9aab6e]/35 bg-[#25291d] px-3 py-1.5 shadow-[0_0_30px_rgba(94,104,60,0.3)] min-[830px]:bottom-5 min-[830px]:gap-2 min-[830px]:px-4 min-[830px]:py-2"
+        className="absolute bottom-3 left-1/2 z-40 flex max-w-[92%] -translate-x-1/2 items-center gap-1.5 rounded-full border border-[#99bfab]/35 bg-[#25291d] px-3 py-1.5 shadow-[0_0_30px_rgba(90, 151, 120,0.3)] min-[830px]:bottom-5 min-[830px]:gap-2 min-[830px]:px-4 min-[830px]:py-2"
       >
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#b4c487] shadow-[0_0_10px_#9aab6e] min-[830px]:h-2 min-[830px]:w-2" />
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#b5d4c0] shadow-[0_0_10px_#99bfab] min-[830px]:h-2 min-[830px]:w-2" />
         <span className="truncate font-archivo-black text-[9px] text-white min-[830px]:whitespace-nowrap min-[830px]:text-[11px]">
           Production ready — 8× faster
         </span>

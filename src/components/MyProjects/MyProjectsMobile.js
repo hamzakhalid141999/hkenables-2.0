@@ -449,7 +449,7 @@ export default function MyProjectsMobile() {
       />
 
       <SnapSlide
-        id="projects-intro"
+        id="notch-projects"
         className="bg-white"
         onActiveChange={(on) => {
           if (on) setActiveIndex(null);
@@ -502,7 +502,7 @@ export default function MyProjectsMobile() {
       ))}
 
       <SnapSlide
-        id="projects-footer"
+        id="contactMe"
         className="relative overflow-hidden bg-black"
         onActiveChange={(on) => {
           setFooterActive(on);

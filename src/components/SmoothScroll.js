@@ -4,6 +4,7 @@ import { ReactLenis, useLenis } from "lenis/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { useIsMobile, useHasMounted } from "@/hooks/useIsMobile";
+import NavNotch from "@/components/NavNotch";
 
 function ScrollToTopOnRouteChange() {
   const lenis = useLenis();
@@ -40,12 +41,20 @@ export default function SmoothScroll({ children }) {
     []
   );
 
-  if (!mounted || isMobile) return children;
+  if (!mounted || isMobile) {
+    return (
+      <>
+        {children}
+        <NavNotch />
+      </>
+    );
+  }
 
   return (
     <ReactLenis root options={options}>
       <ScrollToTopOnRouteChange />
       {children}
+      <NavNotch />
     </ReactLenis>
   );
 }

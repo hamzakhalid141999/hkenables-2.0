@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import MagneticLink from "./MagneticLink";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { THEME } from "@/theme/palette";
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
@@ -202,7 +203,11 @@ export default function SaasOfferCopy({ progress }) {
           month
         </motion.p>
 
-        <MagneticLink href="https://www.batchedits.com" style={line4}>
+        <MagneticLink
+          href="https://www.batchedits.com"
+          color={THEME.saas}
+          style={line4}
+        >
           www.batchedits.com
         </MagneticLink>
       </div>

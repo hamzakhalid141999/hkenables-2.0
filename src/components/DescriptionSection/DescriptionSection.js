@@ -3,6 +3,9 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useIsMobile, useHasMounted } from "@/hooks/useIsMobile";
+import { THEME } from "@/theme/palette";
+
+const ABOUT = THEME.about;
 
 const PIN_SCROLL_VH = 1;
 export const ABOUT_OVERLAP_VH = 1;
@@ -51,14 +54,22 @@ function Char({ children, charIndex, totalChars, progressSpring, isStroke = fals
 function AboutMeMobile() {
   return (
     <section
+      id="aboutMe"
       data-snap
       className="relative z-20 h-dvh w-full shrink-0 snap-start snap-always overflow-hidden bg-black"
     >
       <div className="pointer-events-none absolute inset-0 grid grid-cols-8 opacity-50">
         <div className="absolute top-0 left-0 z-30 h-[50%] w-full bg-linear-to-b from-black to-transparent" />
-        <div className="absolute bottom-0 left-0 z-30 h-[70%] w-full bg-linear-to-b from-transparent to-[#5E683C]" />
+        <div
+          className="absolute bottom-0 left-0 z-30 h-[70%] w-full"
+          style={{ backgroundImage: `linear-gradient(to bottom, transparent, ${ABOUT})` }}
+        />
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-full w-full border-r-[0.5px] border-[#5E683C]" />
+          <div
+            key={i}
+            className="h-full w-full border-r-[0.5px]"
+            style={{ borderColor: ABOUT }}
+          />
         ))}
       </div>
       <div className="relative z-20 flex h-full flex-col justify-center gap-10 px-5">
@@ -111,9 +122,13 @@ function AboutMeDesktop() {
 
   return (
     <div
+      id="aboutMe"
       ref={sectionRef}
-      className="relative z-20 w-full bg-[#5E683C]"
-      style={{ height: `${(PIN_SCROLL_VH + ABOUT_OVERLAP_VH) * 100}vh` }}
+      className="relative z-20 w-full"
+      style={{
+        height: `${(PIN_SCROLL_VH + ABOUT_OVERLAP_VH) * 100}vh`,
+        backgroundColor: ABOUT,
+      }}
     >
       <div
         ref={scrollTrackRef}
@@ -127,15 +142,28 @@ function AboutMeDesktop() {
           <div className="relative h-full w-full bg-black flex flex-col items-center py-20 md:py-32 overflow-hidden">
             <div className="w-full h-full grid absolute top-0 left-0 grid-cols-8 opacity-50 pointer-events-none">
               <div style={{ zIndex: 30 }} className="absolute top-0 left-0 w-full h-[50%] bg-linear-to-b from-black to-transparent" />
-              <div style={{ zIndex: 30 }} className="absolute bottom-0 left-0 w-full h-[70%] bg-linear-to-b from-transparent to-[#5E683C]" />
+              <div
+                style={{
+                  zIndex: 30,
+                  backgroundImage: `linear-gradient(to bottom, transparent, ${ABOUT})`,
+                }}
+                className="absolute bottom-0 left-0 h-[70%] w-full"
+              />
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="w-full h-full border-r-[0.5px] border-[#5E683C]" />
+                <div
+                  key={i}
+                  className="h-full w-full border-r-[0.5px]"
+                  style={{ borderColor: ABOUT }}
+                />
               ))}
             </div>
 
             <motion.div
-              className="absolute inset-0 bg-linear-to-t from-[#5E683C] to-transparent z-10 pointer-events-none"
-              style={{ opacity: 0.1 }}
+              className="pointer-events-none absolute inset-0 z-10"
+              style={{
+                opacity: 0.1,
+                backgroundImage: `linear-gradient(to top, ${ABOUT}, transparent)`,
+              }}
             />
 
             <motion.div

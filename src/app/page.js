@@ -23,7 +23,7 @@ function HomeMobile() {
 
   return (
     <div className="relative">
-      <div data-snap className="h-dvh w-full shrink-0 snap-start snap-always">
+      <div id="home" data-snap className="h-dvh w-full shrink-0 snap-start snap-always">
         <HeroSection active />
       </div>
       <DescriptionSection />
@@ -51,7 +51,7 @@ function HomeDesktop() {
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="sticky top-0 z-10 h-screen">
+      <div id="home" className="sticky top-0 z-10 h-screen">
         <motion.div
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           className="h-full"

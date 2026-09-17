@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
+import { THEME, lighten, withAlpha } from "@/theme/palette";
 
-const GREEN = "#5E683C";
+const DEFAULT_COLOR = THEME.saas;
 const CURSOR_SIZE = 56;
 const HIT_PAD = 28;
 /** How strongly content drifts toward the cursor (0–1). */
@@ -28,7 +29,7 @@ function LinkIcon({ className }) {
 }
 
 /**
- * Green circle cursor + optional loose magnetic pull on children.
+ * Colored circle cursor + optional loose magnetic pull on children.
  * Used by MagneticLink and footer contact icons.
  */
 export function MagneticHotspot({
@@ -39,8 +40,12 @@ export function MagneticHotspot({
   rel,
   "aria-label": ariaLabel,
   magnet = true,
-  color = GREEN,
+  color = DEFAULT_COLOR,
   hitPad = HIT_PAD,
+  as = "a",
+  customCursor = true,
+  onClick,
+  type = "button",
 }) {
   const wrapRef = useRef(null);
   const [hovered, setHovered] = useState(false);
@@ -93,18 +98,31 @@ export function MagneticHotspot({
     rawContentY.set(0);
   };
 
+  useEffect(() => {
+    if (magnet) return;
+    rawContentX.set(0);
+    rawContentY.set(0);
+  }, [magnet, rawContentX, rawContentY]);
+
+  const Tag = as === "button" ? "button" : as === "div" ? "div" : "a";
+  const tagProps =
+    Tag === "a"
+      ? { href, target, rel }
+      : Tag === "button"
+        ? { type }
+        : {};
+
   return (
-    <a
+    <Tag
       ref={wrapRef}
-      href={href}
-      target={target}
-      rel={rel}
+      {...tagProps}
       aria-label={ariaLabel}
+      onClick={onClick}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
       onMouseMove={handleMove}
       className={`pointer-events-auto relative inline-flex items-center justify-center ${className}`}
-      style={{ cursor: hovered ? "none" : "pointer" }}
+      style={{ cursor: customCursor && hovered ? "none" : "pointer" }}
     >
       {/* Expand hit area without eating the content box height (padding would). */}
       <span
@@ -113,6 +131,7 @@ export function MagneticHotspot({
         style={{ inset: -hitPad }}
       />
 
+      {customCursor ? (
       <motion.span
         aria-hidden
         className="pointer-events-none absolute top-0 left-0 z-30 flex items-center justify-center rounded-full"
@@ -143,6 +162,7 @@ export function MagneticHotspot({
           <LinkIcon className="h-5 w-5" />
         </motion.span>
       </motion.span>
+      ) : null}
 
       <motion.span
         className="relative z-10 flex h-full items-center"
@@ -150,15 +170,22 @@ export function MagneticHotspot({
       >
         {children}
       </motion.span>
-    </a>
+    </Tag>
   );
 }
 
 /**
- * Link text stays as-is. On hover, the cursor becomes a green circle
+ * Link text stays as-is. On hover, the cursor becomes a colored circle
  * with a black link icon and lags like it’s escaping a bubble.
  */
-export default function MagneticLink({ href, children, style, className = "" }) {
+export default function MagneticLink({
+  href,
+  children,
+  style,
+  className = "",
+  color = DEFAULT_COLOR,
+}) {
+  const textColor = lighten(color, 0.38);
   return (
     <motion.div
       style={style}
@@ -170,8 +197,15 @@ export default function MagneticLink({ href, children, style, className = "" }) 
         hitPad={12}
         target="_blank"
         rel="noopener noreferrer"
+        color={color}
       >
-        <span className="relative z-10 font-gg-sans text-[clamp(15px,1.9vw,18px)] text-[#9aab6e] underline decoration-[#9aab6e]/40 underline-offset-4">
+        <span
+          className="relative z-10 font-gg-sans text-[clamp(15px,1.9vw,18px)] underline underline-offset-4"
+          style={{
+            color: textColor,
+            textDecorationColor: withAlpha(textColor, 0.4),
+          }}
+        >
           {children}
         </span>
       </MagneticHotspot>
