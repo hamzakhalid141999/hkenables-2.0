@@ -799,6 +799,8 @@ function MyOfferingsDesktop() {
     <section id="myOfferings" ref={sectionRef} className="relative z-40 w-full">
       <div
         ref={trackRef}
+        data-offerings-track
+        data-saas-land-pin={String(SAAS_CARD_END * 0.7 * offeringsEnd)}
         className="relative w-full"
         style={{ height: `${trackHeightVh}vh` }}
       >
@@ -807,7 +809,7 @@ function MyOfferingsDesktop() {
           id="notch-saas"
           aria-hidden
           className="pointer-events-none absolute left-0 h-px w-full"
-          style={{ top: `0%` }}
+          style={{ top: `${SAAS_CARD_END * 0.7 * offeringsEnd * 100}%` }}
         />
         <div
           id="notch-fullstack"

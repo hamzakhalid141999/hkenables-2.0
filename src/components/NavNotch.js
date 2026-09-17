@@ -94,17 +94,37 @@ const SIZE_EASE = [0.16, 1, 0.3, 1];
 const RADIUS_EASE = [0.2, 0.9, 0.2, 1];
 /** Slow → fast → slow for icon swaps */
 const ICON_EASE = [0.65, 0, 0.35, 1];
+/** Idle before notch merges into the top of the screen */
+const DOCK_IDLE_MS = 1500;
+/** Floating offset from top (matches Tailwind top-5) */
+const FLOAT_TOP = 20;
 
 const CLOSED = {
   width: 72,
   height: 34,
-  borderRadius: 999,
+  borderTopLeftRadius: 999,
+  borderTopRightRadius: 999,
+  borderBottomLeftRadius: 999,
+  borderBottomRightRadius: 999,
+};
+
+/** Flush with the viewport top — flat top edge, rounded bottom */
+const DOCKED = {
+  width: 92,
+  height: 28,
+  borderTopLeftRadius: 0,
+  borderTopRightRadius: 0,
+  borderBottomLeftRadius: 18,
+  borderBottomRightRadius: 18,
 };
 
 const OPENED = {
   width: 220,
   height: 248,
-  borderRadius: 16,
+  borderTopLeftRadius: 16,
+  borderTopRightRadius: 16,
+  borderBottomLeftRadius: 16,
+  borderBottomRightRadius: 16,
 };
 
 function resolveThemeStop() {
@@ -120,6 +140,7 @@ function resolveThemeStop() {
 
 export default function NavNotch() {
   const [open, setOpen] = useState(false);
+  const [docked, setDocked] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
   const [activeId, setActiveId] = useState("home");
   const [themeStop, setThemeStop] = useState(COLOR_STOPS[0]);
@@ -146,7 +167,7 @@ export default function NavNotch() {
     if (!item) return;
     const y = item.offsetTop;
     const h = item.offsetHeight;
-    if (immediate) {
+    if (immediate || highlightOpacity.get() < 0.05) {
       springY.jump(y);
       springH.jump(h);
     } else {
@@ -155,6 +176,38 @@ export default function NavNotch() {
     }
     highlightOpacity.set(1);
   };
+
+  // Idle → dock to top of screen; any cursor move pops it back
+  useEffect(() => {
+    if (open) {
+      setDocked(false);
+      return undefined;
+    }
+
+    let timer = window.setTimeout(() => setDocked(true), DOCK_IDLE_MS);
+
+    const bump = () => {
+      setDocked(false);
+      tug.set(0);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setDocked(true), DOCK_IDLE_MS);
+    };
+
+    window.addEventListener("mousemove", bump, { passive: true });
+    window.addEventListener("pointerdown", bump, { passive: true });
+    window.addEventListener("touchstart", bump, { passive: true });
+
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("mousemove", bump);
+      window.removeEventListener("pointerdown", bump);
+      window.removeEventListener("touchstart", bump);
+    };
+  }, [open, tug]);
+
+  useEffect(() => {
+    if (docked) tug.set(0);
+  }, [docked, tug]);
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -175,7 +228,7 @@ export default function NavNotch() {
       const y = window.scrollY;
       const dy = y - lastY;
       lastY = y;
-      if (!open && Math.abs(dy) > 0.5) {
+      if (!open && !docked && Math.abs(dy) > 0.5) {
         tug.set(Math.max(-10, Math.min(10, dy * 0.35)));
         window.clearTimeout(settle);
         settle = window.setTimeout(() => tug.set(0), 90);
@@ -193,7 +246,7 @@ export default function NavNotch() {
       window.clearTimeout(settle);
       cancelAnimationFrame(raf);
     };
-  }, [open, tug]);
+  }, [open, docked, tug]);
 
   useEffect(() => {
     if (!open) {
@@ -201,16 +254,16 @@ export default function NavNotch() {
       setHoveredId(null);
       return;
     }
-    const id = hoveredId ?? activeId;
-    // Jump on open so the pill isn't briefly stuck at y=0 above Home.
-    // Spring only when moving between items while already open.
-    const immediate = hoveredId == null;
+    if (!hoveredId) {
+      highlightOpacity.set(0);
+      return;
+    }
     const frame = requestAnimationFrame(() => {
-      syncHighlight(id, { immediate });
+      syncHighlight(hoveredId);
     });
     return () => cancelAnimationFrame(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, hoveredId, activeId]);
+  }, [open, hoveredId]);
 
   const goTo = (link) => {
     setOpen(false);
@@ -220,6 +273,28 @@ export default function NavNotch() {
       else window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
+
+    // Desktop offerings use a tall pin track — land via pin progress so the
+    // SaaS card is on-screen (raw marker top is short of the first offering).
+    if (link.id === "myOfferings") {
+      const track = document.querySelector("[data-offerings-track]");
+      if (track) {
+        const pin = Number.parseFloat(
+          track.getAttribute("data-saas-land-pin") || "0"
+        );
+        const trackTop =
+          track.getBoundingClientRect().top + window.scrollY;
+        const scrollRange = Math.max(
+          0,
+          track.offsetHeight - window.innerHeight
+        );
+        const top = trackTop + pin * scrollRange;
+        if (lenis) lenis.scrollTo(top, { offset: 0 });
+        else window.scrollTo({ top, behavior: "smooth" });
+        return;
+      }
+    }
+
     const el = document.getElementById(link.targetId);
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY;
@@ -241,24 +316,53 @@ export default function NavNotch() {
         onClick={() => setOpen(false)}
       />
 
-      <div className="pointer-events-none fixed top-5 left-1/2 z-100 -translate-x-1/2">
+      <motion.div
+        className="pointer-events-none fixed left-1/2 z-100 -translate-x-1/2"
+        initial={false}
+        animate={{
+          top: docked && !open ? 0 : FLOAT_TOP,
+        }}
+        transition={
+          docked && !open
+            ? { duration: 0.75, ease: [0.22, 1, 0.36, 1] }
+            : { type: "spring", stiffness: 520, damping: 22, mass: 0.65 }
+        }
+      >
         <motion.div style={{ y: tugY }} className="pointer-events-auto">
           <MagneticHotspot
             as="div"
             customCursor={false}
-            magnet={!open}
+            magnet={!open && !docked}
             hitPad={10}
             className="block"
             aria-label={open ? "Site menu" : "Open site menu"}
           >
             <motion.div
               initial={false}
-              animate={open ? OPENED : CLOSED}
+              animate={open ? OPENED : docked ? DOCKED : CLOSED}
               transition={{
-                width: { duration: 0.48, ease: SIZE_EASE },
-                height: { duration: 0.48, ease: SIZE_EASE },
-                borderRadius: {
-                  duration: open ? 0.22 : 0.4,
+                width: {
+                  duration: docked && !open ? 0.7 : 0.48,
+                  ease: SIZE_EASE,
+                },
+                height: {
+                  duration: docked && !open ? 0.7 : 0.48,
+                  ease: SIZE_EASE,
+                },
+                borderTopLeftRadius: {
+                  duration: open ? 0.22 : docked ? 0.55 : 0.4,
+                  ease: open ? RADIUS_EASE : SIZE_EASE,
+                },
+                borderTopRightRadius: {
+                  duration: open ? 0.22 : docked ? 0.55 : 0.4,
+                  ease: open ? RADIUS_EASE : SIZE_EASE,
+                },
+                borderBottomLeftRadius: {
+                  duration: open ? 0.22 : docked ? 0.55 : 0.4,
+                  ease: open ? RADIUS_EASE : SIZE_EASE,
+                },
+                borderBottomRightRadius: {
+                  duration: open ? 0.22 : docked ? 0.55 : 0.4,
                   ease: open ? RADIUS_EASE : SIZE_EASE,
                 },
               }}
@@ -266,9 +370,14 @@ export default function NavNotch() {
               style={{
                 transform: "translateZ(0)",
                 backfaceVisibility: "hidden",
+                borderTopColor:
+                  docked && !open ? "transparent" : "rgba(255,255,255,0.12)",
               }}
               onClick={() => {
-                if (!open) setOpen(true);
+                if (!open) {
+                  setDocked(false);
+                  setOpen(true);
+                }
               }}
               role={open ? "dialog" : "button"}
               aria-expanded={open}
@@ -276,10 +385,22 @@ export default function NavNotch() {
               {/* Section icon — closed notch only */}
               <motion.div
                 aria-hidden={open}
-                animate={{ opacity: open ? 0 : 1 }}
-                transition={{ duration: 0.15 }}
-                className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
+                animate={{
+                  opacity: open ? 0 : 1,
+                  paddingBottom: docked && !open ? 4 : 0,
+                }}
+                transition={{ duration: 0.35, ease: SIZE_EASE }}
+                className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2 overflow-hidden"
               >
+                <motion.span
+                  aria-hidden
+                  className="relative h-1.5 w-1.5 shrink-0 rounded-full"
+                  animate={{ backgroundColor: themeStop.color }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  style={{
+                    boxShadow: `0 0 8px ${themeStop.color}`,
+                  }}
+                />
                 <AnimatePresence mode="popLayout" initial={false}>
                   <motion.span
                     key={`${themeStop.targetId}-${themeStop.color}`}
@@ -355,7 +476,7 @@ export default function NavNotch() {
             </motion.div>
           </MagneticHotspot>
         </motion.div>
-      </div>
+      </motion.div>
     </>
   );
 }
