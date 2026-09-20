@@ -89,6 +89,9 @@ export default function HeroSection({ active = true }) {
     return undefined;
   }, []);
 
+  const blobGradient =
+    "radial-gradient(circle, #A5C244 0%, #42482D 32%, #272D14 48%, #0D0F06 68%, #000000 100%)";
+
   return (
     <section
       className={`relative flex w-full items-center justify-center overflow-hidden bg-black px-4 sm:px-6 md:px-8 ${
@@ -100,13 +103,14 @@ export default function HeroSection({ active = true }) {
         className="absolute bottom-0 left-0 h-[15%] w-full bg-gradient-to-b from-transparent to-black"
       />
 
-      {/* Blob */}
+      {/*
+        Full-bleed radial — no CSS filter:blur().
+        iOS Safari rasterizes blur into a hard rectangle, which showed up as
+        black bars around the glow on iPhone.
+      */}
       <motion.div
-        className="absolute left-1/2 top-1/2 h-[92vmin] w-[92vmin] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px] sm:h-[88vmin] sm:w-[88vmin] sm:blur-[140px] md:h-[85vmin] md:w-[85vmin] md:blur-[200px]"
-        style={{
-          background:
-            "radial-gradient(circle, #A5C244 0%, #42482D 46%, #272D14 60%, #0D0F06 78%, #000000 100%)",
-        }}
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[140vmax] w-[140vmax]"
+        style={{ x: "-50%", y: "-50%", background: blobGradient }}
         initial={{ opacity: 0, scale: 0.4 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{
@@ -116,13 +120,9 @@ export default function HeroSection({ active = true }) {
         }}
       />
 
-      {/* Soft fill layer (static — no breathing pulse) */}
       <motion.div
-        className="absolute left-1/2 top-1/2 h-[92vmin] w-[92vmin] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px] sm:h-[88vmin] sm:w-[88vmin] sm:blur-[140px] md:h-[85vmin] md:w-[85vmin] md:blur-[200px]"
-        style={{
-          background:
-            "radial-gradient(circle, #A5C244 0%, #42482D 46%, #272D14 60%, #0D0F06 78%, #000000 100%)",
-        }}
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[140vmax] w-[140vmax]"
+        style={{ x: "-50%", y: "-50%", background: blobGradient }}
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 0.9, scale: 1 }}
         transition={{

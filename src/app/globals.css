@@ -37,6 +37,12 @@
 
 html {
   overscroll-behavior: none;
+  overflow-x: clip;
+}
+
+html,
+body {
+  max-width: 100%;
 }
 
 html.mobile-snap,
@@ -55,6 +61,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overscroll-behavior: none;
+  overflow-x: clip;
   -webkit-tap-highlight-color: transparent;
 }
 
