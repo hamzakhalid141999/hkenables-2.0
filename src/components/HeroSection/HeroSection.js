@@ -25,6 +25,37 @@ const ORBIT_COUNT_2 = 12;
 const ORBIT_RADIUS_2 = 840;
 const CIRCLE_DIAMETER_2 = 240;
 
+const BLOB_GRADIENT =
+  "radial-gradient(circle, #A5C244 0%, #42482D 46%, #272D14 60%, #0D0F06 78%, #000000 100%)";
+
+/** Same circular glow as before. Blur sits on a padded layer so iOS Safari
+ *  doesn’t clip the halo into a hard rectangle around the circle. */
+function HeroBlob({ initial, animate, transition }) {
+  return (
+    <motion.div
+      className="pointer-events-none absolute left-1/2 top-1/2"
+      style={{ x: "-50%", y: "-50%" }}
+      initial={initial}
+      animate={animate}
+      transition={transition}
+    >
+      <div
+        className="flex items-center justify-center blur-[100px] sm:blur-[140px] md:blur-[200px]"
+        style={{
+          width: "calc(92vmin + 400px)",
+          height: "calc(92vmin + 400px)",
+          transform: "translate3d(0,0,0)",
+        }}
+      >
+        <div
+          className="h-[92vmin] w-[92vmin] rounded-full sm:h-[88vmin] sm:w-[88vmin] md:h-[85vmin] md:w-[85vmin]"
+          style={{ background: BLOB_GRADIENT }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
 export default function HeroSection({ active = true }) {
   const isMobile = useIsMobile();
   const mouseX = useMotionValue(0);
@@ -89,9 +120,6 @@ export default function HeroSection({ active = true }) {
     return undefined;
   }, []);
 
-  const blobGradient =
-    "radial-gradient(circle, #A5C244 0%, #42482D 32%, #272D14 48%, #0D0F06 68%, #000000 100%)";
-
   return (
     <section
       className={`relative flex w-full items-center justify-center overflow-hidden bg-black px-4 sm:px-6 md:px-8 ${
@@ -103,14 +131,8 @@ export default function HeroSection({ active = true }) {
         className="absolute bottom-0 left-0 h-[15%] w-full bg-gradient-to-b from-transparent to-black"
       />
 
-      {/*
-        Full-bleed radial — no CSS filter:blur().
-        iOS Safari rasterizes blur into a hard rectangle, which showed up as
-        black bars around the glow on iPhone.
-      */}
-      <motion.div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[140vmax] w-[140vmax]"
-        style={{ x: "-50%", y: "-50%", background: blobGradient }}
+      {/* Blob */}
+      <HeroBlob
         initial={{ opacity: 0, scale: 0.4 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{
@@ -120,9 +142,8 @@ export default function HeroSection({ active = true }) {
         }}
       />
 
-      <motion.div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[140vmax] w-[140vmax]"
-        style={{ x: "-50%", y: "-50%", background: blobGradient }}
+      {/* Soft fill layer (static — no breathing pulse) */}
+      <HeroBlob
         initial={{ opacity: 0, scale: 1 }}
         animate={{ opacity: 0.9, scale: 1 }}
         transition={{
