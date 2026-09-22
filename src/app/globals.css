@@ -55,8 +55,8 @@ html.mobile-snap {
 html.mobile-snap [data-snap] {
   scroll-snap-align: start;
   scroll-snap-stop: normal;
-  height: 100lvh;
-  min-height: 100lvh;
+  height: var(--snap-vh, 100lvh);
+  min-height: var(--snap-vh, 100lvh);
 }
 
 /* Notch / programmatic jumps — iOS will otherwise snap back to the footer. */

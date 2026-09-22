@@ -133,6 +133,41 @@ export function useNearestSectionSnap(enabled) {
   }, [enabled]);
 }
 
+export function isMobileSafari() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return (
+    /iP(hone|ad|od)/.test(ua) &&
+    /Safari/i.test(ua) &&
+    !/CriOS|FxiOS|EdgiOS|OPiOS|Chrome/i.test(ua)
+  );
+}
+
+/**
+ * Safari's 100lvh is short of the painted canvas under the translucent
+ * status bar / URL bar. Size snaps to the hardware screen (orientation
+ * aware) so neighbors don't show through. Chrome/Android leave --snap-vh unset.
+ */
+export function syncSafariSnapViewport() {
+  const root = document.documentElement;
+  if (!isMobileSafari()) {
+    root.classList.remove("safari-mobile");
+    root.style.removeProperty("--snap-vh");
+    return;
+  }
+
+  root.classList.add("safari-mobile");
+  const portrait = window.innerHeight >= window.innerWidth;
+  const longSide = Math.max(window.screen.width, window.screen.height);
+  const shortSide = Math.min(window.screen.width, window.screen.height);
+  const h = Math.max(
+    window.innerHeight,
+    root.clientHeight,
+    portrait ? longSide : shortSide
+  );
+  root.style.setProperty("--snap-vh", `${Math.round(h)}px`);
+}
+
 /**
  * Large viewport height so slides fill the screen after the iOS URL bar
  * hides. svh left a ~URL-bar gap that showed the next slide underneath.

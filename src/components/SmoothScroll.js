@@ -4,6 +4,7 @@ import { ReactLenis, useLenis } from "lenis/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { useIsMobile, useHasMounted } from "@/hooks/useIsMobile";
+import { syncSafariSnapViewport } from "@/hooks/useMobileSnap";
 import NavNotch from "@/components/NavNotch";
 
 function ScrollToTopOnRouteChange() {
@@ -27,9 +28,23 @@ export default function SmoothScroll({ children }) {
     const on = mounted && isMobile;
     document.documentElement.classList.toggle("mobile-snap", on);
     document.body.classList.toggle("mobile-snap", on);
+    if (on) syncSafariSnapViewport();
+    else {
+      document.documentElement.classList.remove("safari-mobile");
+      document.documentElement.style.removeProperty("--snap-vh");
+    }
+
+    if (!on) return undefined;
+    const onOrient = () => syncSafariSnapViewport();
+    window.addEventListener("orientationchange", onOrient);
+    window.addEventListener("resize", onOrient);
     return () => {
       document.documentElement.classList.remove("mobile-snap");
       document.body.classList.remove("mobile-snap");
+      document.documentElement.classList.remove("safari-mobile");
+      document.documentElement.style.removeProperty("--snap-vh");
+      window.removeEventListener("orientationchange", onOrient);
+      window.removeEventListener("resize", onOrient);
     };
   }, [isMobile, mounted]);
 
