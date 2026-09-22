@@ -27,6 +27,30 @@ export function useSnapActive(threshold = 0.45) {
   return [active, setNode];
 }
 
+let programmaticUntil = 0;
+
+function isProgrammaticScroll() {
+  return Date.now() < programmaticUntil;
+}
+
+/** Turn off CSS/JS snap while the notch (or anything) scrolls the page. */
+export function pauseMobileSnap(ms = 1000) {
+  if (typeof document === "undefined") return;
+  programmaticUntil = Date.now() + ms;
+  document.documentElement.classList.add("mobile-snap-pause");
+  window.setTimeout(() => {
+    if (Date.now() >= programmaticUntil) {
+      document.documentElement.classList.remove("mobile-snap-pause");
+    }
+  }, ms + 16);
+}
+
+/** Native scroll that iOS won't pull back to the current snap point. */
+export function scrollToMobileY(top, { durationMs = 1000 } = {}) {
+  pauseMobileSnap(durationMs);
+  window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+}
+
 /**
  * After a touch gesture settles, nudge onto the section at the snap line.
  * CSS scroll-snap is the primary driver; this only corrects leftover drift
@@ -44,7 +68,6 @@ export function useNearestSectionSnap(enabled) {
       const sections = document.querySelectorAll("[data-snap]");
       if (!sections.length) return null;
 
-      // Layout viewport — stable while the iOS URL bar shows/hides.
       const vh = document.documentElement.clientHeight || window.innerHeight;
       const line = vh * 0.35;
       let current = sections[0];
@@ -58,8 +81,11 @@ export function useNearestSectionSnap(enabled) {
     };
 
     const snap = () => {
-      if (touching || snapping) return;
+      if (touching || snapping || isProgrammaticScroll()) return;
       if (!document.documentElement.classList.contains("mobile-snap")) return;
+      if (document.documentElement.classList.contains("mobile-snap-pause")) {
+        return;
+      }
       const top = targetY();
       if (top == null) return;
       snapping = true;
@@ -71,12 +97,12 @@ export function useNearestSectionSnap(enabled) {
 
     const schedule = () => {
       window.clearTimeout(timer);
-      if (touching || snapping) return;
+      if (touching || snapping || isProgrammaticScroll()) return;
       timer = window.setTimeout(snap, 240);
     };
 
     const onScroll = () => {
-      if (touching) {
+      if (touching || isProgrammaticScroll()) {
         window.clearTimeout(timer);
         return;
       }
@@ -107,6 +133,9 @@ export function useNearestSectionSnap(enabled) {
   }, [enabled]);
 }
 
-/** svh stays put when the iOS URL bar shows/hides (dvh does not). */
+/**
+ * Large viewport height so slides fill the screen after the iOS URL bar
+ * hides. svh left a ~URL-bar gap that showed the next slide underneath.
+ */
 export const SNAP_SECTION =
-  "h-svh min-h-[100svh] w-full shrink-0 snap-start";
+  "h-lvh min-h-[100lvh] w-full shrink-0 snap-start";

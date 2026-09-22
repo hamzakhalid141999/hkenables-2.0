@@ -10,6 +10,7 @@ import {
 import { useLenis } from "lenis/react";
 import { MagneticHotspot } from "@/components/MyOfferings/MagneticLink";
 import { THEME } from "@/theme/palette";
+import { scrollToMobileY } from "@/hooks/useMobileSnap";
 
 const LINKS = [
   {
@@ -267,10 +268,15 @@ export default function NavNotch() {
 
   const goTo = (link) => {
     setOpen(false);
+
+    const jump = (top) => {
+      if (lenis) lenis.scrollTo(top, { offset: 0 });
+      else scrollToMobileY(top);
+    };
+
     // Sticky #home stays in-view while scrolled — always go to page top.
     if (link.id === "home") {
-      if (lenis) lenis.scrollTo(0, { offset: 0 });
-      else window.scrollTo({ top: 0, behavior: "smooth" });
+      jump(0);
       return;
     }
 
@@ -288,18 +294,14 @@ export default function NavNotch() {
           0,
           track.offsetHeight - window.innerHeight
         );
-        const top = trackTop + pin * scrollRange;
-        if (lenis) lenis.scrollTo(top, { offset: 0 });
-        else window.scrollTo({ top, behavior: "smooth" });
+        jump(trackTop + pin * scrollRange);
         return;
       }
     }
 
     const el = document.getElementById(link.targetId);
     if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY;
-    if (lenis) lenis.scrollTo(top, { offset: 0 });
-    else window.scrollTo({ top, behavior: "smooth" });
+    jump(el.getBoundingClientRect().top + window.scrollY);
   };
 
   return (

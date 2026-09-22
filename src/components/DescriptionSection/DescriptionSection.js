@@ -56,7 +56,7 @@ function AboutMeMobile() {
     <section
       id="aboutMe"
       data-snap
-      className="relative z-20 h-svh min-h-[100svh] w-full shrink-0 snap-start overflow-hidden bg-black"
+      className="relative z-20 h-lvh min-h-[100lvh] w-full shrink-0 snap-start overflow-hidden bg-black"
     >
       <div className="pointer-events-none absolute inset-0 grid grid-cols-8 opacity-50">
         <div className="absolute top-0 left-0 z-30 h-[50%] w-full bg-linear-to-b from-black to-transparent" />
