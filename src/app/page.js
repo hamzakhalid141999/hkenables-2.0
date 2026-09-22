@@ -23,7 +23,7 @@ function HomeMobile() {
 
   return (
     <div className="relative">
-      <div id="home" data-snap className="h-dvh w-full shrink-0 snap-start snap-always">
+      <div id="home" data-snap className="h-svh min-h-[100svh] w-full shrink-0 snap-start">
         <HeroSection active />
       </div>
       <DescriptionSection />

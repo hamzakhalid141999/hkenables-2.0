@@ -45,15 +45,16 @@ body {
   max-width: 100%;
 }
 
-html.mobile-snap,
-html.mobile-snap body {
+/* Snap only on the root scroller. Snapping html AND body fights on iOS. */
+html.mobile-snap {
   scroll-snap-type: y mandatory;
   scroll-padding: 0;
+  overflow-anchor: none;
 }
 
 html.mobile-snap [data-snap] {
   scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scroll-snap-stop: normal;
 }
 
 body {

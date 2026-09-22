@@ -424,12 +424,32 @@ export default function MyProjectsMobile() {
   const [activeIndex, setActiveIndex] = useState(null);
   const [detailsIndex, setDetailsIndex] = useState(null);
   const [footerActive, setFooterActive] = useState(false);
+  const [projectsInView, setProjectsInView] = useState(false);
+  const projectSlidesRef = useRef(null);
 
   const onProjectActive = useCallback((index, isActive) => {
-    if (isActive) setActiveIndex(index);
+    setActiveIndex((current) => {
+      if (isActive) return index;
+      if (current === index) return null;
+      return current;
+    });
+  }, []);
+
+  useEffect(() => {
+    const el = projectSlidesRef.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setProjectsInView(entry.isIntersecting && entry.intersectionRatio > 0.12);
+      },
+      { threshold: [0, 0.12, 0.4, 0.8] }
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   const active = activeIndex == null ? null : PROJECTS[activeIndex];
+  const showRibbon = Boolean(active) && projectsInView;
   const ribbonGradient = active
     ? `linear-gradient(90deg, ${darkerShade(active.secondaryColor)} 0%, ${lighterShade(active.secondaryColor)} 100%)`
     : "transparent";
@@ -442,7 +462,7 @@ export default function MyProjectsMobile() {
         aria-hidden
         className="pointer-events-none fixed z-10 top-[-18%] left-[-48%] h-[240px] w-[640px] rotate-[-35deg]"
         animate={{
-          opacity: active ? 1 : 0,
+          opacity: showRibbon ? 1 : 0,
           background: ribbonGradient,
         }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -479,6 +499,7 @@ export default function MyProjectsMobile() {
         )}
       </SnapSlide>
 
+      <div ref={projectSlidesRef}>
       {PROJECTS.map((project, index) => (
         <SnapSlide
           key={project.title}
@@ -500,6 +521,7 @@ export default function MyProjectsMobile() {
           )}
         </SnapSlide>
       ))}
+      </div>
 
       <SnapSlide
         id="contactMe"

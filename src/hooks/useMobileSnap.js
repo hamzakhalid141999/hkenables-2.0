@@ -28,9 +28,9 @@ export function useSnapActive(threshold = 0.45) {
 }
 
 /**
- * After a fling settles, lock onto the nearest [data-snap] section.
- * Direction-aware: when scrolling up, prefer the previous section so the
- * footer doesn't pull you back mid-gesture.
+ * After a touch gesture settles, nudge onto the section at the snap line.
+ * CSS scroll-snap is the primary driver; this only corrects leftover drift
+ * on iOS and never runs during an active touch (that's what caused bounce-back).
  */
 export function useNearestSectionSnap(enabled) {
   useEffect(() => {
@@ -38,73 +38,75 @@ export function useNearestSectionSnap(enabled) {
 
     let timer = 0;
     let snapping = false;
-    let lastY = window.scrollY;
-    /** 1 = down, -1 = up */
-    let direction = 1;
+    let touching = false;
 
-    const nearestTop = () => {
+    const targetY = () => {
       const sections = document.querySelectorAll("[data-snap]");
       if (!sections.length) return null;
 
-      const vh = window.innerHeight || 800;
-      let bestEl = null;
-      let bestDist = Number.POSITIVE_INFINITY;
-
+      // Layout viewport — stable while the iOS URL bar shows/hides.
+      const vh = document.documentElement.clientHeight || window.innerHeight;
+      const line = vh * 0.35;
+      let current = sections[0];
       sections.forEach((section) => {
-        const top = section.getBoundingClientRect().top;
-        // Bias toward the section in the travel direction so a small
-        // upward fling from the footer doesn't lose to absolute nearest.
-        let dist;
-        if (direction < 0) {
-          // Going up: sections still below the fold are heavily penalized.
-          dist = top > vh * 0.2 ? top + vh : Math.abs(top);
-        } else {
-          // Going down: sections already above are heavily penalized.
-          dist = top < -vh * 0.2 ? -top + vh : Math.abs(top);
-        }
-
-        if (dist < bestDist) {
-          bestDist = dist;
-          bestEl = section;
-        }
+        if (section.getBoundingClientRect().top <= line) current = section;
       });
 
-      if (!bestEl) return null;
-      const top = bestEl.getBoundingClientRect().top;
-      if (Math.abs(top) < 18) return null;
+      const top = current.getBoundingClientRect().top;
+      if (Math.abs(top) < 28) return null;
       return window.scrollY + top;
     };
 
     const snap = () => {
-      if (snapping) return;
+      if (touching || snapping) return;
       if (!document.documentElement.classList.contains("mobile-snap")) return;
-      const top = nearestTop();
+      const top = targetY();
       if (top == null) return;
       snapping = true;
-      window.scrollTo({ top, behavior: "smooth" });
+      window.scrollTo({ top, behavior: "auto" });
       window.setTimeout(() => {
         snapping = false;
-      }, 420);
+      }, 120);
+    };
+
+    const schedule = () => {
+      window.clearTimeout(timer);
+      if (touching || snapping) return;
+      timer = window.setTimeout(snap, 240);
     };
 
     const onScroll = () => {
-      const y = window.scrollY;
-      if (Math.abs(y - lastY) > 2) {
-        direction = y > lastY ? 1 : -1;
+      if (touching) {
+        window.clearTimeout(timer);
+        return;
       }
-      lastY = y;
+      schedule();
+    };
+
+    const onTouchStart = () => {
+      touching = true;
       window.clearTimeout(timer);
-      timer = window.setTimeout(snap, 110);
+    };
+
+    const onTouchEnd = () => {
+      touching = false;
+      schedule();
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("scrollend", snap);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("scrollend", snap);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
     };
   }, [enabled]);
 }
 
-export const SNAP_SECTION = "h-dvh w-full shrink-0 snap-start snap-always";
+/** svh stays put when the iOS URL bar shows/hides (dvh does not). */
+export const SNAP_SECTION =
+  "h-svh min-h-[100svh] w-full shrink-0 snap-start";
