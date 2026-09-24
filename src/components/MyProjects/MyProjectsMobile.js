@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import {
   PROJECT_IMAGE_QUALITY,
   prefetchOptimizedImage,
 } from "@/lib/optimizedImage";
-import { PROJECTS } from "@/components/MyProjects/MyProjects";
+import {
+  PROJECTS,
+  ProjectCopyBody,
+} from "@/components/MyProjects/MyProjects";
 import { SNAP_SECTION } from "@/hooks/useMobileSnap";
 
 const TECH_STYLES = {
@@ -127,85 +130,174 @@ function ExternalLinkIcon({ className }) {
   );
 }
 
-function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
+const ELEVATED_MEDIA_TOP = 12;
+const ELEVATED_MEDIA_GAP = 14;
+
+function ProjectDetailsSheet({
+  open,
+  onClose,
+  title,
+  description,
+  tech = [],
+  jumpToFeature,
+  onJump,
+  linkColor,
+  note,
+  testimonialLink,
+  onJumpPulse,
+  /** Space reserved above the sheet so elevated video stays fully visible */
+  reserveTop = 0,
+}) {
   useEffect(() => {
     if (!open) return undefined;
-    const prev = document.body.style.overflow;
+    const html = document.documentElement;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevTouchAction = html.style.touchAction;
+    html.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+    html.style.touchAction = "none";
+    html.classList.add("mobile-snap-pause");
+
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
     };
+    const preventScroll = (e) => {
+      if (e.target?.closest?.("[data-project-drawer]")) return;
+      e.preventDefault();
+    };
     window.addEventListener("keydown", onKey);
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+    document.addEventListener("wheel", preventScroll, { passive: false });
+
     return () => {
-      document.body.style.overflow = prev;
+      html.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      html.style.touchAction = prevTouchAction;
+      html.classList.remove("mobile-snap-pause");
       window.removeEventListener("keydown", onKey);
+      document.removeEventListener("touchmove", preventScroll);
+      document.removeEventListener("wheel", preventScroll);
     };
   }, [open, onClose]);
 
-  if (typeof document === "undefined" || !open) return null;
+  if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex flex-col justify-end">
-      <button
-        type="button"
-        aria-label="Close details"
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${title} details`}
-        className="relative z-10 max-h-[78vh] overflow-y-auto rounded-t-3xl bg-[#141414] px-6 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-4 text-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
-      >
-        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/25" />
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <h4 className="font-archivo-black text-[22px] leading-tight tracking-tight text-white">
-            {title}
-          </h4>
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          key="project-details-sheet"
+          className="fixed inset-0 z-[200] flex flex-col justify-end"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        >
           <button
             type="button"
+            aria-label="Close details"
+            className="absolute inset-0 bg-black/50"
             onClick={onClose}
-            className="shrink-0 rounded-full border border-white/15 px-3 py-1 font-gg-sans text-[11px] uppercase tracking-[0.14em] text-white/70"
+          />
+          <motion.div
+            data-project-drawer
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${title} details`}
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 overflow-y-auto overscroll-contain rounded-t-3xl bg-[#141414] px-6 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-4 text-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
+            style={{
+              touchAction: "pan-y",
+              // Fill everything under the elevated video — was capped too short,
+              // so content sat under the preview and needed an extra scroll.
+              maxHeight:
+                reserveTop > 0
+                  ? `calc(100dvh - ${reserveTop}px)`
+                  : "min(72vh, 640px)",
+            }}
           >
-            Close
-          </button>
-        </div>
-        {tech.length > 0 ? (
-          <div className="mb-6">
-            <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
-              Tech stack
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {tech.map((name) => {
-                const { bg, text } = techStyle(name);
-                return (
-                  <span
-                    key={name}
-                    style={{ backgroundColor: bg, color: text }}
-                    className="inline-flex items-center rounded-md px-2.5 py-1 font-gg-sans text-[11px] font-bold uppercase tracking-[0.08em]"
-                  >
-                    {name}
-                  </span>
-                );
-              })}
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/25" />
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <h4 className="font-archivo-black text-[22px] leading-tight tracking-tight text-white">
+                {title}
+              </h4>
+              <button
+                type="button"
+                onClick={onClose}
+                className="shrink-0 rounded-full border border-white/15 px-3 py-1 font-gg-sans text-[11px] uppercase tracking-[0.14em] text-white/70"
+              >
+                Close
+              </button>
             </div>
-          </div>
-        ) : null}
-        <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
-          Description
-        </p>
-        <p className="whitespace-pre-line font-gg-sans text-[17px] font-normal leading-snug text-white/80">
-          {description}
-        </p>
-      </div>
-    </div>,
+            {tech.length > 0 ? (
+              <div className="mb-6">
+                <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
+                  Tech stack
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {tech.map((name) => {
+                    const { bg, text } = techStyle(name);
+                    return (
+                      <span
+                        key={name}
+                        style={{ backgroundColor: bg, color: text }}
+                        className="inline-flex items-center rounded-md px-2.5 py-1 font-gg-sans text-[11px] font-bold uppercase tracking-[0.08em]"
+                      >
+                        {name}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+            <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
+              Description
+            </p>
+            <ProjectCopyBody
+              text={description}
+              jumpToFeature={jumpToFeature}
+              onJump={onJump}
+              linkColor={linkColor}
+              note={note}
+              testimonialLink={testimonialLink}
+              onJumpPulse={onJumpPulse}
+              largeBullets
+            />
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>,
     document.body
   );
 }
 
-function MobileVideo({ src, title, active }) {
+function MobileVideo({ src, title, active, seekRef }) {
   const ref = useRef(null);
+
+  useEffect(() => {
+    if (!seekRef) return undefined;
+    seekRef.current = (target) => {
+      const el = ref.current;
+      if (!el) return;
+      const t =
+        typeof target === "object" && target != null
+          ? Math.max(0, Number(target.seconds) || 0)
+          : Math.max(0, Number(target) || 0);
+      try {
+        el.currentTime = t;
+      } catch {
+        // ignore seek before metadata
+      }
+      el.play().catch(() => {});
+    };
+    return () => {
+      seekRef.current = null;
+    };
+  }, [seekRef]);
 
   useEffect(() => {
     const el = ref.current;
@@ -221,7 +313,7 @@ function MobileVideo({ src, title, active }) {
     <video
       ref={ref}
       src={src}
-      className="pointer-events-none absolute inset-0 h-full w-full object-contain object-center"
+      className="absolute inset-0 h-full w-full object-contain object-center"
       muted
       loop
       playsInline
@@ -232,21 +324,51 @@ function MobileVideo({ src, title, active }) {
   );
 }
 
-function ProjectWindow({ project, active }) {
+function ProjectWindow({ project, active, seekRef }) {
   const [shot, setShot] = useState(0);
   const screenshots = project.screenshots ?? [];
   const hasVideo = Boolean(project.video);
+  const pinnedShotRef = useRef(null);
+
+  useEffect(() => {
+    if (!seekRef || hasVideo) return undefined;
+    seekRef.current = (target) => {
+      const shotN =
+        typeof target === "object" && target != null
+          ? Number(target.shot)
+          : Number(target);
+      if (!Number.isFinite(shotN) || screenshots.length === 0) return;
+      const idx = Math.max(
+        0,
+        Math.min(screenshots.length - 1, Math.round(shotN) - 1)
+      );
+      pinnedShotRef.current = idx;
+      setShot(idx);
+    };
+    return () => {
+      seekRef.current = null;
+    };
+  }, [seekRef, hasVideo, screenshots.length]);
 
   useEffect(() => {
     if (hasVideo || !active || screenshots.length < 2) return undefined;
     const id = window.setInterval(() => {
-      setShot((current) => (current + 1) % screenshots.length);
+      setShot((current) => {
+        if (pinnedShotRef.current != null) {
+          pinnedShotRef.current = null;
+          return current;
+        }
+        return (current + 1) % screenshots.length;
+      });
     }, 1500);
     return () => window.clearInterval(id);
   }, [active, hasVideo, screenshots.length]);
 
   useEffect(() => {
-    if (!active) setShot(0);
+    if (!active) {
+      pinnedShotRef.current = null;
+      setShot(0);
+    }
   }, [active]);
 
   useEffect(() => {
@@ -268,7 +390,12 @@ function ProjectWindow({ project, active }) {
       </div>
       <div className="relative aspect-16/10 overflow-hidden bg-[#111]">
         {hasVideo ? (
-          <MobileVideo src={project.video} title={project.title} active={active} />
+          <MobileVideo
+            src={project.video}
+            title={project.title}
+            active={active}
+            seekRef={seekRef}
+          />
         ) : null}
         {!hasVideo
           ? screenshots.map((src, index) => (
@@ -306,12 +433,21 @@ function ProjectWindow({ project, active }) {
   );
 }
 
-function ProjectDescriptionMobile({ text, onSeeMore }) {
+function ProjectDescriptionMobile({
+  text,
+  onSeeMore,
+  jumpToFeature,
+  onJump,
+  linkColor,
+  note,
+  testimonialLink,
+  onJumpPulse,
+}) {
   const [needsMore, setNeedsMore] = useState(false);
-  const textRef = useRef(null);
+  const wrapRef = useRef(null);
 
   useEffect(() => {
-    const el = textRef.current;
+    const el = wrapRef.current;
     if (!el) return undefined;
 
     const measure = () => {
@@ -329,16 +465,22 @@ function ProjectDescriptionMobile({ text, onSeeMore }) {
       ro?.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [text]);
+  }, [text, jumpToFeature, note, testimonialLink]);
 
   return (
     <div className="mt-3 max-w-md">
-      <p
-        ref={textRef}
-        className="line-clamp-8 whitespace-pre-line font-gg-sans text-[16px] font-normal leading-snug opacity-80"
-      >
-        {text}
-      </p>
+      <div ref={wrapRef} className="max-h-[11.5rem] overflow-hidden">
+        <ProjectCopyBody
+          text={text}
+          jumpToFeature={jumpToFeature}
+          onJump={onJump}
+          linkColor={linkColor}
+          note={note}
+          testimonialLink={testimonialLink}
+          onJumpPulse={onJumpPulse}
+          largeBullets
+        />
+      </div>
       {needsMore ? (
         <button
           type="button"
@@ -352,11 +494,110 @@ function ProjectDescriptionMobile({ text, onSeeMore }) {
   );
 }
 
-function ProjectSnapCard({ project, active, onSeeMore }) {
+function ProjectSnapCard({
+  project,
+  active,
+  onSeeMore,
+  detailsOpen,
+  onSheetReserveTop,
+  seekRef,
+  featurePulseKey,
+  onPulseDone,
+  onJump,
+  onJumpPulse,
+}) {
   const tech = project.tech ?? [];
   const truncated = tech.length > TECH_VISIBLE;
   const visible = truncated ? tech.slice(0, TECH_VISIBLE) : tech;
   const mesh = project.meshColor ?? DEFAULT_MESH;
+  const mediaWrapRef = useRef(null);
+  const [anchor, setAnchor] = useState({
+    top: 80,
+    left: 16,
+    width: 320,
+    height: 220,
+  });
+  // Fixed portal only while the drawer is open (and briefly on close for ease-back).
+  const [elevating, setElevating] = useState(false);
+
+  const measureAnchor = useCallback(() => {
+    const el = mediaWrapRef.current;
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    if (r.width < 8 || r.height < 8) return null;
+    const next = {
+      top: r.top,
+      left: r.left,
+      width: r.width,
+      height: r.height,
+    };
+    setAnchor(next);
+    return next;
+  }, []);
+
+  useEffect(() => {
+    if (elevating) return undefined;
+    measureAnchor();
+    window.addEventListener("resize", measureAnchor);
+    return () => window.removeEventListener("resize", measureAnchor);
+  }, [elevating, active, measureAnchor]);
+
+  useEffect(() => {
+    if (detailsOpen) setElevating(true);
+  }, [detailsOpen]);
+
+  const handleSeeMore = useCallback(() => {
+    const next = measureAnchor();
+    if (next) {
+      onSheetReserveTop?.(
+        ELEVATED_MEDIA_TOP + next.height + ELEVATED_MEDIA_GAP
+      );
+    }
+    setElevating(true);
+    onSeeMore();
+  }, [measureAnchor, onSeeMore, onSheetReserveTop]);
+
+  const elevatedTop = ELEVATED_MEDIA_TOP;
+  const sheetReserveTop =
+    elevatedTop + (anchor.height || 0) + ELEVATED_MEDIA_GAP;
+
+  useEffect(() => {
+    if (!detailsOpen || !onSheetReserveTop) return;
+    if (sheetReserveTop > ELEVATED_MEDIA_TOP + ELEVATED_MEDIA_GAP) {
+      onSheetReserveTop(sheetReserveTop);
+    }
+  }, [detailsOpen, onSheetReserveTop, sheetReserveTop]);
+
+  const media = (
+    <div className="relative">
+      <AnimatePresence>
+        {featurePulseKey > 0 ? (
+          <motion.span
+            key={featurePulseKey}
+            aria-hidden
+            className="pointer-events-none absolute z-0 rounded-[28px]"
+            style={{
+              inset: -14,
+              backgroundColor: `${project.secondaryColor}66`,
+              boxShadow: `0 0 48px ${project.secondaryColor}88`,
+            }}
+            initial={{ scale: 0.96, opacity: 0.85 }}
+            animate={{ scale: 1.12, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            onAnimationComplete={onPulseDone}
+          />
+        ) : null}
+      </AnimatePresence>
+      <div className="relative z-10">
+        <ProjectWindow
+          project={project}
+          active={active || detailsOpen}
+          seekRef={seekRef}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <article
@@ -374,7 +615,48 @@ function ProjectSnapCard({ project, active, onSeeMore }) {
       />
 
       <div className="relative z-10 min-h-0 flex-1">
-        <ProjectWindow project={project} active={active} />
+        <div ref={mediaWrapRef} className="relative w-full">
+          {elevating ? (
+            <div
+              className="pointer-events-none invisible w-full"
+              style={{ height: anchor.height || undefined }}
+              aria-hidden
+            >
+              <div className="w-full overflow-hidden rounded-[20px] border border-transparent">
+                <div className="h-11" />
+                <div className="aspect-16/10" />
+              </div>
+            </div>
+          ) : (
+            media
+          )}
+        </div>
+
+        {elevating && typeof document !== "undefined"
+          ? createPortal(
+              <motion.div
+                className="pointer-events-none fixed z-[250]"
+                initial={{
+                  top: anchor.top,
+                  left: anchor.left,
+                  width: anchor.width,
+                }}
+                animate={{
+                  top: detailsOpen ? elevatedTop : anchor.top,
+                  left: anchor.left,
+                  width: anchor.width,
+                }}
+                transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                onAnimationComplete={() => {
+                  if (!detailsOpen) setElevating(false);
+                }}
+              >
+                {media}
+              </motion.div>,
+              document.body
+            )
+          : null}
+
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {visible.map((name) => {
             const { bg, text } = techStyle(name);
@@ -391,7 +673,7 @@ function ProjectSnapCard({ project, active, onSeeMore }) {
           {truncated ? (
             <button
               type="button"
-              onClick={onSeeMore}
+              onClick={handleSeeMore}
               className="inline-flex items-center rounded-md border border-current/25 px-2.5 py-1 font-gg-sans text-[11px] font-bold uppercase tracking-[0.08em] opacity-70"
             >
               see more
@@ -412,7 +694,13 @@ function ProjectSnapCard({ project, active, onSeeMore }) {
           </h3>
           <ProjectDescriptionMobile
             text={project.description}
-            onSeeMore={onSeeMore}
+            onSeeMore={handleSeeMore}
+            jumpToFeature={project.jumpToFeature}
+            onJump={onJump}
+            linkColor={project.secondaryColor}
+            note={project.note}
+            testimonialLink={project.testimonialLink}
+            onJumpPulse={onJumpPulse}
           />
         </div>
       </div>
@@ -425,7 +713,9 @@ export default function MyProjectsMobile() {
   const [detailsIndex, setDetailsIndex] = useState(null);
   const [footerActive, setFooterActive] = useState(false);
   const [projectsInView, setProjectsInView] = useState(false);
+  const [featurePulseKey, setFeaturePulseKey] = useState(0);
   const projectSlidesRef = useRef(null);
+  const seekRef = useRef(null);
 
   const onProjectActive = useCallback((index, isActive) => {
     setActiveIndex((current) => {
@@ -433,6 +723,16 @@ export default function MyProjectsMobile() {
       if (current === index) return null;
       return current;
     });
+  }, []);
+
+  const onJumpToFeature = useCallback((target) => {
+    seekRef.current?.(target);
+  }, []);
+  const onJumpPulse = useCallback(() => {
+    setFeaturePulseKey((k) => k + 1);
+  }, []);
+  const onPulseDone = useCallback(() => {
+    setFeaturePulseKey(0);
   }, []);
 
   useEffect(() => {
@@ -448,6 +748,10 @@ export default function MyProjectsMobile() {
     return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    setFeaturePulseKey(0);
+  }, [detailsIndex]);
+
   const active = activeIndex == null ? null : PROJECTS[activeIndex];
   const showRibbon = Boolean(active) && projectsInView;
   const ribbonGradient = active
@@ -455,6 +759,7 @@ export default function MyProjectsMobile() {
     : "transparent";
   const detailsProject =
     detailsIndex == null ? null : PROJECTS[detailsIndex];
+  const [sheetReserveTop, setSheetReserveTop] = useState(0);
 
   return (
     <div id="myProjects" className="relative z-0 w-full">
@@ -516,6 +821,15 @@ export default function MyProjectsMobile() {
                 project={project}
                 active={slideActive}
                 onSeeMore={() => setDetailsIndex(index)}
+                detailsOpen={detailsIndex === index}
+                onSheetReserveTop={
+                  detailsIndex === index ? setSheetReserveTop : undefined
+                }
+                seekRef={detailsIndex === index || activeIndex === index ? seekRef : null}
+                featurePulseKey={detailsIndex === index ? featurePulseKey : 0}
+                onPulseDone={onPulseDone}
+                onJump={onJumpToFeature}
+                onJumpPulse={onJumpPulse}
               />
             </div>
           )}
@@ -581,6 +895,13 @@ export default function MyProjectsMobile() {
         title={detailsProject?.title ?? ""}
         description={detailsProject?.description ?? ""}
         tech={detailsProject?.tech ?? []}
+        jumpToFeature={detailsProject?.jumpToFeature}
+        onJump={onJumpToFeature}
+        linkColor={detailsProject?.secondaryColor}
+        note={detailsProject?.note}
+        testimonialLink={detailsProject?.testimonialLink}
+        onJumpPulse={onJumpPulse}
+        reserveTop={sheetReserveTop}
       />
     </div>
   );

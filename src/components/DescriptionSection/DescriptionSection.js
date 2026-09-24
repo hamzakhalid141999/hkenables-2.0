@@ -20,7 +20,7 @@ const WHITE = "rgb(255,255,255)";
 
 const TITLE_TEXT = "About Me";
 const BODY_TEXT =
-  "I build impactful digital experiences that don't just look good, they drive user retention and convert. From frontend to full-stack solutions, I deliver fast, AI-powered development tailored to your goals.";
+  "You probably have an AI product, which looks AI coded too. I de-AI-fy it. I'm Hamza, and I've been around tech for 5+ years working as a generalist. I build SaaS products, do full stack work and revamp boring websites.";
 
 function Char({ children, charIndex, totalChars, progressSpring, isStroke = false }) {
   const charProgress = useTransform(progressSpring, (v) => {
@@ -76,7 +76,7 @@ function AboutMeMobile() {
         <h1 className="font-ginto text-[clamp(42px,11vw,100px)] leading-none text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.46)]">
           {TITLE_TEXT}
         </h1>
-        <p className="font-archivo-black text-[clamp(18px,6.2vw,36px)] leading-none tracking-tight text-white">
+        <p className="font-archivo-black text-[clamp(18px,6.2vw,36px)] leading-[calc(1em+3px)] tracking-tight text-white">
           {BODY_TEXT}
         </p>
       </div>
@@ -84,7 +84,7 @@ function AboutMeMobile() {
   );
 }
 
-function AboutMeDesktop() {
+function AboutMeDesktop({ mount = true }) {
   const sectionRef = useRef(null);
   const scrollTrackRef = useRef(null);
 
@@ -137,94 +137,102 @@ function AboutMeDesktop() {
         aria-hidden
       />
 
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <div className="h-full w-full">
-          <div className="relative h-full w-full bg-black flex flex-col items-center py-20 md:py-32 overflow-hidden">
-            <div className="w-full h-full grid absolute top-0 left-0 grid-cols-8 opacity-50 pointer-events-none">
-              <div style={{ zIndex: 30 }} className="absolute top-0 left-0 w-full h-[50%] bg-linear-to-b from-black to-transparent" />
-              <div
-                style={{
-                  zIndex: 30,
-                  backgroundImage: `linear-gradient(to bottom, transparent, ${ABOUT})`,
-                }}
-                className="absolute bottom-0 left-0 h-[70%] w-full"
-              />
-              {Array.from({ length: 8 }).map((_, i) => (
+      {mount ? (
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <div className="h-full w-full">
+            <div className="relative h-full w-full bg-black flex flex-col items-center py-20 md:py-32 overflow-hidden">
+              <div className="w-full h-full grid absolute top-0 left-0 grid-cols-8 opacity-50 pointer-events-none">
+                <div style={{ zIndex: 30 }} className="absolute top-0 left-0 w-full h-[50%] bg-linear-to-b from-black to-transparent" />
                 <div
-                  key={i}
-                  className="h-full w-full border-r-[0.5px]"
-                  style={{ borderColor: ABOUT }}
+                  style={{
+                    zIndex: 30,
+                    backgroundImage: `linear-gradient(to bottom, transparent, ${ABOUT})`,
+                  }}
+                  className="absolute bottom-0 left-0 h-[70%] w-full"
                 />
-              ))}
-            </div>
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-full w-full border-r-[0.5px]"
+                    style={{ borderColor: ABOUT }}
+                  />
+                ))}
+              </div>
 
-            <motion.div
-              className="pointer-events-none absolute inset-0 z-10"
-              style={{
-                opacity: 0.1,
-                backgroundImage: `linear-gradient(to top, ${ABOUT}, transparent)`,
-              }}
-            />
+              <motion.div
+                className="pointer-events-none absolute inset-0 z-10"
+                style={{
+                  opacity: 0.1,
+                  backgroundImage: `linear-gradient(to top, ${ABOUT}, transparent)`,
+                }}
+              />
 
-            <motion.div
-              className="relative z-20 w-full flex flex-col gap-10 px-5 sm:px-8 md:px-12 lg:px-16"
-              style={{
-                y: contentY,
-                opacity: focusOpacity,
-                filter: focusFilter,
-              }}
-            >
-              <motion.div className="w-[90%]" style={{ opacity: textExitOpacity }}>
-                <h1 className="w-full mb-12 text-[clamp(42px,11vw,100px)] font-ginto text-transparent leading-none">
-                  {titleChars.map((char, i) => (
-                    <Char
-                      key={i}
-                      charIndex={i}
-                      totalChars={totalRevealChars}
-                      progressSpring={progressSpring}
-                      isStroke
-                    >
-                      {char}
-                    </Char>
-                  ))}
-                </h1>
+              <motion.div
+                className="relative z-20 w-full flex flex-col gap-10 px-5 sm:px-8 md:px-12 lg:px-16"
+                style={{
+                  y: contentY,
+                  opacity: focusOpacity,
+                  filter: focusFilter,
+                }}
+              >
+                <motion.div className="w-[90%]" style={{ opacity: textExitOpacity }}>
+                  <h1 className="w-full mb-12 text-[clamp(42px,11vw,100px)] font-ginto text-transparent leading-none">
+                    {titleChars.map((char, i) => (
+                      <Char
+                        key={i}
+                        charIndex={i}
+                        totalChars={totalRevealChars}
+                        progressSpring={progressSpring}
+                        isStroke
+                      >
+                        {char}
+                      </Char>
+                    ))}
+                  </h1>
 
-                <p className="w-full text-[clamp(14px,6.8vw,60px)] font-archivo-black leading-none tracking-tight">
-                  {bodyWords.map((word, wi) => {
-                    const startCharIndex = bodyWords
-                      .slice(0, wi)
-                      .reduce((sum, w) => sum + w.length + 1, 0);
-                    return (
-                      <React.Fragment key={wi}>
-                        <span style={{ whiteSpace: "nowrap" }}>
-                          {word.split("").map((char, j) => (
-                            <Char
-                              key={j}
-                              charIndex={titleChars.length + startCharIndex + j}
-                              totalChars={totalRevealChars}
-                              progressSpring={progressSpring}
-                            >
-                              {char}
-                            </Char>
-                          ))}
-                        </span>
-                        {wi < bodyWords.length - 1 ? " " : null}
-                      </React.Fragment>
-                    );
-                  })}
-                </p>
+                  <p className="w-full text-[clamp(14px,6.8vw,60px)] font-archivo-black leading-none tracking-tight">
+                    {bodyWords.map((word, wi) => {
+                      const startCharIndex = bodyWords
+                        .slice(0, wi)
+                        .reduce((sum, w) => sum + w.length + 1, 0);
+                      return (
+                        <React.Fragment key={wi}>
+                          <span style={{ whiteSpace: "nowrap" }}>
+                            {word.split("").map((char, j) => (
+                              <Char
+                                key={j}
+                                charIndex={titleChars.length + startCharIndex + j}
+                                totalChars={totalRevealChars}
+                                progressSpring={progressSpring}
+                              >
+                                {char}
+                              </Char>
+                            ))}
+                          </span>
+                          {wi < bodyWords.length - 1 ? " " : null}
+                        </React.Fragment>
+                      );
+                    })}
+                  </p>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div
+          className="sticky top-0 h-screen w-full"
+          style={{ backgroundColor: ABOUT }}
+          aria-hidden
+        />
+      )}
     </div>
   );
 }
 
-export default function DescriptionSection() {
+export default function DescriptionSection({ mount = true }) {
   const isMobile = useIsMobile();
   const mounted = useHasMounted();
   if (!mounted) return <div className="h-dvh w-full bg-black" aria-hidden />;
-  return isMobile ? <AboutMeMobile /> : <AboutMeDesktop />;
+  return isMobile ? <AboutMeMobile /> : <AboutMeDesktop mount={mount} />;
 }

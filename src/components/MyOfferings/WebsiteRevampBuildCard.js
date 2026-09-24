@@ -178,7 +178,7 @@ export default function WebsiteRevampBuildCard({
   const bounce = useTransform(drive, [0.64, 0.9], [68, 21]);
   const bounceLabel = useTransform(bounce, (v) => `${Math.round(v)}%`);
 
-  const barWidth = useTransform(drive, [0.62, 0.88], ["12%", "86%"]);
+  const barWidth = useTransform(drive, [0.62, 0.95], ["12%", "100%"]);
 
   const glowOpacity = useTransform(drive, [0.55, 0.75], [0, 1]);
   const resultOpacity = useTransform(drive, [0.78, 0.92], [0, 1]);

@@ -20,6 +20,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /* 1650px — rem so it sorts after md/lg/xl (px arbitrary mins lose to rem md:) */
+  --breakpoint-wide: 103.125rem;
   --font-ginto: var(--font-ginto-black), var(--font-archivo-black), ui-sans-serif,
     system-ui, sans-serif;
   --font-gondens: "Gondens DEMO", var(--font-ginto-black), ui-sans-serif, system-ui,

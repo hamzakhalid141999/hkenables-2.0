@@ -2,6 +2,10 @@
 
 import { motion, useTransform } from "framer-motion";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { THEME, lighten } from "@/theme/palette";
+
+const LINK = THEME.revamp;
+const LINK_TEXT = lighten(LINK, 0.38);
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3);
@@ -67,14 +71,14 @@ export default function WebsiteRevampOfferCopy({ progress, curtainProgress }) {
           <span className="text-white">reinvent</span>
           <br />
           <br />
-          <span className="text-white/45 text-[22px] font-bold leading-[2px]">"80% of website redesigns are initiated because of outdated aesthetics. 38% of visitors leave a page if the layout is unattractive" - Marketing LTB</span>
+          <span className="text-white/45 text-[22px] font-bold leading-[2px]">"80% of website redesigns are initiated because of outdated aesthetics. <span style={{ color: LINK_TEXT }}>38% of visitors</span> leave a page if the layout is unattractive" - Marketing LTB</span>
         </motion.p>
 
         <motion.p
           style={isMobile ? undefined : line3}
-          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-[30px] text-white/45"
+          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-[30px] text-white"
         >
-          Your brand is cool. Your website isn't. Make it stand out from the rest of the 1000+ websites out there.
+          Your brand is cool, but does your website prove that? Make it stand out from the rest of the 1000+ websites out there.
         </motion.p>
       </motion.div>
     </div>

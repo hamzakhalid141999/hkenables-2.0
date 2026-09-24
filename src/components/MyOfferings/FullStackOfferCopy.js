@@ -61,18 +61,18 @@ export default function FullStackOfferCopy({ progress }) {
           style={isMobile ? undefined : line2}
           className="mt-5 max-w-2xl font-gg-sans text-[clamp(20px,2.8vw,28px)] leading-[33px] text-white/70"
         >
-          I can ship fast, so can others. But I can ship it not looking like another AI slop UI/UX
+          I can ship fast, so can others. But I can ship it not looking like another AI slop
           <br />
+          {/* <br />
+          <span className="text-white/45 text-[22px] font-bold">"94% of first impressions of a business are related to website design" - Marketing LTB</span> */}
           <br />
-          <span className="text-white/45 text-[22px] font-bold">"94% of first impressions of a business are related to website design" - Marketing LTB</span>
-          <br />
-          <span className="text-white/45 text-[22px] font-bold">"Startups that start with an MVP are often cited as ~60–70% more likely to succeed" - American Chase</span>
+          <span className="text-white/45 text-[22px] font-bold">"Startups that start with an MVP are often cited as ~60–70% more likely to succeed" - <span style={{ color: LINK_TEXT }}>American Chase</span></span>
         
         </motion.p>
 
         <motion.p
           style={isMobile ? undefined : line3}
-          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-[30px] text-white/45"
+          className="mt-10 max-w-xl font-gg-sans text-[clamp(20px,1.8vw,24px)] leading-[30px] text-white"
         >
           Founders are busy, I let them take the back-seat and take charge of the
           product myself. Don&apos;t take my word for it,{" "}

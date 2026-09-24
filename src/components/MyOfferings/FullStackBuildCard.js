@@ -147,11 +147,11 @@ export default function FullStackBuildCard({
 
       <div className="flex flex-col gap-2 min-[830px]:flex-row min-[830px]:items-center min-[830px]:justify-between">
         <div>
-          <div className="font-gg-sans text-[9px] font-bold uppercase tracking-[0.18em] text-white min-[830px]:text-[10px] min-[830px]:tracking-[0.2em]">
+          {/* <div className="font-gg-sans text-[9px] font-bold uppercase tracking-[0.18em] text-white min-[830px]:text-[10px] min-[830px]:tracking-[0.2em]">
             AI-powered development
-          </div>
+          </div> */}
           <div className="mt-0.5 font-archivo-black text-[12px] text-white min-[830px]:mt-1 min-[830px]:text-[16px]">
-            Three layers. One accelerated build.
+            Multiple layers. One accelerated build.
           </div>
         </div>
         <div className="relative flex min-w-20 justify-start min-[830px]:min-w-24 min-[830px]:justify-end">

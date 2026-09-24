@@ -11,6 +11,12 @@ import { THEME, lighten, withAlpha } from "@/theme/palette";
 
 const SAAS_LINK = lighten(THEME.saas, 0.38);
 const FULLSTACK_LINK = lighten(THEME.fullstack, 0.38);
+
+const LINK = THEME.revamp;
+const LINK_TEXT = lighten(LINK, 0.38);
+
+console.log("LINK_TEXT", LINK_TEXT);
+
 const copyEase = [0.22, 1, 0.36, 1];
 
 function SnapSlide({ id, className = "", children }) {
@@ -149,7 +155,7 @@ export default function MyOfferingsMobile() {
               >
                 <p className="font-gg-sans text-[clamp(20px,4.2vw,28px)] leading-[33px] text-white/70">
                   I can ship fast, so can others. But I can ship it not looking
-                  like another AI slop UI/UX
+                  like another AI slop
                   <br />
                   <br />
                   <span className="text-[18px] font-bold leading-snug text-white/45">
@@ -163,7 +169,7 @@ export default function MyOfferingsMobile() {
                 delay={1.02}
                 className="mt-10 max-w-xl"
               >
-                <p className="font-gg-sans text-[clamp(18px,3.8vw,24px)] leading-[30px] text-white/45">
+                <p className="font-gg-sans text-[clamp(18px,3.8vw,24px)] leading-[30px] text-white">
                   Founders are busy, I let them take the back-seat and take
                   charge of the product myself. Don&apos;t take my word for it,{" "}
                   <a
@@ -215,7 +221,7 @@ export default function MyOfferingsMobile() {
                   <br />
                   <span className="text-[18px] font-bold leading-snug text-white/45">
                     &quot;80% of website redesigns are initiated because of
-                    outdated aesthetics. 38% of visitors leave a page if the
+                    outdated aesthetics. <span style={{ color: LINK_TEXT }}>38% of visitors leave a page</span> if the
                     layout is unattractive&quot; - Marketing LTB
                   </span>
                 </p>
@@ -225,8 +231,8 @@ export default function MyOfferingsMobile() {
                 delay={1.02}
                 className="mt-10 max-w-xl"
               >
-                <p className="font-gg-sans text-[clamp(18px,3.8vw,24px)] leading-[30px] text-white/45">
-                  Your brand is cool. Your website isn&apos;t. Make it stand out
+                <p className="font-gg-sans text-[clamp(18px,3.8vw,24px)] leading-[30px] text-white">
+                  Your brand is cool, but does your website prove that? Make it stand out
                   from the rest of the 1000+ websites out there.
                 </p>
               </CopyLine>

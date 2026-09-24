@@ -66,7 +66,13 @@ export const PROJECTS = [
     type: "Bulk Video Editor",
     liveLink: "https://batchedits.com/",
     description:
-      "An all-in-one bulk editor for podcasts, talking-head clips, narrated videos, and more. Cut awkward silences, customize captions, clip and crop, refine your transcript, and punch in or out with cinematic zooms.",
+      "All-in-one bulk editor for podcasts and talking-head videos. Cut silences, customize captions, clip, crop, refine transcripts, and add cinematic zooms.\n\nWorked on:\n- Implementing end to end Crop and Clip, Caption text editing & animations, punch zoom in/out, captions editing & customization\n\n- Completely revamped the entire editing workflow, from file upload to final export\n\n- Revamped Landing page and overall UI to convert more users",
+    jumpToFeature: [
+      { label: "Crop and Clip", time: "0:16" },
+      { label: "Caption text editing", time: "0:48" },
+      { label: "captions editing & customization", time: "0:57" },
+      { label: "punch zoom in/out", time: "2:17" },
+    ],
     primaryColor: "#FFFFFF",
     secondaryColor: "#FF6B00",
     foreground: "#111111",
@@ -86,6 +92,8 @@ export const PROJECTS = [
     ],
     video: "/projects-screenshots/batch-edits.mp4",
     meshColor: "#A0581D", // optional — grid line tint; defaults to white
+    testimonialLink:
+      "https://www.linkedin.com/in/hamza-khalid-5a40931a5/details/recommendations/?detailScreenTabIndex=0",
   },
 
   {
@@ -93,8 +101,15 @@ export const PROJECTS = [
     title: "Estately.io",
     type: "Property Management",
     description:
-      "Estately brings all property operations into one powerful, easy-to-use platform. Manage tenants, assets, bookings, maintenance, compliance, and finances from a single dashboard. Custom made accounting solution so you can track every add-on's penny.\n\nWorked on a complete, fully functional accounting module, alongwith templating workflows for task management and visitor management",
+      "Estately is all-in-one platform, from asset management to tenant, maintenance and compliance.\n\nWorked on: \n- Fully functional accounting module (income statements, balance sheets, cash flow statements, etc)\n\n- Templating workflows for task management and visitor management\n\n- Integrated taxation calculations including WHT, VAT etc across bookings, procurement and invoices\n\n- Implemented complete cycle of inventory management which includes importing items through warehouses via gate-passes",
     liveLink: "https://www.estately.io/",
+    note: "Via Devbeans",
+    testimonialLink:
+      "https://www.linkedin.com/in/hamza-khalid-5a40931a5/details/recommendations/?detailScreenTabIndex=0",
+    jumpToFeature: [
+      { label: "accounting module", shot: 14 },
+      { label: "Templating workflows", shot: 9 },
+    ],
     primaryColor: "#dde8e4",
     secondaryColor: "#73ad95",
     foreground: "#111111",
@@ -108,10 +123,17 @@ export const PROJECTS = [
   },
   {
     number: "03",
-    title: "H&S Auditor",
+    title: "H&SAuditor",
     type: "AI Health & Safety Auditor",
     description:
-      "An AI-powered health and safety auditor that can help you identify and mitigate risks in your workplace or sites and generates a detailed excel with recommendations.",
+      "An AI-powered health and safety auditor that flags risks from site video and photos, then generates a detailed Excel report with recommendations.\n\nWorked on:\n- Upload your own questions to be answered after an audit runs for a site\n\n- Choose between multiple AI models and control how many tokens to spend\n\n- Leave the processing screen while it runs in the backend and view the audit history\n\n- AI findings for uploaded site video and photos - Bounding boxes show exactly where each issue is identified\n\n- Generates actions based on the risks identified to mitigate the issue",
+    jumpToFeature: [
+      { label: "Upload your own questions", time: "0:22" },
+      { label: "multiple AI models", time: "0:28" },
+      { label: "audit history", time: "0:40" },
+      { label: "Bounding boxes", time: "1:16" },
+      { label: "Generates actions", time: "1:36" },
+    ],
     primaryColor: "#192222",
     secondaryColor: "#17FFC6",
     foreground: "#111111",
@@ -126,7 +148,8 @@ export const PROJECTS = [
     type: "Certified Listings Platform",
     liveLink: "https://www.redbooklive.com/",
     description:
-      "Redbook is an eco-system of 3 apps. RedBookLive delivers instant, up-to-date verification of LPCB-certified products and services — online and via PDF.\nI've solely built the Azure AD B2C single sign-on used across 10+ BRE applications, including Redbook, and contributed to the admin portal.",
+      "Redbook is an eco-system of 3 apps. RedBookLive delivers instant, up-to-date verification of LPCB-certified products and services - online and via PDF.\n\nSolo developed Azure AD B2C single sign-on used across 10+ BRE applications, including Redbook, and contributed to the admin portal.\nPresently working on enhancements in the existing system and supporting DevOps issues",
+    note: "Via Cielo Costa",
     primaryColor: "#141535",
     secondaryColor: "#DC0043",
     foreground: "#FFFFFF",
@@ -152,7 +175,7 @@ export const PROJECTS = [
     title: "FARBE",
     type: "NFT Marketplace",
     description:
-      "An online NFT marketplace where artists could publish and sell their work, with support for multiple crypto wallets including MetaMask.",
+      "An online NFT marketplace where artists could publish and sell their work, with support for multiple crypto wallets including MetaMask.\n\nArtists can mint their work as NFTs and sell them to collectors.\nUsers can purchase NFTs via bidding, fixed price, or transfer them.",
     primaryColor: "#FFFFFF",
     secondaryColor: "#17FFC6",
     foreground: "#111111",
@@ -187,7 +210,7 @@ export const PROJECTS = [
     title: "Isekaiverse",
     type: "Anime Web3 Ecosystem",
     description:
-      "A Web3 Anime NFT Marketplace where users can buy, sell, and trade Anime NFTs. Built using Next.js, AWS, and The Graph.",
+      "A Web3 Anime NFT Marketplace where users can buy, sell, and trade Anime NFTs. Built using Next.js, AWS, and The Graph. “Isekai” is a community-funded cryptocurrency that is an anime-themed token available on the Binance, Ethereum and Polygon Chain\n\nUsers can purchase NFTs of different tiers, each tier with their own powers and abilities.\nPurchases can be made in an auction/bidding process or through a fixed price",
     liveLink: "https://www.mysticreign.io/",
     primaryColor: "#5F11D1",
     secondaryColor: "#40EA6B",
@@ -467,18 +490,49 @@ function TechTags({
 /**
  * Shared mobile bottom sheet — full tech stack + description.
  */
-function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
+function ProjectDetailsSheet({
+  open,
+  onClose,
+  title,
+  description,
+  tech = [],
+  jumpToFeature,
+  onJump,
+  linkColor,
+  note,
+  testimonialLink,
+  onJumpPulse,
+}) {
   useEffect(() => {
     if (!open) return undefined;
-    const prev = document.body.style.overflow;
+    const html = document.documentElement;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevTouchAction = html.style.touchAction;
+    html.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+    html.style.touchAction = "none";
+    html.classList.add("mobile-snap-pause");
+
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
     };
+    const preventScroll = (e) => {
+      if (e.target?.closest?.("[data-project-drawer]")) return;
+      e.preventDefault();
+    };
     window.addEventListener("keydown", onKey);
+    document.addEventListener("touchmove", preventScroll, { passive: false });
+    document.addEventListener("wheel", preventScroll, { passive: false });
+
     return () => {
-      document.body.style.overflow = prev;
+      html.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      html.style.touchAction = prevTouchAction;
+      html.classList.remove("mobile-snap-pause");
       window.removeEventListener("keydown", onKey);
+      document.removeEventListener("touchmove", preventScroll);
+      document.removeEventListener("wheel", preventScroll);
     };
   }, [open, onClose]);
 
@@ -493,7 +547,7 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         >
           <button
             type="button"
@@ -508,8 +562,10 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 380, damping: 36 }}
-            className="relative z-10 max-h-[78vh] overflow-y-auto rounded-t-3xl bg-[#141414] px-6 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-4 text-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 max-h-[min(72vh,640px)] overflow-y-auto overscroll-contain rounded-t-3xl bg-[#141414] px-6 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-4 text-white shadow-[0_-20px_60px_rgba(0,0,0,0.35)]"
+            data-project-drawer
+            style={{ touchAction: "pan-y" }}
           >
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/25" />
             <div className="mb-4 flex items-start justify-between gap-4">
@@ -542,9 +598,16 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
               <p className="mb-2.5 font-gg-sans text-[10px] uppercase tracking-[0.2em] text-white/40">
                 Description
               </p>
-              <p className="whitespace-pre-line font-gg-sans text-[17px] font-normal leading-snug text-white/80">
-                {description}
-              </p>
+              <ProjectCopyBody
+                text={description}
+                jumpToFeature={jumpToFeature}
+                onJump={onJump}
+                linkColor={linkColor}
+                note={note}
+                testimonialLink={testimonialLink}
+                onJumpPulse={onJumpPulse}
+                largeBullets
+              />
             </div>
           </motion.div>
         </motion.div>
@@ -555,14 +618,224 @@ function ProjectDetailsSheet({ open, onClose, title, description, tech = [] }) {
 }
 
 /**
+ * Split "summary + Worked on: bullets" so we can style them differently.
+ */
+function parseProjectCopy(text) {
+  const raw = String(text ?? "");
+  const split = raw.split(/\n\s*Worked on:\s*/i);
+  if (split.length < 2) {
+    return { summary: raw.trim(), bullets: [] };
+  }
+  const summary = split[0].trim();
+  const bullets = split
+    .slice(1)
+    .join("\n")
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-•*]\s*/, "").trim())
+    .filter(Boolean);
+  return { summary, bullets };
+}
+
+/** "0:16" / "2:17" / number → seconds. */
+function parseFeatureTime(time) {
+  if (typeof time === "number" && Number.isFinite(time)) return time;
+  const parts = String(time)
+    .trim()
+    .split(":")
+    .map((p) => Number.parseInt(p, 10));
+  if (parts.some((n) => Number.isNaN(n))) return 0;
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] * 3600 + parts[1] * 60 + parts[2];
+}
+
+/**
+ * Wrap jumpToFeature labels inside a string as clickable seeks.
+ * Longer labels win so partial overlaps don't steal matches.
+ * Features may use `time` (video) and/or `shot` (1-based screenshot index).
+ */
+/**
+ * Wrap jumpToFeature labels inside a string as clickable seeks.
+ * Longer labels win so partial overlaps don't steal matches.
+ * Features may use `time` (video) and/or `shot` (1-based screenshot index).
+ */
+function FeatureLinkedText({
+  text,
+  features = [],
+  onJump,
+  linkColor,
+  onJumpPulse,
+}) {
+  if (!features.length || !onJump) return text;
+
+  const sorted = [...features].sort(
+    (a, b) => String(b.label).length - String(a.label).length
+  );
+  const lower = text.toLowerCase();
+  const hits = [];
+
+  for (const feature of sorted) {
+    const label = String(feature.label);
+    if (!label) continue;
+    let from = 0;
+    const needle = label.toLowerCase();
+    while (from < lower.length) {
+      const at = lower.indexOf(needle, from);
+      if (at === -1) break;
+      const end = at + label.length;
+      const overlaps = hits.some((h) => !(end <= h.start || at >= h.end));
+      if (!overlaps) {
+        const shot =
+          feature.shot != null && Number.isFinite(Number(feature.shot))
+            ? Number(feature.shot)
+            : null;
+        hits.push({
+          start: at,
+          end,
+          label: text.slice(at, end),
+          seconds:
+            feature.time != null ? parseFeatureTime(feature.time) : null,
+          shot,
+        });
+      }
+      from = at + 1;
+    }
+  }
+
+  if (!hits.length) return text;
+  hits.sort((a, b) => a.start - b.start);
+
+  const nodes = [];
+  let cursor = 0;
+  hits.forEach((hit, i) => {
+    if (hit.start > cursor) nodes.push(text.slice(cursor, hit.start));
+    nodes.push(
+      <button
+        key={`${hit.start}-${i}`}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onJumpPulse?.();
+          onJump({
+            seconds: hit.seconds,
+            shot: hit.shot,
+            label: hit.label,
+          });
+        }}
+        aria-label={`Jump to this feature: ${hit.label}`}
+        className="group/jump relative pointer-events-auto cursor-pointer rounded-[3px] underline decoration-current/40 underline-offset-[3px] transition-[filter,opacity] hover:brightness-110 hover:decoration-current/80"
+        style={{ color: linkColor || "currentColor" }}
+      >
+        {hit.label}
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute bottom-[calc(100%+6px)] left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-[6px] bg-black px-2.5 py-1 font-gg-sans text-[10px] font-medium uppercase tracking-[0.14em] text-white opacity-0 shadow-[0_8px_20px_rgba(0,0,0,0.35)] transition-opacity duration-150 group-hover/jump:opacity-100 group-focus-visible/jump:opacity-100"
+        >
+          Jump to this feature
+        </span>
+      </button>
+    );
+    cursor = hit.end;
+  });
+  if (cursor < text.length) nodes.push(text.slice(cursor));
+  return nodes;
+}
+
+export function ProjectCopyBody({
+  text,
+  className = "",
+  jumpToFeature,
+  onJump,
+  linkColor,
+  note,
+  testimonialLink,
+  onJumpPulse,
+  /** Mobile: match bullet size to summary copy */
+  largeBullets = false,
+}) {
+  const { summary, bullets } = parseProjectCopy(text);
+  const hasMeta = Boolean(note || testimonialLink);
+  const summaryClass =
+    "whitespace-pre-line font-gg-sans text-[clamp(16px,1.35vw,19px)] font-normal leading-relaxed opacity-80";
+  const bulletClass = largeBullets
+    ? "flex gap-2.5 font-gg-sans text-[clamp(16px,1.35vw,19px)] font-normal leading-relaxed opacity-80"
+    : "flex gap-2.5 font-gg-sans text-[clamp(13px,2vw,16px)] font-medium leading-snug opacity-65";
+  return (
+    <div className={className}>
+      <p className={summaryClass}>
+        <FeatureLinkedText
+          text={summary}
+          features={jumpToFeature}
+          onJump={onJump}
+          linkColor={linkColor}
+          onJumpPulse={onJumpPulse}
+        />
+      </p>
+      {bullets.length > 0 ? (
+        <div className="mt-4">
+          <p className="mb-2 font-gg-sans text-[11px] font-semibold uppercase tracking-[0.2em] opacity-45">
+            Worked on
+          </p>
+          <ul className="flex flex-col gap-2">
+            {bullets.map((item) => (
+              <li key={item} className={bulletClass}>
+                <span
+                  aria-hidden
+                  className="mt-[0.55em] h-1 w-1 shrink-0 rounded-full bg-current opacity-50"
+                />
+                <span>
+                  <FeatureLinkedText
+                    text={item}
+                    features={jumpToFeature}
+                    onJump={onJump}
+                    linkColor={linkColor}
+                    onJumpPulse={onJumpPulse}
+                  />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {hasMeta ? (
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {note ? (
+            <p className="font-gg-sans text-[12px] font-medium uppercase tracking-[0.16em] opacity-40">
+              Note: {note}
+            </p>
+          ) : null}
+          {testimonialLink ? (
+            <a
+              href={testimonialLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto font-gg-sans text-[12px] font-semibold uppercase tracking-[0.16em] underline decoration-current/35 underline-offset-[3px] transition-[filter,opacity] hover:brightness-110 hover:decoration-current/70"
+              style={{ color: linkColor || "currentColor" }}
+            >
+              Check out testimonial
+            </a>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/**
  * Mobile: clamp overflowing copy + "see more" → shared details sheet.
- * Desktop: always show the full description inline.
+ * Desktop: structured summary + worked-on list.
  */
 function ProjectDescription({
   text,
   y,
   clampOnMobile = false,
   onSeeMore,
+  jumpToFeature,
+  onJump,
+  linkColor,
+  note,
+  testimonialLink,
+  onJumpPulse,
 }) {
   const [needsMore, setNeedsMore] = useState(false);
   const textRef = useRef(null);
@@ -595,22 +868,29 @@ function ProjectDescription({
 
   if (!clampOnMobile) {
     return (
-      <motion.p
-        style={{ y }}
-        className="mt-5 max-w-md whitespace-pre-line font-gg-sans text-[clamp(18px,1.4vw,20px)] font-normal leading-snug opacity-80"
-      >
-        {text}
-      </motion.p>
+      <motion.div style={{ y }} className="mt-5 w-full font-medium max-w-[540px] wide:max-w-[680px]">
+        <ProjectCopyBody
+          text={text}
+          jumpToFeature={jumpToFeature}
+          onJump={onJump}
+          linkColor={linkColor}
+          note={note}
+          testimonialLink={testimonialLink}
+          onJumpPulse={onJumpPulse}
+        />
+      </motion.div>
     );
   }
+
+  const { summary } = parseProjectCopy(text);
 
   return (
     <div className="mt-5 max-w-md">
       <p
         ref={textRef}
-        className="line-clamp-3 whitespace-pre-line font-gg-sans text-[18px] font-normal leading-snug opacity-80"
+        className="line-clamp-3 font-gg-sans text-[18px] font-normal leading-snug opacity-80"
       >
-        {text}
+        {summary}
       </p>
       {needsMore ? (
         <button
@@ -684,10 +964,33 @@ function ProjectVideoPlayer({
   title,
   isActive,
   shouldPreload,
+  seekRef,
 }) {
   const videoRef = useRef(null);
   const userPausedRef = useRef(false);
   const wasActiveRef = useRef(false);
+
+  useEffect(() => {
+    if (!seekRef) return undefined;
+    seekRef.current = (seconds) => {
+      const el = videoRef.current;
+      if (!el) return;
+      const t =
+        typeof seconds === "object" && seconds != null
+          ? Math.max(0, Number(seconds.seconds) || 0)
+          : Math.max(0, Number(seconds) || 0);
+      try {
+        el.currentTime = t;
+      } catch {
+        // ignore seek before metadata
+      }
+      userPausedRef.current = false;
+      el.play().catch(() => {});
+    };
+    return () => {
+      seekRef.current = null;
+    };
+  }, [seekRef]);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -770,6 +1073,7 @@ function MacProjectWindow({
   liveLink,
   isActive = false,
   warmMedia = false,
+  seekRef,
 }) {
   const isMobile = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
@@ -779,12 +1083,37 @@ function MacProjectWindow({
   const canCycleScreens = !hasVideo && screenshots.length > 1;
   // Auto-advance screenshots while this project is scrolled into view
   const shouldCycleScreens = canCycleScreens && isActive;
+  const pinnedShotRef = useRef(null);
+
+  useEffect(() => {
+    if (!seekRef || hasVideo) return undefined;
+    seekRef.current = (target) => {
+      const shot =
+        typeof target === "object" && target != null
+          ? Number(target.shot)
+          : Number(target);
+      if (!Number.isFinite(shot) || screenshots.length === 0) return;
+      const idx = Math.max(0, Math.min(screenshots.length - 1, Math.round(shot) - 1));
+      pinnedShotRef.current = idx;
+      setActiveImage(idx);
+    };
+    return () => {
+      seekRef.current = null;
+    };
+  }, [seekRef, hasVideo, screenshots.length]);
 
   useEffect(() => {
     if (!shouldCycleScreens) return undefined;
 
     const interval = window.setInterval(() => {
-      setActiveImage((current) => (current + 1) % screenshots.length);
+      setActiveImage((current) => {
+        if (pinnedShotRef.current != null) {
+          // Hold the jumped frame for one tick, then resume cycling.
+          pinnedShotRef.current = null;
+          return current;
+        }
+        return (current + 1) % screenshots.length;
+      });
     }, 1500);
 
     return () => window.clearInterval(interval);
@@ -792,7 +1121,10 @@ function MacProjectWindow({
 
   // Restart slideshow from the first frame when leaving / returning to a project
   useEffect(() => {
-    if (!isActive) setActiveImage(0);
+    if (!isActive) {
+      pinnedShotRef.current = null;
+      setActiveImage(0);
+    }
   }, [isActive]);
 
   // Prefetch frames through the optimizer so we never pull raw PNGs
@@ -842,6 +1174,7 @@ function MacProjectWindow({
             title={title}
             isActive={isActive}
             shouldPreload={shouldPreloadVideo}
+            seekRef={seekRef}
           />
         ) : (
           screenshots.map((src, index) => (
@@ -968,9 +1301,18 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const openDetails = useCallback(() => setDetailsOpen(true), []);
   const closeDetails = useCallback(() => setDetailsOpen(false), []);
+  const seekRef = useRef(null);
+  const [featurePulseKey, setFeaturePulseKey] = useState(0);
+  const onJumpToFeature = useCallback((target) => {
+    seekRef.current?.(target);
+  }, []);
+  const onJumpPulse = useCallback(() => {
+    setFeaturePulseKey((k) => k + 1);
+  }, []);
 
   useEffect(() => {
     setDetailsOpen(false);
+    setFeaturePulseKey(0);
   }, [project.title]);
 
   return (
@@ -982,13 +1324,6 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
       className="pointer-events-none absolute inset-0"
       aria-label={`${project.title} project`}
     >
-      <motion.span
-        style={{ y: numberY, scale: numberScale }}
-        className="absolute left-[calc(2.5vw+36px)] top-[3vh] z-30 hidden font-archivo-black text-[clamp(96px,18vw,320px)] leading-none tracking-tight text-current/25 md:block"
-      >
-        {project.number}
-      </motion.span>
-
       {/*
         Mobile: one column — image + tech, then copy directly underneath.
         Desktop: md:contents unwraps so screen/copy can sit in their absolute slots.
@@ -1004,19 +1339,45 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
       >
         <motion.div
           style={{ y: screenY, scale: screenScale }}
-          className={`w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%] pointer-events-none ${
+          className={`w-full md:absolute md:right-[3vw] md:top-[16vh] md:w-[50%] md:max-w-[700px] wide:max-w-[850px] pointer-events-none ${
             isActive ? "z-30" : "z-10"
           }`}
         >
-          <MacProjectWindow
-            screenshots={project.screenshots}
-            video={project.video}
-            title={project.title}
-            foreground={project.foreground}
-            liveLink={project.liveLink}
-            isActive={isActive}
-            warmMedia={warmMedia}
-          />
+          <div className="relative">
+            <AnimatePresence>
+              {featurePulseKey > 0 ? (
+                <motion.span
+                  key={featurePulseKey}
+                  aria-hidden
+                  className="pointer-events-none absolute z-0 rounded-[28px]"
+                  style={{
+                    inset: -14,
+                    backgroundColor: `${project.secondaryColor}66`,
+                    boxShadow: `0 0 48px ${project.secondaryColor}88`,
+                  }}
+                  initial={{ scale: 0.96, opacity: 0.85 }}
+                  animate={{ scale: 1.12, opacity: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  onAnimationComplete={() => {
+                    setFeaturePulseKey(0);
+                  }}
+                />
+              ) : null}
+            </AnimatePresence>
+            <div className="relative z-10">
+              <MacProjectWindow
+                screenshots={project.screenshots}
+                video={project.video}
+                title={project.title}
+                foreground={project.foreground}
+                liveLink={project.liveLink}
+                isActive={isActive}
+                warmMedia={warmMedia}
+                seekRef={seekRef}
+              />
+            </div>
+          </div>
           <TechTags
             items={project.tech ?? []}
             progress={progress}
@@ -1030,22 +1391,29 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
 
         <motion.div
           style={{ y: copyY }}
-          className="pointer-events-none z-40 mt-6 w-full pb-28 md:absolute md:bottom-[10vh] md:left-[calc(5vw+36px)] md:mt-0 md:w-[min(42vw,520px)] md:pb-0"
+          className="pointer-events-none z-40 mt-6 flex w-full flex-col pb-28 md:absolute md:top-[4vh] md:bottom-auto md:left-[calc(5vw+36px)] md:mt-0 md:w-[min(42vw,520px)] wide:w-[45%] md:pb-0"
         >
-          <motion.div
+          <motion.span
+            style={{ y: numberY, scale: numberScale }}
+            className="mb-3 hidden font-archivo-black text-[clamp(72px,20vw,220px)] leading-none tracking-tight text-current/20 md:block"
+          >
+            {project.number}
+          </motion.span>
+
+          {/* <motion.div
             style={{ y: metaYDelta }}
-            className="mb-4 flex items-center gap-4 font-gg-sans uppercase tracking-[0.22em] opacity-60"
+            className="mb-3 flex items-center gap-4 font-gg-sans uppercase tracking-[0.22em] opacity-60"
           >
             <span className="h-px w-10 bg-current opacity-40 font-bold" />
             <span className="font-bold">{project.type}</span>
-          </motion.div>
+          </motion.div> */}
 
           <motion.h3
             style={{
               y: titleYDelta,
               color: project.secondaryColor,
             }}
-            className="relative z-40 font-archivo-black text-[clamp(36px,7.5vw,110px)] leading-[0.88] tracking-tight"
+            className="relative z-40 font-archivo-black text-[clamp(36px,7.5vw,96px)] leading-[0.88] tracking-tight"
           >
             {project.title}
           </motion.h3>
@@ -1055,6 +1423,12 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
             y={descriptionYDelta}
             clampOnMobile={isMobile}
             onSeeMore={openDetails}
+            jumpToFeature={project.jumpToFeature}
+            onJump={onJumpToFeature}
+            linkColor={project.secondaryColor}
+            note={project.note}
+            testimonialLink={project.testimonialLink}
+            onJumpPulse={onJumpPulse}
           />
         </motion.div>
       </motion.div>
@@ -1066,6 +1440,12 @@ function ProjectBeat({ project, progress, index, isActive, warmMedia = false }) 
           title={project.title}
           description={project.description}
           tech={project.tech ?? []}
+          jumpToFeature={project.jumpToFeature}
+          onJump={onJumpToFeature}
+          linkColor={project.secondaryColor}
+          note={project.note}
+          testimonialLink={project.testimonialLink}
+          onJumpPulse={onJumpPulse}
         />
       ) : null}
     </motion.article>
@@ -1175,10 +1555,7 @@ function ProjectGalleryNav({
                     ) : null}
                   </span>
                   <span
-                    className={`hidden max-w-0 overflow-hidden whitespace-nowrap font-gg-sans text-[11px] uppercase tracking-[0.14em] transition-all duration-300 group-hover:max-w-36 sm:block ${
-                      isActive ? "max-w-36 opacity-90" : "opacity-0 group-hover:opacity-70"
-                    }`}
-                    style={{ color: isActive ? active.foreground : `${active.foreground}99` }}
+                    className="pointer-events-none hidden max-w-0 overflow-hidden whitespace-nowrap rounded-[6px] bg-black px-2.5 py-1 font-gg-sans text-[11px] uppercase tracking-[0.14em] text-white opacity-0 transition-all duration-300 group-hover:max-w-40 group-hover:opacity-100 sm:inline-block"
                   >
                     {project.title}
                   </span>
@@ -1194,7 +1571,7 @@ function ProjectGalleryNav({
       </motion.div>
       ) : null}
 
-      {/* Bottom transport bar — prev / current / next */}
+      {/* Bottom transport bar — prev / current / next
       <motion.div
         style={{ opacity, y, pointerEvents }}
         className="absolute bottom-5 left-1/2 z-60 flex w-[min(92vw,420px)] -translate-x-1/2 items-center gap-2 sm:bottom-7"
@@ -1234,7 +1611,7 @@ function ProjectGalleryNav({
         >
           <ChevronIcon direction="right" />
         </button>
-      </motion.div>
+      </motion.div> */}
     </>
   );
 }
@@ -1544,7 +1921,7 @@ export default function MyProjects({
               filter: subFilter,
               x: "-50%",
             }}
-            className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gg-sans text-[21px] font-medium leading-snug tracking-wide text-black/55 sm:text-[clamp(16px,1.5vw,38px)]"
+            className="absolute left-1/2 top-full mt-5 w-[min(92vw,48rem)] text-center font-gg-sans text-[21px] font-medium leading-snug tracking-wide text-black/55 sm:text-[clamp(20px,1.7vw,38px)]"
           >
             Scroll to see some of the stuff I&apos;ve worked on or helped build :)
           </motion.p>
@@ -1559,11 +1936,11 @@ export default function MyProjects({
           const spanLo = Math.min(progressIndex, activeProjectIndex);
           const spanHi = Math.max(progressIndex, activeProjectIndex);
           const mountLo = Math.max(0, spanLo - 1);
-          const mountHi = Math.min(PROJECT_COUNT - 1, spanHi + 2);
+          const mountHi = Math.min(PROJECT_COUNT - 1, spanHi + 1);
           const isMounted = index >= mountLo && index <= mountHi;
 
           if (!isMounted && galleryVisible) return null;
-          if (!galleryVisible && index > 1) return null;
+          if (!galleryVisible && index > 0) return null;
 
           const nearActive = Math.abs(index - activeProjectIndex) <= 1;
           const nearProgress = Math.abs(index - progressIndex) <= 1;

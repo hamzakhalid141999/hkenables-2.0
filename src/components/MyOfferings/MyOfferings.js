@@ -78,6 +78,19 @@ const GALLERY_END =
     PROJECTS_SCROLL_VH) /
   TOTAL_SCROLL_VH;
 
+/**
+ * Entrance inertia (desktop). Higher stiffness + damping / lower mass = less lag.
+ * - Heading horizontal slide → ENTRANCE_HEADING_SPRING
+ * - Heading fade-out → ENTRANCE_HEADING_FADE_SPRING (kept snappy so fast scroll clears it)
+ * - Section corner radius → ENTRANCE_RADIUS_SPRING
+ */
+const ENTRANCE_HEADING_SPRING = { stiffness: 160, damping: 42, mass: 0.35 };
+const ENTRANCE_HEADING_FADE_SPRING = { stiffness: 320, damping: 48, mass: 0.2 };
+const ENTRANCE_RADIUS_SPRING = { stiffness: 160, damping: 42, mass: 0.35 };
+/** Fade starts / finishes earlier in entrance progress so it clears on fast scroll. */
+const HEADING_FADE_START = 0.68;
+const HEADING_FADE_END = 0.92;
+
 // Pin progress phases (0→1 across the offerings portion only)
 const SAAS_CARD_END = 0.14;
 const SAAS_EXIT_END = 0.2;
@@ -176,14 +189,20 @@ function MyOfferingsDesktop() {
 
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [offeringBeat, setOfferingBeat] = useState(0);
-  /** Mobile: only mount offering beats near the current pin progress. */
-  const [mobileMount, setMobileMount] = useState({
+  /** Only mount offering beats near the current pin progress. */
+  const [cardMount, setCardMount] = useState({
     saas: true,
     fullstack: false,
     revamp: false,
   });
-  /** Mobile: don't mount MyProjects until the curtain is about to peel. */
+  /** Don't mount MyProjects until the curtain is about to peel. */
   const [projectsReady, setProjectsReady] = useState(false);
+  /**
+   * Unmount offerings chrome only AFTER the curtain peel has finished
+   * (into MY PROJECTS intro). Unmounting mid-peel snapped the panel back.
+   */
+  const [offeringsLive, setOfferingsLive] = useState(true);
+
 
   useLenis((lenis) => {
     lenisRef.current = lenis;
@@ -604,19 +623,35 @@ function MyOfferingsDesktop() {
     navApiRef.current.goPrev();
   }, []);
 
-  const entranceSpring = useSpring(entranceProgress, {
-    stiffness: 70,
-    damping: 28,
-    mass: 0.65,
-  });
-  // Mobile: skip entrance spring — one less continuous solver
-  const entranceDrive = isMobile ? entranceProgress : entranceSpring;
+  /**
+   * Entrance inertia — tweak ENTRANCE_*_SPRING / HEADING_FADE_* near the top of this file.
+   */
+  const headingEntranceSpring = useSpring(
+    entranceProgress,
+    ENTRANCE_HEADING_SPRING
+  );
+  const headingFadeSpring = useSpring(
+    entranceProgress,
+    ENTRANCE_HEADING_FADE_SPRING
+  );
+  const radiusEntranceSpring = useSpring(
+    entranceProgress,
+    ENTRANCE_RADIUS_SPRING
+  );
+  // Mobile: skip entrance springs — one less continuous solver
+  const headingDrive = isMobile ? entranceProgress : headingEntranceSpring;
+  const headingFadeDrive = isMobile ? entranceProgress : headingFadeSpring;
+  const radiusDrive = isMobile ? entranceProgress : radiusEntranceSpring;
 
-  const headingX = useTransform(entranceDrive, [0, 1], ["-48vw", "50vw"]);
-  const headingOpacity = useTransform(entranceDrive, [0.75, 1], [1, 0]);
+  const headingX = useTransform(headingDrive, [0, 1], ["-48vw", "50vw"]);
+  const headingOpacity = useTransform(
+    headingFadeDrive,
+    [HEADING_FADE_START, HEADING_FADE_END],
+    [1, 0]
+  );
 
   const topRadius = useTransform(
-    entranceDrive,
+    radiusDrive,
     [0, 1],
     [isMobile ? MOBILE_TOP_RADIUS : MAX_TOP_RADIUS, 0]
   );
@@ -668,20 +703,51 @@ function MyOfferingsDesktop() {
   });
 
   useMotionValueEvent(pinProgress, "change", (p) => {
-    if (!isMobile) return;
-    if (p >= layoutRef.current.offeringsEnd - 0.08) setProjectsReady(true);
+    const { offeringsEnd, curtainEnd, introEnd } = layoutRef.current;
+
+    // Mount projects under the curtain before peel starts; keep through gallery.
+    if (p >= offeringsEnd - 0.12) setProjectsReady(true);
+    else if (p < offeringsEnd - 0.28) setProjectsReady(false);
+
+    // Keep the offerings panel mounted for the entire curtain peel + intro
+    // (so the spring can finish and reverse scroll can slide it back).
+    // Only unmount once the project gallery has started — unmounting at
+    // curtainEnd was what snapped the panel mid-animation.
+    setOfferingsLive(p < introEnd);
+
+    if (isMobile) return;
+
+    const op =
+      offeringsEnd > 0 ? Math.min(1, Math.max(0, p / offeringsEnd)) : 0;
+    if (p >= curtainEnd - 0.01) return;
+
+    const next = {
+      saas: op < SAAS_COPY_EXIT_END + 0.1,
+      fullstack:
+        op > FULL_STACK_START - 0.12 && op < FULL_STACK_COPY_EXIT_END + 0.1,
+      revamp: op > REVAMP_START - 0.12,
+    };
+    setCardMount((prev) =>
+      prev.saas === next.saas &&
+      prev.fullstack === next.fullstack &&
+      prev.revamp === next.revamp
+        ? prev
+        : next
+    );
   });
 
   useEffect(() => {
-    if (!isMobile) {
-      setProjectsReady(true);
-      return undefined;
-    }
     setProjectsReady(false);
-    setMobileMount({ saas: true, fullstack: false, revamp: false });
+    setOfferingsLive(true);
+    setCardMount({ saas: true, fullstack: false, revamp: false });
     setOfferingBeat(0);
+
+    const p = pinProgress.get();
+    const { offeringsEnd, introEnd } = layoutRef.current;
+    if (p >= offeringsEnd - 0.12) setProjectsReady(true);
+    setOfferingsLive(p < introEnd);
     return undefined;
-  }, [isMobile]);
+  }, [isMobile, pinProgress]);
 
   const curtainSpring = useSpring(curtainProgress, {
     stiffness: 100,
@@ -702,9 +768,9 @@ function MyOfferingsDesktop() {
     ([top, right]) => `${top}px ${Math.max(top, right)}px ${right}px 0`
   );
 
-  const mountSaas = !isMobile || mobileMount.saas;
-  const mountFullStack = !isMobile || mobileMount.fullstack;
-  const mountRevamp = !isMobile || mobileMount.revamp;
+  const mountSaas = cardMount.saas;
+  const mountFullStack = cardMount.fullstack;
+  const mountRevamp = cardMount.revamp;
 
   const saasCardProgress = useTransform(pinDrive, [0, SAAS_CARD_END], [0, 1], {
     clamp: true,
@@ -848,9 +914,10 @@ function MyOfferingsDesktop() {
               onPrevProject={goToPrevProject}
             />
           ) : (
-            <div className="absolute inset-0 z-0 bg-white" aria-hidden />
+            <div className="absolute inset-0 z-0 bg-transparent" aria-hidden />
           )}
 
+          {offeringsLive ? (
           <motion.div
             className="pointer-events-none relative z-10 h-full w-full overflow-hidden bg-[#141414] will-change-transform"
             style={{
@@ -860,7 +927,11 @@ function MyOfferingsDesktop() {
           >
             <div className="relative z-10 overflow-hidden px-5 pt-14 sm:px-8 md:px-12 lg:px-16 md:pt-16">
               <motion.h2
-        style={isMobile ? { opacity: headingOpacity } : { x: headingX, opacity: headingOpacity }}
+                style={
+                  isMobile
+                    ? { opacity: headingOpacity }
+                    : { x: headingX, opacity: headingOpacity }
+                }
                 className="whitespace-nowrap font-ginto text-[clamp(28px,8vw,120px)] uppercase leading-none tracking-tight text-white/90"
               >
                 MY OFFERINGS
@@ -1014,6 +1085,7 @@ function MyOfferingsDesktop() {
               </>
             )}
           </motion.div>
+          ) : null}
         </div>
       </div>
     </section>
