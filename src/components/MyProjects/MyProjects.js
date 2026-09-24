@@ -441,7 +441,7 @@ function TechTagStatic({ name }) {
   );
 }
 
-const TECH_MOBILE_VISIBLE = 7;
+const TECH_MOBILE_VISIBLE = 12;
 
 function TechTags({
   items,
