@@ -58,13 +58,13 @@ function AboutMeMobile() {
       data-snap
       className="relative z-20 h-lvh min-h-[100lvh] w-full shrink-0 snap-start overflow-hidden bg-black"
     >
-      <div className="pointer-events-none absolute inset-0 grid grid-cols-8 opacity-50">
+      <div className="pointer-events-none absolute inset-0 grid grid-cols-5 opacity-50">
         <div className="absolute top-0 left-0 z-30 h-[50%] w-full bg-linear-to-b from-black to-transparent" />
         <div
           className="absolute bottom-0 left-0 z-30 h-[70%] w-full"
           style={{ backgroundImage: `linear-gradient(to bottom, transparent, ${ABOUT})` }}
         />
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
             className="h-full w-full border-r-[0.5px]"

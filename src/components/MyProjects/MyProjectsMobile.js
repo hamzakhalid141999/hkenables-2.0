@@ -7,6 +7,7 @@ import Image from "next/image";
 import {
   PROJECT_IMAGE_QUALITY,
   prefetchOptimizedImage,
+  prefetchVideo,
 } from "@/lib/optimizedImage";
 import {
   PROJECTS,
@@ -302,11 +303,28 @@ function MobileVideo({ src, title, active, seekRef }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (active) {
-      el.play().catch(() => {});
-    } else {
-      el.pause();
+    // Keep buffering even when the slide is off-screen.
+    el.preload = "auto";
+    try {
+      el.load();
+    } catch {
+      // ignore
     }
+  }, [src]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (active) {
+      const play = () => {
+        el.play().catch(() => {});
+      };
+      if (el.readyState >= 2) play();
+      else el.addEventListener("canplay", play, { once: true });
+      return () => el.removeEventListener("canplay", play);
+    }
+    el.pause();
+    return undefined;
   }, [active]);
 
   return (
@@ -318,7 +336,7 @@ function MobileVideo({ src, title, active, seekRef }) {
       loop
       playsInline
       controls={false}
-      preload={active ? "auto" : "metadata"}
+      preload="auto"
       aria-label={`${title} preview`}
     />
   );
@@ -716,6 +734,26 @@ export default function MyProjectsMobile() {
   const [featurePulseKey, setFeaturePulseKey] = useState(0);
   const projectSlidesRef = useRef(null);
   const seekRef = useRef(null);
+
+  // Buffer project MP4s while the user is still above this section.
+  useEffect(() => {
+    const run = () => {
+      PROJECTS.forEach((project) => {
+        if (project.video) prefetchVideo(project.video);
+      });
+    };
+    const idleId =
+      typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(run, { timeout: 400 })
+        : null;
+    const timeoutId = idleId == null ? window.setTimeout(run, 200) : null;
+    return () => {
+      if (idleId != null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, []);
 
   const onProjectActive = useCallback((index, isActive) => {
     setActiveIndex((current) => {

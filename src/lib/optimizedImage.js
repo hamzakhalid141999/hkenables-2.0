@@ -38,3 +38,33 @@ export function prefetchOptimizedImage(src, options) {
   img.decoding = "async";
   img.src = optimizedImageSrc(src, options);
 }
+
+const warmedVideos = new Set();
+
+/**
+ * Fully buffer a project MP4 into the HTTP / media cache so the on-screen
+ * player can start immediately when the user reaches that project.
+ */
+export function prefetchVideo(src) {
+  if (typeof window === "undefined" || !src || warmedVideos.has(src)) return;
+  warmedVideos.add(src);
+
+  const link = document.createElement("link");
+  link.rel = "preload";
+  link.as = "video";
+  link.href = src;
+  link.type = "video/mp4";
+  document.head.appendChild(link);
+
+  const video = document.createElement("video");
+  video.preload = "auto";
+  video.muted = true;
+  video.playsInline = true;
+  video.setAttribute("playsinline", "");
+  video.src = src;
+  try {
+    video.load();
+  } catch {
+    // ignore
+  }
+}

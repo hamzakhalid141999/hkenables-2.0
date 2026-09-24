@@ -17,9 +17,10 @@ import FullStackBuildCard from "./FullStackBuildCard";
 import FullStackOfferCopy from "./FullStackOfferCopy";
 import WebsiteRevampBuildCard from "./WebsiteRevampBuildCard";
 import WebsiteRevampOfferCopy from "./WebsiteRevampOfferCopy";
-import MyProjects, { PROJECT_COUNT } from "@/components/MyProjects/MyProjects";
+import MyProjects, { PROJECT_COUNT, PROJECTS } from "@/components/MyProjects/MyProjects";
 import { useIsMobile, useHasMounted } from "@/hooks/useIsMobile";
 import MyOfferingsMobile from "./MyOfferingsMobile";
+import { prefetchVideo } from "@/lib/optimizedImage";
 
 /** Duration (s) of the programmatic snap scroll animation. */
 const SNAP_DURATION = 0.78;
@@ -169,6 +170,26 @@ function MyOfferingsDesktop() {
     target: trackRef,
     offset: ["start start", "end end"],
   });
+
+  // Start MP4 downloads during offerings so projects open without a stall.
+  useEffect(() => {
+    const run = () => {
+      PROJECTS.forEach((project) => {
+        if (project.video) prefetchVideo(project.video);
+      });
+    };
+    const idleId =
+      typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(run, { timeout: 500 })
+        : null;
+    const timeoutId = idleId == null ? window.setTimeout(run, 250) : null;
+    return () => {
+      if (idleId != null && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+    };
+  }, []);
 
   const pinProgressRef = useRef(0);
   useMotionValueEvent(pinProgress, "change", (value) => {

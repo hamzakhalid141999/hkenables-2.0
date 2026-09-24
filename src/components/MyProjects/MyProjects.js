@@ -13,6 +13,7 @@ import Image from "next/image";
 import {
   PROJECT_IMAGE_QUALITY,
   prefetchOptimizedImage,
+  prefetchVideo,
 } from "@/lib/optimizedImage";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MagneticHotspot } from "@/components/MyOfferings/MagneticLink";
@@ -118,7 +119,7 @@ export const PROJECTS = [
     tech: ["React", "MongoDB", "AWS", "Terraform", "NestJS"],
     screenshots: Array.from(
       { length: 22 },
-      (_, i) => `/projects-screenshots/e-${i + 1}.png`
+      (_, i) => `/projects-screenshots/e-${i + 1}.webp`
     ),
   },
   {
@@ -167,7 +168,7 @@ export const PROJECTS = [
     ],
     screenshots: Array.from(
       { length: 15 },
-      (_, i) => `/projects-screenshots/rbl-${i + 1}.png`
+      (_, i) => `/projects-screenshots/rbl-${i + 1}.webp`
     ),
   },
   {
@@ -184,7 +185,7 @@ export const PROJECTS = [
     tech: ["JavaScript", "Next.js", "AWS", "MetaMask", "The Graph"],
     screenshots: Array.from(
       { length: 9 },
-      (_, i) => `/projects-screenshots/fb-${i + 1}.png`
+      (_, i) => `/projects-screenshots/fb-${i + 1}.webp`
     ),
   },
   {
@@ -202,7 +203,7 @@ export const PROJECTS = [
     tech: ["TypeScript", "Next.js", "AWS"],
     screenshots: Array.from(
       { length: 12 },
-      (_, i) => `/projects-screenshots/fn-${i + 1}.png`
+      (_, i) => `/projects-screenshots/fn-${i + 1}.webp`
     ),
   },
   {
@@ -219,7 +220,7 @@ export const PROJECTS = [
     tech: ["JavaScript", "Next.js", "AWS", "MetaMask", "The Graph"],
     screenshots: Array.from(
       { length: 6 },
-      (_, i) => `/projects-screenshots/iv-${i + 1}.png`
+      (_, i) => `/projects-screenshots/iv-${i + 1}.webp`
     ),
   },
 ];
@@ -910,9 +911,11 @@ const PROJECT_COVER_SHOTS = PROJECTS.map(
   (project) => project.screenshots?.[0]
 ).filter(Boolean);
 
+const PROJECT_VIDEOS = PROJECTS.map((project) => project.video).filter(Boolean);
+
 /**
- * Warm cover screenshots via Next's optimizer (not raw PNGs).
- * Full hover sets warm when each Mac window mounts.
+ * Warm cover screenshots + project videos via the network cache so the
+ * gallery player does not stall 3–4s on first view.
  */
 function useProjectMediaWarmup(enabled) {
   const startedRef = useRef(false);
@@ -922,14 +925,17 @@ function useProjectMediaWarmup(enabled) {
     startedRef.current = true;
 
     const run = () => {
+      // Videos first — largest, and what users wait on.
+      PROJECT_VIDEOS.forEach((src) => prefetchVideo(src));
       PROJECT_COVER_SHOTS.forEach((src) => prefetchOptimizedImage(src));
     };
 
+    // Start immediately; idle callback only as a soft deferral on busy CPUs.
     const idleId =
       typeof window.requestIdleCallback === "function"
-        ? window.requestIdleCallback(run, { timeout: 1800 })
+        ? window.requestIdleCallback(run, { timeout: 400 })
         : null;
-    const timeoutId = idleId == null ? window.setTimeout(run, 900) : null;
+    const timeoutId = idleId == null ? window.setTimeout(run, 200) : null;
 
     return () => {
       if (idleId != null && typeof window.cancelIdleCallback === "function") {
@@ -1647,8 +1653,8 @@ export default function MyProjects({
   useProjectMediaWarmup(warmMedia);
 
   useEffect(() => {
-    // Kick off early so hero/about/offerings scroll time is used for downloads
-    const kickoff = window.setTimeout(() => setWarmMedia(true), 1200);
+    // Start while the user is still on hero/about so MP4s finish before projects.
+    const kickoff = window.setTimeout(() => setWarmMedia(true), 400);
     return () => window.clearTimeout(kickoff);
   }, []);
 
