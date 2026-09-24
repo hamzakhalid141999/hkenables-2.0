@@ -700,10 +700,10 @@ function ProjectSnapCard({
         </div>
 
         <div className="mt-8">
-          <div className="mb-3 flex items-center gap-4 font-gg-sans uppercase tracking-[0.22em] opacity-60">
+          {/* <div className="mb-3 flex items-center gap-4 font-gg-sans uppercase tracking-[0.22em] opacity-60">
             <span className="h-px w-10 bg-current opacity-40" />
             <span className="font-bold">{project.type}</span>
-          </div>
+          </div> */}
           <h3
             className="font-archivo-black text-[clamp(36px,9vw,64px)] leading-[0.88] tracking-tight"
             style={{ color: project.secondaryColor }}
