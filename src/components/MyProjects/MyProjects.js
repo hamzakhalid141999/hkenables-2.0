@@ -143,36 +143,36 @@ export const PROJECTS = [
     tech: ["React", "FastAPI", "Anthropic"],
     video: "/projects-screenshots/hns-audit.mp4",
   },
+  // {
+  //   number: "04",
+  //   title: "Redbook",
+  //   type: "Certified Listings Platform",
+  //   liveLink: "https://www.redbooklive.com/",
+  //   description:
+  //     "Redbook is an eco-system of 3 apps. RedBookLive delivers instant, up-to-date verification of LPCB-certified products and services - online and via PDF.\n\nSolo developed Azure AD B2C single sign-on used across 10+ BRE applications, including Redbook, and contributed to the admin portal.\nPresently working on enhancements in the existing system and supporting DevOps issues",
+  //   note: "Via Cielo Costa",
+  //   primaryColor: "#141535",
+  //   secondaryColor: "#DC0043",
+  //   foreground: "#FFFFFF",
+  //   textColor: "#FFFFFF",
+  //   tech: [
+  //     "Next.js",
+  //     "React",
+  //     "NestJS",
+  //     "PostgreSQL",
+  //     "Azure AD B2C",
+  //     "Azure App Service",
+  //     "Azure Front Door",
+  //     "Azure Storage",
+  //     "Strapi",
+  //   ],
+  //   screenshots: Array.from(
+  //     { length: 15 },
+  //     (_, i) => `/projects-screenshots/rbl-${i + 1}.webp`
+  //   ),
+  // },
   {
     number: "04",
-    title: "Redbook",
-    type: "Certified Listings Platform",
-    liveLink: "https://www.redbooklive.com/",
-    description:
-      "Redbook is an eco-system of 3 apps. RedBookLive delivers instant, up-to-date verification of LPCB-certified products and services - online and via PDF.\n\nSolo developed Azure AD B2C single sign-on used across 10+ BRE applications, including Redbook, and contributed to the admin portal.\nPresently working on enhancements in the existing system and supporting DevOps issues",
-    note: "Via Cielo Costa",
-    primaryColor: "#141535",
-    secondaryColor: "#DC0043",
-    foreground: "#FFFFFF",
-    textColor: "#FFFFFF",
-    tech: [
-      "Next.js",
-      "React",
-      "NestJS",
-      "PostgreSQL",
-      "Azure AD B2C",
-      "Azure App Service",
-      "Azure Front Door",
-      "Azure Storage",
-      "Strapi",
-    ],
-    screenshots: Array.from(
-      { length: 15 },
-      (_, i) => `/projects-screenshots/rbl-${i + 1}.webp`
-    ),
-  },
-  {
-    number: "05",
     title: "FARBE",
     type: "NFT Marketplace",
     description:
@@ -189,7 +189,7 @@ export const PROJECTS = [
     ),
   },
   {
-    number: "06",
+    number: "05",
     title: "Facing North",
     type: "Travel Agency",
     liveLink: "https://facing-north-dev.vercel.app/",
@@ -207,7 +207,7 @@ export const PROJECTS = [
     ),
   },
   {
-    number: "07",
+    number: "06",
     title: "Isekaiverse",
     type: "Anime Web3 Ecosystem",
     description:
