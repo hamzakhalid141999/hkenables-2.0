@@ -122,27 +122,27 @@ export const PROJECTS = [
       (_, i) => `/projects-screenshots/e-${i + 1}.webp`
     ),
   },
-  {
-    number: "03",
-    title: "H&SAuditor",
-    type: "AI Health & Safety Auditor",
-    description:
-      "An AI-powered health and safety auditor that flags risks from site video and photos, then generates a detailed Excel report with recommendations.\n\nWorked on:\n- Upload your own questions to be answered after an audit runs for a site\n\n- Choose between multiple AI models and control how many tokens to spend\n\n- Leave the processing screen while it runs in the backend and view the audit history\n\n- AI findings for uploaded site video and photos - Bounding boxes show exactly where each issue is identified\n\n- Generates actions based on the risks identified to mitigate the issue",
-    jumpToFeature: [
-      { label: "Upload your own questions", time: "0:22" },
-      { label: "multiple AI models", time: "0:28" },
-      { label: "audit history", time: "0:40" },
-      { label: "Bounding boxes", time: "1:16" },
-      { label: "Generates actions", time: "1:36" },
-    ],
-    primaryColor: "#192222",
-    secondaryColor: "#17FFC6",
-    foreground: "#111111",
-    textColor: "#FFFFFF",
-    // meshColor: "#FFFFFF", // optional — grid line tint; defaults to white
-    tech: ["React", "FastAPI", "Anthropic"],
-    video: "/projects-screenshots/hns-audit.mp4",
-  },
+  // {
+  //   number: "03",
+  //   title: "H&SAuditor",
+  //   type: "AI Health & Safety Auditor",
+  //   description:
+  //     "An AI-powered health and safety auditor that flags risks from site video and photos, then generates a detailed Excel report with recommendations.\n\nWorked on:\n- Upload your own questions to be answered after an audit runs for a site\n\n- Choose between multiple AI models and control how many tokens to spend\n\n- Leave the processing screen while it runs in the backend and view the audit history\n\n- AI findings for uploaded site video and photos - Bounding boxes show exactly where each issue is identified\n\n- Generates actions based on the risks identified to mitigate the issue",
+  //   jumpToFeature: [
+  //     { label: "Upload your own questions", time: "0:22" },
+  //     { label: "multiple AI models", time: "0:28" },
+  //     { label: "audit history", time: "0:40" },
+  //     { label: "Bounding boxes", time: "1:16" },
+  //     { label: "Generates actions", time: "1:36" },
+  //   ],
+  //   primaryColor: "#192222",
+  //   secondaryColor: "#17FFC6",
+  //   foreground: "#111111",
+  //   textColor: "#FFFFFF",
+  //   // meshColor: "#FFFFFF", // optional — grid line tint; defaults to white
+  //   tech: ["React", "FastAPI", "Anthropic"],
+  //   video: "/projects-screenshots/hns-audit.mp4",
+  // },
   // {
   //   number: "04",
   //   title: "Redbook",
@@ -172,7 +172,7 @@ export const PROJECTS = [
   //   ),
   // },
   {
-    number: "04",
+    number: "03",
     title: "FARBE",
     type: "NFT Marketplace",
     description:
@@ -189,7 +189,7 @@ export const PROJECTS = [
     ),
   },
   {
-    number: "05",
+    number: "04",
     title: "Facing North",
     type: "Travel Agency",
     liveLink: "https://facing-north-dev.vercel.app/",
@@ -207,7 +207,7 @@ export const PROJECTS = [
     ),
   },
   {
-    number: "06",
+    number: "05",
     title: "Isekaiverse",
     type: "Anime Web3 Ecosystem",
     description:
